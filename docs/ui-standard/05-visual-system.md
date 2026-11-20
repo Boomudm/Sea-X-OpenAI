@@ -128,7 +128,7 @@ Portable rules for colour meaning, density/typography and layout. Each rule is o
 
 ### C1. Structure
 
-- One view = one job. Top-level tabs: at most 6, short words. Then an optional sub-view segmented control, then content. Never mix unrelated jobs into one place just because they share data.
+- One view = one job. Top-level tabs use short words; how many is the call of whoever leads the UI work. Then an optional sub-view segmented control, then content. Never mix unrelated jobs into one place just because they share data.
   Why: four independent groups stacked on one page forced several screens of scrolling to find one.
 - No long multi-segment scroll pages. A "jump to" chip row, anchors or a table of contents do NOT fix it; they decorate it. Split independent segments into sub-views or master-detail (list left, selected segment right).
   Why: a long stacked tab was rejected even with jump links.
