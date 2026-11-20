@@ -12,6 +12,7 @@ what to apply to their project; where a rule does not fit, adapt it and say so.
 - Read **04 and 11** before showing anything to the user.
 - Read **10** when changing a field or feature that appears on several screens.
 - Read **02 and 03** when planning how to verify and which states a surface must ship.
+- Read **12** for general UX gaps (onboarding, forms, messages, undo).
 
 ## File index
 
@@ -28,6 +29,7 @@ what to apply to their project; where a rule does not fit, adapt it and say so.
 | `09-motion.md` | Crisp inline SVG animation, full-viewport vector art, live re-sorting lists, verification traps. |
 | `10-feature-completeness.md` | Trace the whole slice, one route one writer, per-row results, controls that narrow or claim, shared displays, parity when replacing a surface, proof before "complete". |
 | `11-mistakes-ledger.md` | The ledger of caught mistakes by area (text/numbers, colour, layout, flows, charts, copy, data, process, rejected anti-patterns), each with its rule and a check. |
+| `12-ux-baseline.md` | A general UX baseline from common practice, NOT the user's own lessons (files 01-11 win on any difference): onboarding, forms, error/empty/success wording, undo, latency feedback, wayfinding, accessibility, responsive input, perceived performance. |
 
 ## Tier legend
 
