@@ -34,6 +34,9 @@ A single hit on a rejected pattern means redesign first, not "approve with a not
    other table opens the detail on row click. Inline controls in a row (switch, link, button, menu, input) never
    select the row.
    Why: the user clicked a row and nothing happened; clicking charts and headers did not open the design's modal.
+   [MUST] Click every entity name, id, count, tile and chart mark on the screen: each opens its detail or filtered
+   list, unasked wiring included; any plain-text entity reference is a defect.
+   Why: a modal listed people with no link to their detail and the user had to search by hand.
 5. [MUST] Both themes, with contrast. Text at least 4.5:1 and UI components/focus rings at least 3:1 (opaque status surfaces in both
    themes); check dark explicitly and look at light and dark shots of the same state as a pair. Disabled controls
    stay readable. No translucent surfaces that show page art through. A fix to contrast is measured by computed

@@ -98,6 +98,7 @@ Conventions:
 | UI-M-51 | A rail card squeezed to a title stub, because a tall sibling took the row. | The second card gets a minimum usable row height and the first tightens at short heights. | Check every rail at the shortest supported height. |
 | UI-M-52 | The point of a form below the fold: a form's live preview sat at the bottom of the column and only 85 px showed. | A form's live preview is visible on open at the reference size. A scrolled modal body fades its top edge instead of hard-cutting a field. | Compare the preview's rect with the footer's top on open. |
 | UI-M-53 | The selection bar wraps: two selected rows grew the bar to 93 px and pushed the table down. | The selection bar replaces the toolbar at the same height. Overflow actions fold into an anchored overflow menu. | Compare bar height with toolbar height. |
+| UI-M-107 | An entity name shown as plain text: a modal listed people with no link to their detail, so the user had to search by hand; the audit brief had no drill-through category so no reviewer saw it. | Wire every entity reference, count and chart mark to its detail or list without being asked. | Click every entity reference on every surface; the audit brief carries a drill-through line. |
 
 ## Menus, modals and flows
 

@@ -137,10 +137,17 @@ Every write follows this order:
 
 ---
 
-## 6. Drill-through and consistency
+## 6. Click wiring by default (drill-through) and consistency
 
-- Every entity reference (customer name, username, id; order; product; account) in any list, modal, ledger, funnel or chart result is a link opening that entity's detail view. Plain text is a defect. [MUST] Why: a modal listing customers with no link forced manual searching. Every QoL audit brief and UI task carries a "drill-through" line.
-- Clicking a chart bar, segment, tile or cell opens the matching list or modal, and the count in the list equals the figure it came from. Why: a clickable chart that stops partway looked broken.
+Wire the obvious click action without being asked. The user should never have to request a link. Every QoL audit brief and UI task carries a "drill-through" line. Why: a modal listing people with no link forced manual searching, and the audit brief had no drill-through category, so no reviewer could see the gap. Inventory of what is wired by default:
+
+- **[MUST]** Entity names and ids (username, customer, order, product, account, any record) in any list, modal, ledger, funnel or result open that entity's detail view, the same one the main list opens; in a split layout it opens in the pane, otherwise in a modal; deep-linkable. Plain text is a defect; staff/author names are not entities to link. A table with a batch action keeps row-body click for selection and the name link opens the detail (row-click ruling by table type, above).
+- **[MUST]** Counts, badges, summary tiles and any number that sums several sources open the matching filtered list or breakdown, and the count in that list equals the figure it came from. Why: a clickable chart that stops partway looked broken.
+- **[MUST]** Chart marks (bar, segment, cell, point) open the matching list or modal.
+- **[MUST]** The whole header cell or whole control is the hit area, not only its label. Why: heatmap and header cells hit only on their text.
+- **[MUST]** Every clickable thing shows it: pointer cursor, hover reaction, keyboard focus, accessible name. Non-clickable things do not look clickable.
+- **[MUST]** A nested link inside a clickable row does its own action and never triggers the row.
+
 - When one chart or card family has the interaction, sweep every sibling in the same family for the same gap in the same pass. [MUST] Why: fixing one chart and listing the other five as questions wasted a round.
 - One component per pattern across tabs and pages: one metric tile, one pill, one chip, one filter-row layout, one product label. Why: parallel authors drifted into four dialects.
 - Every product (or similarly-named entity) list shows its disambiguating category beside the name, because names repeat across categories. Why: same-named items from different categories were indistinguishable.

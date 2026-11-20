@@ -84,7 +84,7 @@ and say so:
    status colours (05, 08).
 7. **Compact layout.** Dense, aligned, no stretched label/value rows, no wasted height, nothing
    clipped or overflowing (05, 11).
-8. **Every entity name drills through** to its detail, consistently across screens (06).
+8. **Every entity name, count and chart mark is clickable** to its detail, wired without being asked (06).
 9. **Plain words, no debug text.** Clear English, units on numbers, no internal identifiers or
    developer wording in the UI (07).
 10. **Prove UI in a real browser,** with the real data shape, before saying "done"; the screenshot

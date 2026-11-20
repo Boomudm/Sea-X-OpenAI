@@ -85,11 +85,8 @@ by hand. Format: rule, then "Why:" naming the defect it prevents. Process rules 
 - [MUST] Counts must equal what they summarise: prove every modal or drill-through total against the figure it
   came from.
   Why: a drill-through list that disagrees with its bar destroys trust in both.
-- [MUST] Every entity reference (customer, order, product, account) in a list, modal, ledger or result is a
-  drill-through link that opens the same detail view the main lists use. Plain text is a defect. Every QoL audit
-  brief and every UI packet carries a "drill-through" line. (Author names of staff are not customers.)
-  Why: a list with dead names forced a manual search; the audit brief had nine categories and none was
-  drill-through, so no reviewer could see it.
+- [MUST] Every entity reference is a drill-through link to its detail, wired without being asked; plain text is a defect.
+  Why: a list with dead names forced a manual search; see 06 section 6.
 - [MUST] A shared component is fixed in the shared code, not in one caller.
   Why: a row-click fix landed in one table while the shared table kept the old rule.
 
