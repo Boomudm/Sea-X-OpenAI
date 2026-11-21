@@ -496,6 +496,7 @@ def test_combined_cli_handles_u2_claims_and_preserves_review_evidence(
                          visible_text=f"{confirmation_gb} GB verified")]},
     )
 
+    monkeypatch.chdir(tmp_path)
     with ReviewCache(tmp_path / "cache.sqlite3") as cache:
         def process(path, **kwargs):
             return process_listing_file(path, client=client, cache=cache, **kwargs)

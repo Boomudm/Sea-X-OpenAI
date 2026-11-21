@@ -27,6 +27,7 @@ from .models import (
     ReviewDraft,
     ReviewDraftBatch,
 )
+from .paths import listing_filename, within_directory, write_json
 from .prompts import (
     CLAIMS_DEVELOPER,
     CONFIDENCE_DEVELOPER,
@@ -216,6 +217,10 @@ def process_listing_file(
 ) -> tuple[Path, Path]:
     path = Path(listing_path)
     listing = _listing(json.loads(path.read_text(encoding="utf-8")))
+    filename = listing_filename(listing.listing_id)
+    root = Path(output_root).resolve()
+    claims_path = within_directory("claims", root) / filename
+    findings_path = within_directory("findings", root) / filename
     reader = client or OpenAIReaderClient(project_root=Path.cwd())
     claims = extract_claims(listing, client=reader)
     text_findings = read_reviews(listing, client=reader, cache=cache)
@@ -241,24 +246,10 @@ def process_listing_file(
             )
         findings = list(merged_findings.values())
 
-    root = Path(output_root)
-    claims_path = root / "claims" / f"{listing.listing_id}.json"
-    findings_path = root / "findings" / f"{listing.listing_id}.json"
     claims_path.parent.mkdir(parents=True, exist_ok=True)
     findings_path.parent.mkdir(parents=True, exist_ok=True)
-    claims_path.write_text(
-        json.dumps(claims.model_dump(mode="json"), ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    findings_path.write_text(
-        json.dumps(
-            [item.model_dump(mode="json") for item in findings],
-            ensure_ascii=False,
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    write_json(claims_path, claims.model_dump(mode="json"))
+    write_json(findings_path, [item.model_dump(mode="json") for item in findings])
     return claims_path, findings_path
 
 

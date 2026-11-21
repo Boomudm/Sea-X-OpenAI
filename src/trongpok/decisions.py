@@ -20,9 +20,9 @@ def save_decision(
         raise ValueError("Decision must be 'accepted' or 'dismissed'.")
 
     timestamp = datetime.now(UTC).isoformat() if at is None else at
-    path = Path(db_path)
+    path = Path(db_path).resolve()
     path.parent.mkdir(parents=True, exist_ok=True)
-    with closing(sqlite3.connect(path)) as connection, connection:
+    with closing(sqlite3.connect(path, uri=False)) as connection, connection:
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS reviewer_decisions (
@@ -55,11 +55,13 @@ def load_decision(
     option_id: str,
 ) -> dict[str, str] | None:
     """Return the saved decision for one option, if there is one."""
-    path = Path(db_path)
+    path = Path(db_path).resolve()
     if not path.exists():
         return None
 
-    with closing(sqlite3.connect(path)) as connection:
+    # Encode the filename before adding the fixed read-only SQLite URI option.
+    database_uri = path.as_uri() + "?mode=ro"
+    with closing(sqlite3.connect(database_uri, uri=True)) as connection:
         connection.row_factory = sqlite3.Row
         initialized = connection.execute(
             "SELECT 1 FROM sqlite_schema WHERE type = 'table' AND name = 'reviewer_decisions'"

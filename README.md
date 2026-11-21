@@ -23,7 +23,9 @@ uv run trongpok-analyze
 The command reads `data/listings/*.json` and `data/kb/kb.json`. For each listing ID,
 it uses any matching JSON in `out/claims/` and `out/findings/` and writes
 `out/flags/<listing_id>.json`. Pass an individual listing path to run just that
-listing. See `uv run trongpok-analyze --help` for directory overrides.
+listing. See `uv run trongpok-analyze --help` for directory overrides. Run the
+CLI from the project root and keep generated reports and the reviewer database
+inside that directory.
 
 U4 can sort flags across listings using `trongpok.rules.queue_key` and call
 `trongpok.decisions.save_decision` and `load_decision` with the same SQLite path
