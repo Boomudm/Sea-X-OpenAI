@@ -1,9 +1,9 @@
 [project]
 name = "trongpok"
 version = "0.1.0"
-description = "Checkable LLM readers for the Trongpok review queue"
+description = "Evidence-based review queue for storage listing options"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "openai>=2.8.0,<3",
     "pydantic>=2.9.0,<3",
@@ -11,6 +11,7 @@ dependencies = [
 
 [project.scripts]
 trongpok-read = "trongpok.cli:main"
+trongpok-analyze = "trongpok.__main__:main"
 
 [dependency-groups]
 dev = [

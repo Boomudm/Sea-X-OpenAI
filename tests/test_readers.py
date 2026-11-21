@@ -463,3 +463,72 @@ def test_image_path_cannot_escape_captured_listing_root(tmp_path: Path) -> None:
             user_text="{}",
             image_refs=[str(secret)],
         )
+
+
+@pytest.mark.parametrize("confirmation_gb", [29, 30])
+@pytest.mark.parametrize("reader_mode", ["combined", "standalone"])
+def test_cli_handles_u2_claims_and_preserves_review_evidence(
+    tmp_path, monkeypatch, confirmation_gb, reader_mode,
+):
+    from trongpok import __main__ as analyze
+    from trongpok import cli as reader_cli
+
+    raw = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+    image_ref = "data/listings/fixture-hero-64gb/images/fixture-result.png"
+    raw["reviews"] = raw["reviews"][:2]
+    raw["reviews"][0]["images"] = [image_ref]
+    source = tmp_path / "listing.json"
+    source.write_text(json.dumps(raw), encoding="utf-8")
+    first_image = {
+        "image_ref": image_ref,
+        "review_id": "fixture-review-29-a",
+        "option_id": "fixture-option-64",
+        "image_type": "completed H2testw/F3",
+        "quantity": 29,
+        "unit": "GB",
+        "role": "test result",
+        "visible_text": "29 GB verified",
+        "read_status": "ok",
+    }
+    client = ScriptedReader(
+        {"options": [{"option_id": "fixture-option-64", "promise_gb": 64,
+                      "capacity_unclear": False}]},
+        {"findings": hero_review_batch()["findings"][:2]},
+        {"images": [first_image]},
+        {"images": [dict(first_image, quantity=confirmation_gb,
+                         visible_text=f"{confirmation_gb} GB verified")]},
+    )
+
+    monkeypatch.chdir(tmp_path)
+    with ReviewCache(tmp_path / "cache.sqlite3") as cache:
+        def process(path, **kwargs):
+            return process_listing_file(path, client=client, cache=cache, **kwargs)
+
+        monkeypatch.setattr(analyze, "process_listing_file", process)
+        reader_args = ["--read", "--reader-output-root", str(tmp_path)]
+        if reader_mode == "standalone":
+            monkeypatch.setattr(reader_cli, "process_listing_file", process)
+            monkeypatch.setattr("sys.argv", [
+                "trongpok-read", str(source), "--output-root", str(tmp_path),
+            ])
+            reader_cli.main()
+            reader_args = ["--claims-dir", "claims", "--findings-dir", "findings"]
+        monkeypatch.setattr("sys.argv", [
+            "trongpok-analyze", str(source), *reader_args,
+            "--output-dir", str(tmp_path / "flags"),
+            "--kb", str(tmp_path / "absent-kb.json"),
+            "--decisions-db", str(tmp_path / "decisions.sqlite3"),
+        ])
+        analyze.main()
+
+    listing_id = raw["listing_id"]
+    findings = json.loads((tmp_path / "findings" / f"{listing_id}.json").read_text())
+    flag, = json.loads((tmp_path / "flags" / f"{listing_id}.json").read_text())
+    image_findings = [finding for finding in findings if finding["image_ref"] == image_ref]
+    assert len(image_findings) == (2 if confirmation_gb == 29 else 1)
+    if confirmation_gb != 29:
+        assert image_findings[0]["bytes"] is None
+    assert (flag["colour"], flag["deciding"]) == ("RED", "Q3")
+    assert {item["quote"] for item in flag["evidence"] if item["source"] == "review"} >= {
+        "only 29 GB"
+    }

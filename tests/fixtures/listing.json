@@ -1,0 +1,65 @@
+{
+  "listing_id": "fixture-listing",
+  "url": "https://example.invalid/fixture/storage",
+  "captured_at": "2026-11-21T10:00:00+07:00",
+  "title": "Synthetic test fixture: Fixture Brand USB flash drive",
+  "spec_text": "Fixture Line, 64 GB",
+  "description": "Synthetic test fixture. These are not marketplace observations.",
+  "listing_images": [],
+  "options": [
+    {
+      "option_id": "fixture-64",
+      "variation_label": "64 GB",
+      "capacity_text": "64 GB",
+      "promise_gb": 64,
+      "was_thb": 399,
+      "now_thb": 349
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "fixture-review-1",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "buyer-1***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "Only 29 GB on mine",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "fixture-review-2",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "buyer-2***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "I received only 30.5 GB",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "fixture-review-3",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "buyer-3***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "My drive holds just 29 GB",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "fixture-review-4",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "buyer-4***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "Only 30.5 GB received",
+      "tags": [],
+      "images": []
+    }
+  ]
+}
