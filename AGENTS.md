@@ -83,7 +83,7 @@ Source: official event page https://luma.com/39zve8ph (read 20 Nov 2026) and the
 4. **Full autonomy is not required.** The AI does many small, checkable decisions; a person makes the final call.
 5. **Evidence, not guesses:** every flag shows the quotes, numbers and sources behind it.
 6. **Do not claim "nobody does this".** Shopee may have internal checks we cannot see.
-7. **Data access:** Shopee pages resist bots, so people copy listings by hand. Do not build a scraper.
+7. **Data access:** live retrieval only on a user's own request (for example a pasted link or pasted review text), at normal browsing volume. Never bypass login walls, CAPTCHA or other access controls. Prefer captured or pasted data for the demo; live Shopee pages often block automated browsers.
 
 **One-sentence pitch:** "For every option of a storage listing, we turn buyers' own measured numbers into one review-priority colour with the quotes, the rule path and a confidence score, so a reviewer sees in seconds what stars and price hide."
 
