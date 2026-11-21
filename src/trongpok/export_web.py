@@ -1,11 +1,12 @@
 """Publish the pipeline's local option reports for the Seller Guard browser demo."""
 
 import argparse
+import re
 from collections.abc import Callable
 from functools import cache
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import NotRequired, TypedDict
+from typing import Literal, NotRequired, TypedDict
 from urllib.parse import quote, urlsplit
 
 from pydantic import TypeAdapter, ValidationError
@@ -23,6 +24,29 @@ PRIORITY = {"RED": "red", "YELLOW": "yellow", "GREEN": "green", "GREY": "unknown
 SIGNAL = {"Q3": "capacity", "Q2": "unsupported", "Q1": "price", "Q4": "reports", "Q5": "clear"}
 _FLAGS = TypeAdapter(list[Flag])
 ImageLink = Callable[[str], str | None]
+_LISTING_PATH = re.compile(r"/(?:product/([0-9]+)/[0-9]+|[^/\\\s]+-i\.([0-9]+)\.[0-9]+)/?")
+_SHOPEE_HOSTS = {"shopee.co.th", "www.shopee.co.th"}
+_REDACTED_WORDS = re.compile(r"\b(?:fake|fraud)\b", re.IGNORECASE | re.ASCII)
+
+type ShopBadge = Literal["mall", "preferred", "none"]
+
+
+class _CapturedShop(TypedDict):
+    shop_id: str
+    name: NotRequired[str | None]
+    badge: NotRequired[ShopBadge | None]
+    ships_from: NotRequired[str | None]
+
+
+_SHOPS = TypeAdapter(list[_CapturedShop])
+
+
+class WebShop(TypedDict):
+    id: str | None
+    name: str
+    url: str | None
+    badge: ShopBadge | None
+    ships_from: str | None
 
 
 class WebCapture(TypedDict):
@@ -50,9 +74,54 @@ class WebCase(TypedDict):
     evidence: list[dict]
     missing_evidence: list[str]
     capture: WebCapture
+    shop: WebShop
 
 
-def _web_case(flag: Flag, listing: Listing | None, image_link: ImageLink | None) -> WebCase:
+def _load_shops(data_dir: Path) -> dict[str, _CapturedShop]:
+    try:
+        path = within_directory("shops.json", data_dir)
+        records = _SHOPS.validate_json(path.read_bytes(), strict=True)
+    except FileNotFoundError:
+        return {}
+    except (ValidationError, OSError, RuntimeError) as error:
+        raise ReaderInputError("Could not read shop captures from shops.json") from error
+
+    shops = {record["shop_id"]: record for record in records}
+    if len(shops) != len(records):
+        raise ReaderInputError("Duplicate shop IDs in shops.json")
+    return shops
+
+
+def _shop_id(listing_url: str) -> str | None:
+    try:
+        url = urlsplit(listing_url)
+    except ValueError:
+        return None
+    if url.scheme not in {"http", "https"} or url.netloc.lower() not in _SHOPEE_HOSTS:
+        return None
+    match = _LISTING_PATH.fullmatch(url.path)
+    return (match[1] or match[2]) if match else None
+
+
+def _public_shop_text(value: str | None) -> str | None:
+    return _REDACTED_WORDS.sub("[redacted]", value) if value and value.strip() else None
+
+
+def _web_shop(listing: Listing | None, shops: dict[str, _CapturedShop]) -> WebShop:
+    shop_id = _shop_id(listing["url"]) if listing is not None else None
+    shop = shops.get(shop_id) if shop_id is not None else None
+    return {
+        "id": shop_id,
+        "name": (_public_shop_text(shop.get("name")) if shop is not None else None) or "not captured",
+        "url": f"https://shopee.co.th/shop/{shop_id}" if shop_id is not None else None,
+        "badge": shop.get("badge") if shop is not None else None,
+        "ships_from": _public_shop_text(shop.get("ships_from")) if shop is not None else None,
+    }
+
+
+def _web_case(
+    flag: Flag, listing: Listing | None, shops: dict[str, _CapturedShop], image_link: ImageLink | None,
+) -> WebCase:
     capture: WebCapture = {}
     title = variation = None
     if listing is not None:
@@ -103,6 +172,7 @@ def _web_case(flag: Flag, listing: Listing | None, image_link: ImageLink | None)
         "evidence": flag["evidence"],
         "missing_evidence": score["missing_evidence"],
         "capture": capture,
+        "shop": _web_shop(listing, shops),
     }
 
 
@@ -140,10 +210,11 @@ def _image_link_resolver(listings_dir: Path, destination_dir: Path) -> ImageLink
 
 
 def build_cases(flags_dir: Path, listings_dir: Path, *, image_link: ImageLink | None = None) -> list[WebCase]:
-    """Join existing flags to their option metadata in the pipeline's queue order."""
+    """Join flags to their option metadata and captured shops in queue order."""
     listings, issues = load_listings(listings_dir)
     if issues:
         raise ReaderInputError(" ".join(issues))
+    shops = _load_shops(listings_dir.parent)
 
     flags: dict[tuple[str, str], Flag] = {}
     for path in sorted(flags_dir.glob("*.json")):
@@ -161,7 +232,10 @@ def build_cases(flags_dir: Path, listings_dir: Path, *, image_link: ImageLink | 
                 raise ReaderInputError(f"Invalid confidence score in {path.name}")
             flags[key] = flag
 
-    return [_web_case(flag, listings.get(flag["listing_id"]), image_link) for flag in sorted(flags.values(), key=queue_key)]
+    return [
+        _web_case(flag, listings.get(flag["listing_id"]), shops, image_link)
+        for flag in sorted(flags.values(), key=queue_key)
+    ]
 
 
 def _publish_bytes(destination: Path, content: bytes) -> None:
