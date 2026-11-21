@@ -43,7 +43,7 @@ from .pipeline_ai import (
     claim_prompt,
     review_prompt,
 )
-from .pipeline_state import LostJobLease, PipelineState
+from .pipeline_state import LostJobLease, PipelineState, workspace_database_path
 from .profiles import CategoryProfile, load_profile, require_profile_approval
 from .publication import masked_buyer, publish_flag
 from .references import reference_source_for
@@ -55,6 +55,8 @@ from .reviews import (
 )
 from .rules import build_option_flag, queue_key, rescore_option_flag
 
+# Bump when validator changes can alter saved flags without an evidence change.
+RULES_VERSION = 'worldwide-rules.v2'
 PROMPT_VERSIONS = (CLAIM_VERSION, REVIEW_VERSION, CONFIDENCE_VERSION)
 DEFAULT_BUDGET_MICROUSD = 500_000
 DEFAULT_RETRIES = 2
@@ -233,6 +235,7 @@ class Pipeline:
         allow_draft: bool = False,
         kb_rows: Iterable[dict] = (),
         decisions_db: str | Path | None = None,
+        workspace_root: Path | None = None,
         budget_microusd: int = DEFAULT_BUDGET_MICROUSD,
         max_retries: int = DEFAULT_RETRIES,
         sleep: Callable[[float], None] = time.sleep,
@@ -244,13 +247,17 @@ class Pipeline:
         require_profile_approval(self.profile, allow_draft=allow_draft)
         self.allow_draft = allow_draft
         self.client = client
-        self.state = PipelineState(state_db)
+        self.state = PipelineState(state_db, workspace_root=workspace_root)
         self.kb_rows = tuple(kb_rows) if self.profile.category == "storage" else ()
-        self.decisions_db = decisions_db
+        self.workspace_root = workspace_root
+        self.decisions_db = (
+            Path(decisions_db).resolve() if workspace_root is not None and decisions_db is not None else decisions_db
+        )
         self.budget_microusd = budget_microusd
         self.max_retries = max_retries
         self.sleep = sleep
         self._profile_key = _hash(self.profile.model_dump(mode="json"))
+        self._queue_scope = _hash((self._profile_key, RULES_VERSION))
         self._units = {
             token.casefold(): name
             for name, definition in self.profile.units.items()
@@ -260,7 +267,7 @@ class Pipeline:
 
     def process_listing(self, listing: dict) -> list[dict]:
         listing_id = self._process_capture(listing, automatic=False)
-        return self._with_decisions(self.state.results(self._profile_key, listing_id))
+        return self._with_decisions(self.state.results(self._queue_scope, listing_id))
 
     def _prepare_capture(self, listing: dict) -> tuple[str | None, dict]:
         if not isinstance(listing, dict):
@@ -296,16 +303,16 @@ class Pipeline:
             option_context = self._option_context(listing, option, promise)
             evidence = _hash((option_context, unambiguous, reviews))
             key = _hash((
-                listing_id, option_id, evidence, self.profile.version, self._profile_key, PROMPT_VERSIONS,
+                listing_id, option_id, evidence, self.profile.version, self._queue_scope, PROMPT_VERSIONS,
             ))
             jobs[option_id] = (key, option, reviews, promise)
         admitted = self.state.admit(
-            self._profile_key, listing_id, {option_id: job[0] for option_id, job in jobs.items()},
+            self._queue_scope, listing_id, {option_id: job[0] for option_id, job in jobs.items()},
             revision=revision, from_message=automatic,
         )
         if not admitted:
             return listing_id
-        runnable = self.state.runnable_keys(self._profile_key, listing_id)
+        runnable = self.state.runnable_keys(self._queue_scope, listing_id)
         pending = [job for job in jobs.values() if job[0] in runnable]
         if not pending:
             return listing_id
@@ -327,17 +334,22 @@ class Pipeline:
 
     def process_file(self, path: str | Path, *, root: Path | None = None) -> list[dict]:
         """Replay a capture inside the current workspace or an explicitly selected root."""
-        return self.process_listing(_read_capture_file(Path(path), root=root or Path.cwd()))
+        workspace = Path.cwd().resolve() if root is None else root.resolve()
+        return self.process_listing(_read_capture_file(Path(path), root=workspace))
 
-    def scan_watch_directory(self, directory: Path) -> None:
+    def scan_watch_directory(self, directory: Path, *, root: Path | None = None) -> None:
         """Admit the newest valid captures before any watched jobs can use the model."""
-        directory = directory.resolve()
+        if root is None:
+            directory = directory.resolve()
+            root = directory
+        else:
+            directory = _workspace_input(directory, root)
         latest: dict[str, tuple[str | None, list[dict]]] = {}
         for path in sorted(directory.glob("*.json")):
             if path.is_symlink() or not path.is_file():
                 continue
             try:
-                revision, listing = self._prepare_capture(_read_capture_file(path, root=directory))
+                revision, listing = self._prepare_capture(_read_capture_file(path, root=root))
             except (ReaderInputError, ValueError, OSError):
                 print("A watched capture could not be read", file=sys.stderr)
                 continue
@@ -359,15 +371,18 @@ class Pipeline:
         if not isinstance(message, dict) or set(message) != {"listing"}:
             raise ReaderInputError("A queue message must contain one listing object")
         listing_id = self._process_capture(message["listing"], automatic=True)
-        return self._with_decisions(self.state.results(self._profile_key, listing_id))
+        return self._with_decisions(self.state.results(self._queue_scope, listing_id))
 
     def queue(self) -> list[dict]:
-        return self._with_decisions(self.state.results(self._profile_key))
+        return self._with_decisions(self.state.results(self._queue_scope))
 
     def _with_decisions(self, flags: list[dict]) -> list[dict]:
         if self.decisions_db is not None:
             for flag in flags:
-                decision = load_decision(self.decisions_db, flag["listing_id"], flag["option_id"])
+                decisions_db = self.decisions_db
+                if self.workspace_root is not None:
+                    decisions_db = workspace_database_path(Path(decisions_db), self.workspace_root)
+                decision = load_decision(decisions_db, flag["listing_id"], flag["option_id"])
                 if decision:
                     flag["reviewer_decision"] = decision
                     flag["verdict"] = "mismatch" if decision["decision"] == "accepted" else "no_mismatch"
@@ -621,9 +636,15 @@ class Pipeline:
         return flag, 3
 
 
-def _read_capture_file(path: Path, *, root: Path) -> object:
-    root = root.resolve()
+def _workspace_input(path: Path, root: Path) -> Path:
     candidate = within_directory(path, root)
+    if not candidate.is_relative_to(root):
+        raise ReaderInputError("The selected workspace has changed")
+    return candidate
+
+
+def _read_capture_file(path: Path, *, root: Path) -> object:
+    candidate = _workspace_input(path, root)
     if path.suffix.lower() != ".json" or candidate.suffix.lower() != ".json":
         raise ReaderInputError("Capture inputs must be JSON files")
     relative = candidate.relative_to(root)
@@ -685,7 +706,8 @@ def main() -> None:
                 kb_rows = _read_capture_file(kb_path, root=workspace)
         pipeline = Pipeline(
             state_db, client=PipelineResponsesClient(), profile=profile, allow_draft=args.allow_draft,
-            kb_rows=kb_rows, decisions_db=decisions_db, budget_microusd=args.budget_microusd,
+            kb_rows=kb_rows, decisions_db=decisions_db, workspace_root=workspace,
+            budget_microusd=args.budget_microusd,
         )
         if args.queue:
             print(_json(pipeline.queue()))
@@ -694,7 +716,7 @@ def main() -> None:
         else:
             previous = ""
             while True:
-                pipeline.scan_watch_directory(watch)
+                pipeline.scan_watch_directory(watch, root=workspace)
                 snapshot = _json(pipeline.queue())
                 if snapshot != previous:
                     print(snapshot, flush=True)

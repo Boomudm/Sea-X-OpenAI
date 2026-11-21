@@ -9,6 +9,9 @@ from contextlib import closing, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
+from .errors import ReaderInputError
+from .paths import within_directory
+
 _LEASE_SECONDS = 180
 
 
@@ -28,9 +31,17 @@ class _Admission:
         return self.advance_revision or self.new_snapshot or bool(self.changed or self.removed)
 
 
+def workspace_database_path(path: Path, workspace: Path) -> Path:
+    """Recheck the canonical database path before reopening SQLite."""
+    if not path.is_relative_to(workspace) or within_directory(path, workspace) != path:
+        raise ReaderInputError("The selected workspace database path has changed")
+    return path
+
+
 class PipelineState:
-    def __init__(self, path: str | Path) -> None:
-        self.path = Path(path).resolve()
+    def __init__(self, path: str | Path, *, workspace_root: Path | None = None) -> None:
+        self._path = Path(path).resolve()
+        self._workspace_root = workspace_root
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self._connect() as connection:
             connection.executescript("""
@@ -63,6 +74,12 @@ class PipelineState:
                     PRIMARY KEY (profile_scope, listing_id, snapshot_key)
                 );
             """)
+
+    @property
+    def path(self) -> Path:
+        if self._workspace_root is None:
+            return self._path
+        return workspace_database_path(self._path, self._workspace_root)
 
     @contextmanager
     def _connect(self) -> Iterator[sqlite3.Connection]:

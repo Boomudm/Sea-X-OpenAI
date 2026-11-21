@@ -894,3 +894,94 @@ def test_pipeline_cli_refuses_state_database_outside_the_workspace(tmp_path, mon
 
     assert error.value.code == 2
     assert not external_state.exists()
+
+
+def test_watch_rechecks_the_original_workspace_between_polls(tmp_path, monkeypatch, capsys):
+    workspace = tmp_path / "workspace"
+    watch = workspace / "watch"
+    watch.mkdir(parents=True)
+    (watch / "capture.json").write_text(json.dumps(clean_capture()), encoding="utf-8")
+    other = tmp_path / "other"
+    other.mkdir()
+    (other / "capture.json").write_text(
+        json.dumps({**clean_capture(), "listing_id": "second-sample"}), encoding="utf-8",
+    )
+    monkeypatch.chdir(workspace)
+    client = ScriptedClient()
+    monkeypatch.setattr(pipeline_module, "PipelineResponsesClient", lambda: client)
+    monkeypatch.setattr(sys, "argv", ["trongpok-pipeline", "--watch", "watch"])
+    calls_after_first_poll = []
+
+    def redirect(_interval):
+        if calls_after_first_poll:
+            raise KeyboardInterrupt
+        calls_after_first_poll.append(len(client.calls))
+        watch.rename(workspace / "previous-watch")
+        watch.symlink_to(other, target_is_directory=True)
+
+    monkeypatch.setattr(pipeline_module.time, "sleep", redirect)
+
+    with pytest.raises(SystemExit) as error:
+        main()
+
+    assert error.value.code == 2
+    [first] = json.loads(capsys.readouterr().out)
+    assert first["colour"] == "GREEN"
+    assert calls_after_first_poll == [len(client.calls)]
+    assert client.calls
+
+
+@pytest.mark.parametrize("option", ["--state-db", "--decisions-db"])
+def test_watch_rejects_a_workspace_database_redirected_between_polls(tmp_path, monkeypatch, option):
+    workspace = tmp_path / "workspace"
+    watch = workspace / "watch"
+    watch.mkdir(parents=True)
+    (watch / "capture.json").write_text(json.dumps(clean_capture()), encoding="utf-8")
+    database = workspace / "local.sqlite3"
+    other_database = tmp_path / "other.sqlite3"
+    if option == "--decisions-db":
+        save_decision(database, "pipeline-listing", "opt-64", "dismissed", "Reviewed")
+    monkeypatch.chdir(workspace)
+    client = ScriptedClient()
+    monkeypatch.setattr(pipeline_module, "PipelineResponsesClient", lambda: client)
+    monkeypatch.setattr(sys, "argv", [
+        "trongpok-pipeline", "--watch", "watch", option, str(database),
+    ])
+    calls_after_first_poll = []
+
+    def redirect(_interval):
+        if calls_after_first_poll:
+            raise KeyboardInterrupt
+        calls_after_first_poll.append(len(client.calls))
+        database.rename(other_database)
+        database.symlink_to(other_database)
+
+    monkeypatch.setattr(pipeline_module.time, "sleep", redirect)
+
+    with pytest.raises(SystemExit) as error:
+        main()
+
+    assert error.value.code == 2
+    assert calls_after_first_poll == [len(client.calls)]
+    assert client.calls
+
+
+def test_rules_upgrade_rechecks_jobs_without_discarding_cached_review_extractions(tmp_path, monkeypatch):
+    database = tmp_path / "jobs.sqlite3"
+    capture = captured("Got only 29 GB", "Measured 30 GB")
+    client = ScriptedClient()
+    monkeypatch.setattr(pipeline_module, "RULES_VERSION", "previous", raising=False)
+    previous = Pipeline(database, client=client)
+    [before] = previous.process_listing(capture)
+    assert before["colour"] == "RED"
+
+    monkeypatch.setattr(pipeline_module, "RULES_VERSION", "revised")
+    new_client = ScriptedClient()
+    upgraded = Pipeline(database, client=new_client)
+    assert upgraded.queue() == []
+
+    [after] = upgraded.process_listing(capture)
+
+    assert after["colour"] == "RED"
+    assert upgraded.queue() == [after]
+    assert [call[0] for call in new_client.calls] == [ChallengeAssessment]
