@@ -1,0 +1,45 @@
+{
+  "listing_id": "16397222698",
+  "url": "https://shopee.co.th/product/43238610/16397222698",
+  "captured_at": "2026-11-21T12:49:19+07:00",
+  "title": "SanDisk Ultra Flair USB 3.0 16GB, 32GB, 64GB, 128GB, 256GB Speed / 150MB (SDCZ73) ประกัน Synnex 5ปี",
+  "spec_text": "SanDisk Ultra Flair USB flash drive, 32 GB and 64 GB options",
+  "description": "",
+  "listing_images": [
+    "data/listings/16397222698/images/listing-01.webp"
+  ],
+  "options": [
+    {
+      "option_id": "SDCZ73_032G_G46B",
+      "variation_label": "SDCZ73_032G_G46B",
+      "capacity_text": "32 GB",
+      "promise_gb": 32,
+      "was_thb": 900,
+      "now_thb": 529
+    },
+    {
+      "option_id": "SDCZ73_064G_G46",
+      "variation_label": "SDCZ73_064G_G46",
+      "capacity_text": "64 GB",
+      "promise_gb": 64,
+      "was_thb": 1200,
+      "now_thb": 725
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "40946425908",
+      "variation_label": "SDCZ73_064G_G46",
+      "option_id": null,
+      "buyer_masked": "b*****s",
+      "date": "2025-05-06T16:41:00+07:00",
+      "stars": 5,
+      "text": "ประสิทธิภาพ: ดี\nความคุ้มค่า: ดี\nทางร้านจัดส่งไวมาก สั่งวันนี้ ให้แมสมาส่งวันนี้เลย รวดเร็วทันใจ สั่งความจุ 64GB ความจุจริงอยู่ประมาณ 57GB",
+      "tags": [],
+      "images": [
+        "data/listings/16397222698/images/review-40946425908-01.jpg",
+        "data/listings/16397222698/images/review-40946425908-02.jpg"
+      ]
+    }
+  ]
+}
