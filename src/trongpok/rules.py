@@ -98,8 +98,8 @@ def _apply_challenges(confidence, challenges, sources, *, price_decided, profile
             or not isinstance(source, str) or source not in sources
             or not isinstance(reason, str) or not reason.strip() or source in seen
             or not -20 <= change + points <= 20
-            # The storage conversion already reads GB/TB numbers both ways.
-            or (profile.category == "storage" and kind == "gb_vs_gib" and points < 0)
+            # Storage already reads GB/TB both ways; the category-specific check applies only there.
+            or (kind == "gb_vs_gib" and (profile.category != "storage" or points < 0))
             or (kind == "flash_sale" and not price_decided)
         ):
             continue
