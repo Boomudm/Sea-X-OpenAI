@@ -7,7 +7,6 @@ import pytest
 from trongpok.profiles import CategoryProfile
 from trongpok.rules import build_flags
 
-
 MISMATCH_REPORTS = {
     "wrong_model": ("I ordered the Mini but received the Max.", "A Max arrived instead of the Mini."),
     "wrong_colour": ("The blue option arrived in red.", "My blue order contained a red item."),

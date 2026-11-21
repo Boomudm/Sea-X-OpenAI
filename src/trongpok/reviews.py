@@ -1,7 +1,7 @@
 """Match captured reviews to options and verify their measurement evidence."""
 
 import re
-from collections import Counter, defaultdict
+from collections import defaultdict
 from collections.abc import Iterable
 from decimal import Decimal, InvalidOperation
 from functools import cache

@@ -5,7 +5,7 @@ from decimal import Decimal, InvalidOperation
 from zoneinfo import ZoneInfo
 
 from .profiles import CategoryProfile, load_profile
-from .reviews import measured_bytes as measured_bytes
+from .reviews import measured_bytes as measured_bytes  # noqa: PLC0414 - public re-export
 from .reviews import review_evidence
 
 QUESTION_ORDER = ("Q1", "Q2", "Q3", "Q4", "Q5")
