@@ -144,16 +144,23 @@ def _confidence(deciding_evidence, all_evidence, market, thin, kb, uncertain, as
     base = max(0, min(100, 50 + sum(item["points"] for item in adjustments)))
     change = 0
     sources = _challenge_sources(all_evidence) | set(extra_sources)
+    price_decided = any(item.get("source") == "market_range" for item in deciding_evidence)
     seen = set()
     for challenge in challenges:
         points = challenge.get("points")
         source = challenge.get("source")
         reason = challenge.get("reason")
+        kind = challenge.get("kind")
         if (
             not isinstance(points, int) or points not in (-10, -5, 5, 10)
             or not isinstance(source, str) or source not in sources
             or not isinstance(reason, str) or not reason.strip() or source in seen
             or not -20 <= change + points <= 20
+            # Code already reads every GB/TB number both ways (§4.4), so the AI
+            # cannot lower confidence on GB vs GiB grounds.
+            or (kind == "gb_vs_gib" and points < 0)
+            # Sale or promotion pricing only bears on a flag decided by price.
+            or (kind == "flash_sale" and not price_decided)
         ):
             continue
         change += points

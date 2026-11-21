@@ -23,7 +23,7 @@
     ],
     "verdict": "unsure",
     "confidence": {
-      "score": 30,
+      "score": 40,
       "base": 40,
       "adjustments": [
         {
@@ -31,16 +31,8 @@
           "reason": "Market range is thin or the KB row is missing"
         },
         {
-          "points": -5,
-          "reason": "The review says “ดี เหลือ 116”, which leaves a capacity question because 128 GB is about 119.2 GiB and the review gives neither a unit nor a total capacity reading."
-        },
-        {
           "points": 5,
           "reason": "The reviewer explicitly names the selected option as “sdcz74_128g_g46”, supporting the match to the flagged 128 GB variant."
-        },
-        {
-          "points": -5,
-          "reason": "The reviewer attributes the good value to a 6.6 promotion, so their price assessment offers limited support for the current ฿1,250 price."
         },
         {
           "points": -5,

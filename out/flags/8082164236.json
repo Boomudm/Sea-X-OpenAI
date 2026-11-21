@@ -52,7 +52,7 @@
     ],
     "verdict": "unsure",
     "confidence": {
-      "score": 85,
+      "score": 90,
       "base": 75,
       "adjustments": [
         {
@@ -70,10 +70,6 @@
         {
           "points": -10,
           "reason": "Market range is thin or the KB row is missing"
-        },
-        {
-          "points": -5,
-          "reason": "The evidence converts 20 GB using the GiB multiplier, inflating the delivered-capacity ratio from 1.00% to 1.07% while leaving it well below the 85% threshold."
         },
         {
           "points": 10,

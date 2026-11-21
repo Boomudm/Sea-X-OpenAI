@@ -131,6 +131,15 @@ def test_02_normal_display_with_ten_matched_reviews_is_green(sample, measured_by
                              challenges={flag["option_id"]: [challenge]})
     assert rejected["confidence"]["score"] == flag["confidence"]["base"]
 
+    off_topic = [
+        {"kind": "gb_vs_gib", "points": -5, "reason": "Unit unclear", "source": "clean-2"},
+        {"kind": "flash_sale", "points": -5, "reason": "Bought on a sale", "source": "clean-3"},
+        {"kind": "gb_vs_gib", "points": 5, "reason": "Normal display", "source": "clean-4"},
+    ]
+    [filtered] = build_flags(listing, findings=findings, as_of=CAPTURE_DATE,
+                             challenges={flag["option_id"]: off_topic})
+    assert filtered["confidence"]["score"] == flag["confidence"]["base"] + 5
+
     [unchecked_flag] = _evaluate(listing, [])
     assert (unchecked_flag["colour"], unchecked_flag["deciding"]) == ("GREY", "grey")
     assert "Matched text reviews are still unchecked" in unchecked_flag["reasons"]
