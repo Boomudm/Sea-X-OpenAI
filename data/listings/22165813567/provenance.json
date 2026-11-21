@@ -29,5 +29,6 @@
   },
   "media": "Listing and review media omitted pending privacy review; empty arrays do not assert no media exists.",
   "text_fidelity": "Copied visible rendered review text with structured buyer attribute labels and line breaks; browser innerText normalizes some UI whitespace. No separate complaint tags were visible.",
-  "limitations": "Capacity complaint review and all images require independent source check; Q1/Q2 require separately approved KB data. No colour claim before rule analysis."
+  "offline_review_input": "out/findings/22165813567.json contains manually normalized readings of all 22 source-checked text rows. Replay instructions are in data/listings/8082164236/provenance.md.",
+  "limitations": "Independent source checks cover wording, exact Variation, review positions and dates. See source-check.md and stars-evidence.md for scope, star counts and masking caveats. No buyer media were screened. Q1 and Q2 require separately approved KB data."
 }

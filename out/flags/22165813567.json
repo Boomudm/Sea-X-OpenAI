@@ -1,0 +1,41 @@
+[
+  {
+    "listing_id": "22165813567",
+    "option_id": "SDCZ74_128G_G46",
+    "colour": "GREEN",
+    "deciding": "Q5",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 22,
+        "checked_text_reviews": 22
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 40,
+      "base": 40,
+      "adjustments": [
+        {
+          "points": -10,
+          "reason": "Market range is thin or the KB row is missing"
+        }
+      ],
+      "missing_evidence": [
+        "Find an approved reference for this brand, product line and type"
+      ],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]
