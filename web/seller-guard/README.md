@@ -22,9 +22,16 @@ cases generated from the team's U3 test scenarios. If the export is missing,
 the app opens **Sample data** by default.
 
 The U3 reports in `out/flags/` cover the six U1 listings merged in PR #12 on
-21 Nov 2026. They contain eight options: one red price warning, one yellow
-price warning, and six with insufficient evidence. Captured buyer reviews
-are awaiting the U2 reader results.
+21 Nov 2026. The eight options include one red price warning, three yellow
+checks, and four with insufficient evidence. The yellow checks cover a low
+price, one measured shortfall on the 128 GB option, and a 1 TB capacity
+complaint without a usable number. The 64 GB option's 57 GB reading clears
+the capacity threshold and stays grey with one checked review.
+
+`out/findings/` records manual text readings for the three captured reviews.
+The reader validator checked the exact quotes, matched options, units, and
+measurements. Reuse these findings with `uv run trongpok-analyze` to replay
+the capture. See the [U1 handoff](https://github.com/Boomudm/Sea-X-OpenAI/issues/8#issuecomment-7058627939).
 
 The exporter writes local capture and evaluation reports under `public/data/`.
 These generated files are ignored by Git. Export again after the pipeline

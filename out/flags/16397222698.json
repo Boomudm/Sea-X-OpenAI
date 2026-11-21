@@ -53,14 +53,13 @@
       "grey: decided"
     ],
     "reasons": [
-      "Not enough matched text reviews",
-      "Matched text reviews are still unchecked"
+      "Not enough matched text reviews"
     ],
     "evidence": [
       {
         "source": "review_count",
         "matched_text_reviews": 1,
-        "checked_text_reviews": 0
+        "checked_text_reviews": 1
       }
     ],
     "verdict": "unsure",
@@ -74,8 +73,7 @@
         }
       ],
       "missing_evidence": [
-        "Collect 9 more matched text reviews",
-        "Read 1 more matched text reviews"
+        "Collect 9 more matched text reviews"
       ],
       "rounds": 0
     },
