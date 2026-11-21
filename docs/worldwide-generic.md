@@ -25,7 +25,7 @@ flowchart TD
 
 Storage keeps its existing price and official-spec RED rules for the frozen replay, including the price-only RED for listing `50570965257`. Each RED under the new categories requires two independent buyers.
 
-Review text is untrusted input. The reader extracts structured evidence and the code verifies its quotes against the captured text. Flags keep masked buyer names and neutral wording. The AI may challenge confidence with a cited source, within 20 points of the base score. The colour and human verdict remain outside the AI's control.
+Review text is untrusted input. The reader extracts structured evidence and the code verifies its quotes against the captured text. Flags keep masked buyer names and neutral wording. The queue marks any omitted words in a quote and retains its review ID. The AI may challenge confidence with a cited source, within 20 points of the base score. The colour and human verdict remain outside the AI's control.
 
 ## Add a category
 
@@ -40,7 +40,7 @@ To ask the Responses API to draft from official specifications, set `OFFICIAL_SP
 uv run --locked python profiles/draft.py new_category "$OFFICIAL_SPEC_URL"
 ```
 
-The command saves `profiles/new_category.json` as `pending human review` and preserves an existing profile at that path. Hosted search filters to the supplied domains. The command saves the validated draft only when the API reports a completed open of every exact supplied URL. A person still verifies source ownership, relevance and the proposed thresholds.
+The command saves `profiles/new_category.json` as `pending human review` and preserves an existing profile at that path. Hosted search filters to the supplied domains. The command saves the validated draft only when the API reports completed opens of the exact supplied URLs and retrieves no other pages. A person still verifies source ownership, relevance and the proposed thresholds.
 
 ## Run the samples
 
