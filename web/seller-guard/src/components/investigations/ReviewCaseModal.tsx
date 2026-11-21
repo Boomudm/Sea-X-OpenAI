@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { X } from 'lucide-react'
+import { ExternalLink, Link2, X } from 'lucide-react'
 import { publicText, type EvidenceSource, type PipelineCase, type PipelineEvidence } from '../../data/pipelineCases'
 import { caseVerdict, priorities, type ReviewCase } from '../../data/reviewCases'
+import { evidenceImageUrl, externalUrl } from '../../lib/reviewLinks'
 import { keyedItems } from '../../lib/utils'
 import type { DecisionType } from '../../types'
 import { Badge } from '../ui/Badge'
@@ -82,8 +83,16 @@ export function ReviewCaseModal({ item, onClose, onSave }: Readonly<{
               {item.source === 'sample' && <Badge>Sample data</Badge>}
             </div>
             <p className="caption-5 mt-2 text-muted">Verdict · {caseVerdict(item.decision)}</p>
+            <div className="mt-3 flex flex-wrap items-start gap-2">
+              {item.shopee && <a href={item.shopee.url} target="_blank" rel="noopener noreferrer"
+                className="focus-ring inline-flex h-10 items-center gap-2 rounded-lg border border-brand/30 bg-white px-3 text-sm font-semibold text-[#a82d18] hover:bg-peach">
+                Open on Shopee <ExternalLink className="size-4" aria-hidden="true" />
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>}
+              {item.source !== 'submitted' && <CopyCaseLink id={item.id} source={item.source} />}
+            </div>
           </div>
-          <Button type="button" variant="outline" size="icon" aria-label="Close case" onClick={close}><X className="size-5" /></Button>
+          <Button type="button" variant="outline" size="icon" className="shrink-0" aria-label="Close case" onClick={close}><X className="size-5" /></Button>
         </header>
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6">
           {item.pipeline ? <PipelineDetails item={item} report={item.pipeline} /> : <CaptureDetails item={item} />}
@@ -118,6 +127,32 @@ export function ReviewCaseModal({ item, onClose, onSave }: Readonly<{
   )
 }
 
+function CopyCaseLink({ id, source }: Readonly<{ id: string; source: 'captured' | 'sample' }>) {
+  const [status, setStatus] = useState<'ready' | 'copied' | 'manual'>('ready')
+  const url = new URL('/review', window.location.origin)
+  url.search = new URLSearchParams({ source, case: id }).toString()
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url.href)
+      setStatus('copied')
+    } catch {
+      setStatus('manual')
+    }
+  }
+
+  return <>
+    <Button type="button" size="sm" variant="outline" onClick={copy}>
+      <Link2 className="size-4" aria-hidden="true" /> Copy case link
+    </Button>
+    <span role="status" className="self-center text-sm text-muted">{status === 'copied' ? 'Link copied' : ''}</span>
+    {status === 'manual' && <label className="w-full text-sm text-muted">
+      Copy this case link manually
+      <input className="form-control mt-1 w-full" value={url.href} readOnly onFocus={(event) => event.currentTarget.select()} />
+    </label>}
+  </>
+}
+
 function PipelineDetails({ item, report }: Readonly<{ item: ReviewCase; report: PipelineCase }>) {
   const [primary, ...other] = report.reasons
   const hasMarketRange = report.evidence.some((entry) => entry.source === 'market_range')
@@ -129,7 +164,9 @@ function PipelineDetails({ item, report }: Readonly<{ item: ReviewCase; report: 
           {other.map((reason) => <li key={reason}>{publicText(reason)}</li>)}
         </ul>}
         <CaptureDetails item={item} showPrices={!hasMarketRange} />
-        {report.evidence.map((entry) => <EvidenceEntry key={JSON.stringify(entry)} entry={entry} />)}
+        {report.evidence.map((entry) => <EvidenceEntry key={JSON.stringify(entry)} entry={entry} listingUrl={item.shopee?.url} />)}
+        <EvidenceImages urls={report.capture.listing_images} label="Listing" />
+        <EvidenceImages urls={report.capture.buyer_images} label="Buyer" />
       </section>
       <details open className="rounded-lg border border-line bg-white p-4">
         <summary className="focus-ring cursor-pointer rounded font-semibold">Why {report.confidence}% confidence?</summary>
@@ -169,12 +206,12 @@ function Money({ label, amount }: Readonly<{ label: string; amount?: number | nu
     ? <p>{label} <strong className="tabular-nums">{thb.format(amount)}</strong></p> : null
 }
 
-type EvidenceProps = Readonly<{ entry: PipelineEvidence }>
+type EvidenceProps = Readonly<{ entry: PipelineEvidence; listingUrl?: string }>
 
-function EvidenceEntry({ entry }: EvidenceProps) {
+function EvidenceEntry({ entry, listingUrl }: EvidenceProps) {
   switch (entry.source) {
     case 'review':
-      return <BuyerReviewEvidence entry={entry} />
+      return <BuyerReviewEvidence entry={entry} listingUrl={listingUrl} />
     case 'market_range':
       return <MarketRangeEvidence entry={entry} />
     case 'brand_page':
@@ -191,7 +228,7 @@ function EvidenceEntry({ entry }: EvidenceProps) {
   }
 }
 
-function BuyerReviewEvidence({ entry }: EvidenceProps) {
+function BuyerReviewEvidence({ entry, listingUrl }: EvidenceProps) {
   const buyer = typeof entry.buyer_masked === 'string' && /[*…•]/.test(entry.buyer_masked)
     ? publicText(entry.buyer_masked) : 'Buyer'
   const quantity = typeof entry.quantity === 'number' && entry.unit && entry.unit !== 'none'
@@ -200,8 +237,32 @@ function BuyerReviewEvidence({ entry }: EvidenceProps) {
     ? percent.format(entry.ratio) + ' of advertised capacity' : undefined
   return <blockquote className="rounded-r-lg border-l-2 border-line bg-white px-3 py-2 text-sm">
     {entry.quote && <p className="whitespace-pre-wrap">{publicText(entry.quote)}</p>}
-    <footer className="mt-1 text-muted">{[buyer, entry.date, quantity, ratio].filter(Boolean).join(' · ')}</footer>
+    <footer className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-muted">
+      <span>{[buyer, entry.date, quantity, ratio].filter(Boolean).join(' · ')}</span>
+      {entry.quote && <SourceLink label="View on listing" value={listingUrl} />}
+    </footer>
   </blockquote>
+}
+
+function EvidenceImages({ urls = [], label }: Readonly<{ urls?: string[]; label: string }>) {
+  const originals = [...new Set(urls.map(evidenceImageUrl).filter((url) => url !== undefined))]
+  if (!originals.length) return null
+  return (
+    <div>
+      <h4 className="mb-2 text-sm font-semibold">{label} photos</h4>
+      <div className="flex flex-wrap gap-2">
+        {originals.map((url, index) => <a key={url} href={url} target="_blank" rel="noopener noreferrer"
+          className="focus-ring inline-flex w-20 flex-col items-center overflow-hidden rounded-lg border border-line bg-white text-xs font-semibold text-[#a82d18] hover:bg-peach">
+          <img src={url} alt="" loading="lazy" referrerPolicy="no-referrer" className="aspect-square w-full object-contain" />
+          <span className="flex items-center gap-1 p-1.5">
+            <span className="sr-only">{label} </span>Photo {index + 1}
+            <ExternalLink className="size-3" aria-hidden="true" />
+            <span className="sr-only"> (opens original in a new tab)</span>
+          </span>
+        </a>)}
+      </div>
+    </div>
+  )
 }
 
 function MarketRangeEvidence({ entry }: EvidenceProps) {
@@ -248,6 +309,7 @@ function CaptureDetails({ item, showPrices = true }: Readonly<{ item: ReviewCase
       {!item.pipeline && <p>Collect evidence for this listing before assigning a review priority.</p>}
       <div className="flex flex-wrap gap-x-4 gap-y-1">
         <SourceLink label="Listing source" value={capture.listingUrl} />
+        {item.shopee?.shop && <SourceLink label={`Shop ${item.shopee.shop.id}`} value={item.shopee.shop.url} />}
         <SourceLink label="Official reference" value={capture.referenceUrl} />
       </div>
       {showPrices && <div className="flex flex-wrap gap-x-4 gap-y-1">
@@ -260,14 +322,12 @@ function CaptureDetails({ item, showPrices = true }: Readonly<{ item: ReviewCase
 }
 
 function SourceLink({ label, value }: Readonly<{ label: string; value?: string }>) {
-  if (!value) return null
-  try {
-    const url = new URL(value)
-    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return null
-    if (url.hostname.endsWith('.invalid')) return <span className="text-muted">{label} · {url.hostname}{url.pathname}</span>
-    return <a className="focus-ring rounded font-semibold text-[#a82d18] hover:underline" href={url.href}
-      target="_blank" rel="noreferrer">{label}</a>
-  } catch {
-    return null
-  }
+  const url = externalUrl(value)
+  if (!url) return null
+  if (url.hostname.endsWith('.invalid')) return <span className="text-muted">{label} · {url.hostname}{url.pathname}</span>
+  return <a className="focus-ring inline-flex items-center gap-1 rounded font-semibold text-[#a82d18] hover:underline"
+    href={url.href} target="_blank" rel="noopener noreferrer">
+    {label} <ExternalLink className="size-3" aria-hidden="true" />
+    <span className="sr-only"> (opens in a new tab)</span>
+  </a>
 }

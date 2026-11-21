@@ -33,12 +33,19 @@ The reader validator checked the exact quotes, matched options, units, and
 measurements. Reuse these findings with `uv run trongpok-analyze` to replay
 the capture. See the [U1 handoff](https://github.com/Boomudm/Sea-X-OpenAI/issues/8#issuecomment-7058627939).
 
-The exporter writes local capture and evaluation reports under `public/data/`.
+The exporter writes local capture and evaluation reports and copies the original
+captured photos under `public/data/`.
 These generated files are ignored by Git. Export again after the pipeline
 updates. When using `npm run build` and `npm run preview`, export before building.
 The default export publishes `eval/results.md` to `public/data/results.md`
 when the report exists. Use `--no-results` to export cases alone.
 Browser submissions enter the captured queue as unscored listing links.
+
+Use the listing icon and shop chip in the queue to open Shopee in a new tab.
+Inside a case, **Copy case link** shares the exact option. The recipient needs
+the same deployed reviewer URL and captured export. In the evidence section,
+select a photo to open its original and **View on listing** to open the listing
+behind a buyer quote.
 
 ## Review outcomes and evaluation
 

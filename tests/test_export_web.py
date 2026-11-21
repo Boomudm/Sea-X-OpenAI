@@ -30,9 +30,18 @@ def test_export_uses_exact_option_prices_and_pipeline_evidence(tmp_path, monkeyp
     shutil.copytree(FIXTURES / "listings", tmp_path / "data/listings")
     listing_path = tmp_path / "data/listings/sample-compact-64.json"
     listing = read_json(listing_path)
-    listing["listing_images"] = ["listing.jpg"]
-    listing["reviews"][0]["images"] = ["proof.jpg", "proof.jpg"]
-    listing["reviews"][1]["images"] = ["unmatched.jpg"]
+    images_dir = listing_path.with_suffix("") / "images"
+    images_dir.mkdir(parents=True)
+    (images_dir / "listing.jpg").write_bytes(b"listing photo")
+    (images_dir / "proof.jpg").write_bytes(b"buyer photo")
+    (images_dir / "unmatched.jpg").write_bytes(b"different option photo")
+    listing["listing_images"] = [str((images_dir / "listing.jpg").relative_to(tmp_path))]
+    listing["reviews"][0]["images"] = [
+        str((images_dir / "proof.jpg").relative_to(tmp_path)),
+        str((images_dir / "proof.jpg").relative_to(tmp_path)),
+        "https://cdn.example.org/evidence.jpg?size=original",
+    ]
+    listing["reviews"][1]["images"] = [str((images_dir / "unmatched.jpg").relative_to(tmp_path))]
     listing["reviews"][1]["variation_label"] = "128 GB"
     listing["options"].insert(0, {
         "option_id": "128-gb", "variation_label": "128 GB", "capacity_text": "128 GB",
@@ -55,7 +64,11 @@ def test_export_uses_exact_option_prices_and_pipeline_evidence(tmp_path, monkeyp
     case = next(item for item in cases if item["listing_id"] == listing["listing_id"])
     (flag,) = read_json(Path("out/flags/sample-compact-64.json"))
     assert case["capture"] == {
-        "listing_url": listing["url"], "was_thb": 256, "now_thb": 224, "photo_count": 2,
+        "listing_url": listing["url"], "was_thb": 256, "now_thb": 224, "photo_count": 3,
+        "listing_images": ["/data/images/sample-compact-64/images/listing.jpg"],
+        "buyer_images": [
+            "/data/images/sample-compact-64/images/proof.jpg", "https://cdn.example.org/evidence.jpg?size=original",
+        ],
     }
     assert case["title"] == listing["title"]
     assert case["variation_label"] == "64 GB"
@@ -68,6 +81,35 @@ def test_export_uses_exact_option_prices_and_pipeline_evidence(tmp_path, monkeyp
     assert case["evidence"] == flag["evidence"]
     assert case["evidence"][0]["ratio"] == 0.486539264
     assert DEFAULT_OUTPUT.with_name("results.md").read_bytes() == results.read_bytes()
+    published = DEFAULT_OUTPUT.parent / "images/sample-compact-64/images"
+    assert (published / "listing.jpg").read_bytes() == (images_dir / "listing.jpg").read_bytes()
+    assert (published / "proof.jpg").read_bytes() == (images_dir / "proof.jpg").read_bytes()
+    assert not (published / "unmatched.jpg").exists()
+
+
+def test_export_does_not_publish_unsafe_photo_references(tmp_path, monkeypatch):
+    flags_dir = tmp_path / "out/flags"
+    listing_dir = tmp_path / "data/listings"
+    shutil.copytree(FIXTURES / "flags", flags_dir)
+    shutil.copytree(FIXTURES / "listings", listing_dir)
+    listing_path = listing_dir / "sample-compact-64.json"
+    listing = read_json(listing_path)
+    outside = tmp_path / "unrelated.jpg"
+    outside.write_bytes(b"Unrelated file")
+    (listing_dir / "linked.jpg").symlink_to(outside)
+    listing["listing_images"] = [
+        "data/listings/linked.jpg", "unrelated.jpg", "https://example.invalid/sample.jpg",
+        "https://user:pass@cdn.example.org/evidence.jpg", "javascript:alert(1)",
+    ]
+    write_json(listing_path, listing)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(sys, "argv", ["trongpok.export_web"])
+
+    main()
+
+    case = next(item for item in read_json(DEFAULT_OUTPUT) if item["listing_id"] == listing["listing_id"])
+    assert "listing_images" not in case["capture"]
+    assert not (DEFAULT_OUTPUT.parent / "images").exists()
 
 
 def test_export_keeps_missing_option_metadata_empty(tmp_path):

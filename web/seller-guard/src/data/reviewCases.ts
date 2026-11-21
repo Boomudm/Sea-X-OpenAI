@@ -1,3 +1,4 @@
+import { shopeeListing } from '../lib/reviewLinks'
 import type { Decision, DecisionType, InvestigationStatus, Seller } from '../types'
 import { publicText, type PipelineCase, type PipelinePriority, type PipelineSignal } from './pipelineCases'
 import sampleCases from './sampleCases.json'
@@ -49,6 +50,7 @@ export interface ReviewCase {
   confidence: number | null
   findings: ReviewFinding[]
   source: CaseSource | 'submitted'
+  shopee?: ReturnType<typeof shopeeListing>
   pipeline?: PipelineCase
   status: InvestigationStatus
   decision?: Decision
@@ -74,9 +76,11 @@ function pipelineCases(cases: PipelineCase[], decisions: Decision[], source: Cas
     const decision = decisions.find((item) => item.sellerId === id && item.listingId === record.listing_id)
     if (!listingPositions.has(record.listing_id)) listingPositions.set(record.listing_id, listingPositions.size + 1)
     const sampleShop = 'Sample shop ' + String(listingPositions.get(record.listing_id)).padStart(2, '0')
+    const shopee = source === 'captured' ? shopeeListing(record.capture.listing_url) : undefined
     return {
       id, sellerId: id, listingId: record.listing_id,
       caseLabel: publicText(record.listing_id),
+      shopId: shopee?.shop?.id,
       sellerName: source === 'sample' ? sampleShop : undefined,
       title: publicText(record.title ?? ('Listing ' + record.listing_id)),
       variant: publicText(record.variation_label ?? record.option_id),
@@ -85,6 +89,7 @@ function pipelineCases(cases: PipelineCase[], decisions: Decision[], source: Cas
       findings: record.findings.map((signal) => ({ signal, confidence: record.confidence })),
       pipeline: record,
       source,
+      shopee,
       status: reviewStatus(decision),
       decision,
       capture: {
@@ -109,6 +114,7 @@ function submittedCases(sellers: Seller[], decisions: Decision[]): ReviewCase[] 
         title: 'Listing link ' + (index + 1),
         sellerName: publicText(seller.name), priority: 'unknown', confidence: null,
         findings: [], source: 'submitted', decision, status: reviewStatus(decision),
+        shopee: shopeeListing(listing.listingUrl),
         capture: {
           listingUrl: listing.listingUrl,
           referenceUrl: captured ? listing.referenceUrl : undefined,
