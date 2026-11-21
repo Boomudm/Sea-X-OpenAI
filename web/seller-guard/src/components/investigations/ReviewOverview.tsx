@@ -7,13 +7,21 @@ import {
 import { cn } from '../../lib/utils'
 import { Badge } from '../ui/Badge'
 
+type ScoredPriority = typeof scoredPriorities[number]
+
 const heatPalettes = {
   all: ['#f3efeb', '#e8e0da', '#d4c7bd', '#b9a79a'],
   red: ['#ffefec', '#fad5cd', '#f3aa9c', '#e67e6d'],
   yellow: ['#fff7e4', '#fce9b9', '#f7d478', '#eebc55'],
   green: ['#eaf7ef', '#d0eadb', '#a8d5ba', '#7bbd99'],
-  unknown: ['#f3efeb', '#e8e0da', '#d4c7bd', '#b9a79a'],
 }
+
+// Match the deciding checks returned by the pipeline.
+const signalsByPriority = {
+  red: ['unsupported', 'capacity', 'price'],
+  yellow: ['reports'],
+  green: ['clear'],
+} as const satisfies Record<ScoredPriority, readonly ReviewSignal[]>
 
 const selectTones = {
   red: 'border-[#efc9c1] bg-[#fdece8]',
@@ -23,8 +31,8 @@ const selectTones = {
 
 interface OverviewProps {
   cases: ReviewCase[]
-  priority: ReviewPriority | null
-  onSelect: (priority: ReviewPriority) => void
+  priority: ScoredPriority | null
+  onSelect: (priority: ScoredPriority) => void
   toQueue: (priority: ReviewPriority | null, signal?: ReviewSignal, band?: ConfidenceBand) => string
 }
 
@@ -33,7 +41,7 @@ export function ReviewOverview({ cases, priority, onSelect, toQueue }: OverviewP
   for (const item of cases) counts[item.priority] += 1
   const matching = priority ? cases.filter((item) => item.priority === priority) : cases
   const palette = heatPalettes[priority ?? 'all']
-  const visibleSignals: readonly ReviewSignal[] = priority === 'yellow' ? ['reports'] : signalIds
+  const visibleSignals = priority ? signalsByPriority[priority] : signalIds
 
   return (
     <div className="mt-6 grid gap-4 min-[860px]:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
@@ -130,11 +138,11 @@ export function ReviewOverview({ cases, priority, onSelect, toQueue }: OverviewP
   )
 }
 
-type DonutSegment = { id: typeof scoredPriorities[number]; start: number; end: number }
+type DonutSegment = { id: ScoredPriority; start: number; end: number }
 function PriorityDonut({ counts, selected, onSelect }: {
   counts: Record<ReviewPriority, number>
-  selected: ReviewPriority | null
-  onSelect: (priority: ReviewPriority) => void
+  selected: ScoredPriority | null
+  onSelect: (priority: ScoredPriority) => void
 }) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const scored = scoredPriorities.reduce((total, id) => total + counts[id], 0)
