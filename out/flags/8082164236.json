@@ -52,7 +52,7 @@
     ],
     "verdict": "unsure",
     "confidence": {
-      "score": 75,
+      "score": 85,
       "base": 75,
       "adjustments": [
         {
@@ -70,6 +70,18 @@
         {
           "points": -10,
           "reason": "Market range is thin or the KB row is missing"
+        },
+        {
+          "points": -5,
+          "reason": "The evidence converts 20 GB using the GiB multiplier, inflating the delivered-capacity ratio from 1.00% to 1.07% while leaving it well below the 85% threshold."
+        },
+        {
+          "points": 10,
+          "reason": "The buyer reports that the 2 TB drive held only 20 GB and that data was lost."
+        },
+        {
+          "points": 5,
+          "reason": "A second buyer on the 2 TB option reports only a little over 10 GB of usable capacity despite a 1.90 TB display, providing approximate corroboration."
         }
       ],
       "missing_evidence": [
@@ -77,7 +89,7 @@
         "Look for an independent measured report for this variation",
         "Verify the reported capacity against the original review or completed test"
       ],
-      "rounds": 0
+      "rounds": 1
     },
     "reviewer_decision": null
   }

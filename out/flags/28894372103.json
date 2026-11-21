@@ -37,7 +37,7 @@
     ],
     "verdict": "unsure",
     "confidence": {
-      "score": 50,
+      "score": 60,
       "base": 50,
       "adjustments": [
         {
@@ -47,13 +47,21 @@
         {
           "points": -10,
           "reason": "Market range is thin or the KB row is missing"
+        },
+        {
+          "points": 5,
+          "reason": "The buyer reports a capacity shortfall without giving a measured value, which supports the flag’s request for a usable measurement."
+        },
+        {
+          "points": 5,
+          "reason": "The buyer also reports that all the data they stored disappeared shortly afterward, giving a separate reason to prioritize testing the 1TB option."
         }
       ],
       "missing_evidence": [
         "Find an approved reference for this brand, product line and type",
         "Verify the reported capacity against the original review or completed test"
       ],
-      "rounds": 0
+      "rounds": 1
     },
     "reviewer_decision": null
   },

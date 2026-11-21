@@ -51,16 +51,24 @@
     ],
     "verdict": "unsure",
     "confidence": {
-      "score": 60,
+      "score": 65,
       "base": 60,
       "adjustments": [
         {
           "points": 10,
           "reason": "Market range and at least 3 offers captured today"
+        },
+        {
+          "points": 10,
+          "reason": "The selected 512 GB SanDisk Ultra Flair SDCZ73 costs ฿1,389, about 59% below the lowest same-day offer for the same model and capacity at ฿3,350."
+        },
+        {
+          "points": -5,
+          "reason": "The ฿4,450 and ฿5,145 offers share Shopee shop ID 60775884, so the three comparison offers represent only two sellers."
         }
       ],
       "missing_evidence": [],
-      "rounds": 0
+      "rounds": 1
     },
     "reviewer_decision": null
   }

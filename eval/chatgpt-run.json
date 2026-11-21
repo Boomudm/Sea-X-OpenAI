@@ -1,0 +1,43 @@
+{
+  "method": "Codex CLI exec (ChatGPT login) as API stand-in for a fresh ChatGPT chat; one isolated ephemeral session per listing, empty working dir, read-only sandbox, no tool calls observed, first run kept",
+  "cli": "codex-cli 0.171.0-alpha.13",
+  "model": "gpt-6.2-sol (requested via -m; CLI events do not echo the model)",
+  "reasoning_effort": "medium",
+  "prompt": "eval/chatgpt-prompt.txt verbatim + listing JSON; images from data/listings/<id>/images/ attached",
+  "started_at": "2026-11-21T07:40:11Z",
+  "finished_at": "2026-11-21T07:40:20Z",
+  "note": "An earlier attempt failed before reaching the model (CLI argument error: -i consumed the prompt); no model output was produced or discarded.",
+  "raw_responses": {
+    "16397222698": "[\n  {\n    \"listing_id\": \"16397222698\",\n    \"option_id\": \"SDCZ73_032G_G46B\",\n    \"buyers_report_shortfall\": false\n  },\n  {\n    \"listing_id\": \"16397222698\",\n    \"option_id\": \"SDCZ73_064G_G46\",\n    \"buyers_report_shortfall\": false\n  }\n]",
+    "28894372103": "[\n  {\n    \"listing_id\": \"28894372103\",\n    \"option_id\": \"1tb\",\n    \"buyers_report_shortfall\": false\n  },\n  {\n    \"listing_id\": \"28894372103\",\n    \"option_id\": \"2tb\",\n    \"buyers_report_shortfall\": false\n  }\n]",
+    "47255645924": "[\n  {\n    \"listing_id\": \"47255645924\",\n    \"option_id\": \"128gb\",\n    \"buyers_report_shortfall\": true\n  }\n]"
+  },
+  "additional_runs": [
+    {
+      "listings": [
+        "22165813567",
+        "8082164236"
+      ],
+      "started_at": "2026-11-21T08:06:46Z",
+      "finished_at": "2026-11-21T08:06:51Z",
+      "inputs": "frozen prompt + listing JSON + files under data/listings/<id>/images/ only (22165813567 has no images)",
+      "tool_calls": 0,
+      "raw_responses": {
+        "22165813567": "[\n  {\n    \"listing_id\": \"22165813567\",\n    \"option_id\": \"SDCZ74_128G_G46\",\n    \"buyers_report_shortfall\": false\n  }\n]",
+        "8082164236": "[\n  {\n    \"listing_id\": \"8082164236\",\n    \"option_id\": \"8082164236-option-2tb\",\n    \"buyers_report_shortfall\": true\n  }\n]"
+      }
+    }
+  ],
+  "discarded_run": {
+    "listings": [
+      "22165813567",
+      "8082164236"
+    ],
+    "started_at": "2026-11-21T08:06:04Z",
+    "why": "Operator input error: capture notes (provenance.json, source-check.md, stars-evidence.md, provenance.md) were attached as images. The 22165813567 session read them with shell commands; source-check.md contains capture-side analysis, so the run was not blind to the protocol inputs. Re-run with protocol inputs only; the discarded output is kept here for transparency.",
+    "raw_responses": {
+      "22165813567": "[\n  {\n    \"listing_id\": \"22165813567\",\n    \"option_id\": \"SDCZ74_128G_G46\",\n    \"buyers_report_shortfall\": false\n  }\n]",
+      "8082164236": "[\n  {\n    \"listing_id\": \"8082164236\",\n    \"option_id\": \"8082164236-option-2tb\",\n    \"buyers_report_shortfall\": true\n  }\n]"
+    }
+  }
+}

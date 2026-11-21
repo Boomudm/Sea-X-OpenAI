@@ -57,10 +57,18 @@
         {
           "points": 10,
           "reason": "Market range and at least 3 offers captured today"
+        },
+        {
+          "points": -5,
+          "reason": "The ฿620 price is only ฿4 (0.6%) below the lowest cited offer, which weakens the case that it is unusually low for a 64 GB drive."
+        },
+        {
+          "points": 5,
+          "reason": "The ฿620 price is ฿94 (13.2%) below the same-day ฿714 offer for the matching 64 GB Ultra Flair SDCZ73 model, which supports the low-price flag."
         }
       ],
       "missing_evidence": [],
-      "rounds": 0
+      "rounds": 1
     },
     "reviewer_decision": null
   }

@@ -1,0 +1,17 @@
+{
+  "1tb": [
+    {
+      "points": 5,
+      "reason": "The buyer reports a capacity shortfall without giving a measured value, which supports the flag’s request for a usable measurement.",
+      "source": "ความจำในข้อมูล มีไม่ถึง",
+      "kind": "other"
+    },
+    {
+      "points": 5,
+      "reason": "The buyer also reports that all the data they stored disappeared shortly afterward, giving a separate reason to prioritize testing the 1TB option.",
+      "source": "28894372103-r01",
+      "kind": "other"
+    }
+  ],
+  "2tb": []
+}
