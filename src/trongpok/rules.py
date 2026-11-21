@@ -70,9 +70,23 @@ def _confidence(deciding_evidence, all_evidence, market, thin, reference_matched
         {"points": points, "reason": reason} for applies, points, reason in factors if applies
     ]
     base = max(0, min(100, 50 + sum(item["points"] for item in adjustments)))
+    confidence = {
+        "score": base,
+        "base": base,
+        "adjustments": adjustments,
+        "missing_evidence": missing,
+        "rounds": 0,
+    }
+    return _apply_challenges(
+        confidence, challenges, _challenge_sources(all_evidence) | set(extra_sources),
+        price_decided=any(item.get("source") == "market_range" for item in deciding_evidence),
+        profile=profile,
+    )
+
+
+def _apply_challenges(confidence, challenges, sources, *, price_decided, profile, retain_citations=False):
+    adjustments = list(confidence["adjustments"])
     change = 0
-    sources = _challenge_sources(all_evidence) | set(extra_sources)
-    price_decided = any(item.get("source") == "market_range" for item in deciding_evidence)
     seen = set()
     for challenge in challenges:
         points = challenge.get("points")
@@ -84,24 +98,36 @@ def _confidence(deciding_evidence, all_evidence, market, thin, reference_matched
             or not isinstance(source, str) or source not in sources
             or not isinstance(reason, str) or not reason.strip() or source in seen
             or not -20 <= change + points <= 20
-            # Code already reads every GB/TB number both ways (§4.4), so the AI
-            # cannot lower confidence on GB vs GiB grounds.
-            or (storage and kind == "gb_vs_gib" and points < 0)
-            # Sale or promotion pricing only bears on a flag decided by price.
+            # The storage conversion already reads GB/TB numbers both ways.
+            or (profile.category == "storage" and kind == "gb_vs_gib" and points < 0)
             or (kind == "flash_sale" and not price_decided)
         ):
             continue
         change += points
         seen.add(source)
-        adjustments.append({"points": points, "reason": reason})
+        adjustment = {"points": points, "reason": reason}
+        if retain_citations:
+            adjustment["source"] = source
+        adjustments.append(adjustment)
 
     return {
-        "score": max(0, min(100, base + change)),
-        "base": base,
+        **confidence,
+        "score": max(0, min(100, confidence["base"] + change)),
         "adjustments": adjustments,
-        "missing_evidence": missing,
         "rounds": int(bool(challenges)),
     }
+
+
+def rescore_option_flag(base_flag, challenges, *, eligible_sources, profile: CategoryProfile):
+    """Apply canonical, pipeline-validated citations to an unchallenged option flag."""
+    price_decided = base_flag["deciding"] in {"Q1", "Q4"} and any(
+        item.get("source") == "market_range" for item in base_flag["evidence"]
+    )
+    confidence = _apply_challenges(
+        base_flag["confidence"], challenges, eligible_sources, price_decided=price_decided,
+        profile=profile, retain_citations=True,
+    )
+    return {**base_flag, "confidence": confidence}
 
 
 def _checked_review_ids(listing, option, findings):
@@ -269,6 +295,21 @@ def queue_key(flag):
     score = flag["confidence"]["score"]
     return (COLOUR_ORDER[flag["colour"]], score if flag["colour"] == "GREEN" else -score,
             flag["listing_id"], flag["option_id"])
+
+
+def build_option_flag(
+    listing, option, kb_rows=(), findings=(), claims=(), *, as_of=None,
+    profile: CategoryProfile | None = None, allow_draft: bool = False,
+    checks_complete: bool = True,
+):
+    """Evaluate one option while retaining the full capture for Variation ambiguity."""
+    profile = require_profile_approval(profile or load_profile(), allow_draft=allow_draft)
+    as_of = str(as_of or datetime.now(ZoneInfo("Asia/Bangkok")).date())[:10]
+    claims_by_option = {claim["option_id"]: claim for claim in claims}
+    return _build_flag(
+        listing, option, claims_by_option.get(option["option_id"], {}),
+        reference_source_for(profile.category, kb_rows), findings, as_of, (), profile, checks_complete,
+    )
 
 
 def build_flags(
