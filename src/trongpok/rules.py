@@ -1,4 +1,5 @@
 """Deterministic flags from captured listings, approved references and reader evidence."""
+import re
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from zoneinfo import ZoneInfo
@@ -26,6 +27,25 @@ def _find_kb(claim, rows):
         if brand in {_identity(name) for name in [row["brand"], *row["aliases"]]}
         and product_line == _identity(row["product_line"])
         and storage_type == _identity(row["type"])
+    ]
+    return matches[0] if len(matches) == 1 else None
+
+
+def _captured_kb(listing, rows):
+    """Use a unique approved row named explicitly in the captured title and specs."""
+    title = _identity(listing.get("title"))
+    spec = _identity(listing.get("spec_text"))
+
+    def mentions(value, text):
+        name = _identity(value)
+        return bool(name and re.search(rf"(?<!\w){re.escape(name)}(?!\w)", text))
+
+    matches = [
+        row for row in rows
+        if row.get("approved_by")
+        and mentions(row["product_line"], title)
+        and mentions(row["type"], spec)
+        and any(mentions(name, title) for name in [row["brand"], *row["aliases"]])
     ]
     return matches[0] if len(matches) == 1 else None
 
@@ -151,7 +171,8 @@ def _confidence(deciding_evidence, all_evidence, market, thin, kb, uncertain, as
 def _build_flag(listing, option, claim, rows, findings, as_of, challenges):
     promise = _number(claim.get("promise_gb", option["promise_gb"]))
     unclear = claim.get("capacity_unclear", False) or promise is None or promise <= 0
-    kb = _find_kb(claim, rows)
+    has_claim_identity = any(claim.get(field) for field in ("brand", "product_line", "type"))
+    kb = _find_kb(claim, rows) if has_claim_identity else _captured_kb(listing, rows)
     reasons = {}
     evidence = {}
     missing = []
