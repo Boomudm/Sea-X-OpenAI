@@ -33,6 +33,7 @@ export function ReviewOverview({ cases, priority, onSelect, toQueue }: OverviewP
   for (const item of cases) counts[item.priority] += 1
   const matching = priority ? cases.filter((item) => item.priority === priority) : cases
   const palette = heatPalettes[priority ?? 'all']
+  const visibleSignals: readonly ReviewSignal[] = priority === 'yellow' ? ['reports'] : signalIds
 
   return (
     <div className="mt-6 grid gap-4 min-[860px]:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
@@ -93,7 +94,7 @@ export function ReviewOverview({ cases, priority, onSelect, toQueue }: OverviewP
             </tr>
           </thead>
           <tbody>
-            {signalIds.map((signal) => (
+            {visibleSignals.map((signal) => (
               <tr key={signal}>
                 <th scope="row" className="pr-1 text-left font-semibold">{signals[signal].label}</th>
                 {bandIds.map((band) => {
