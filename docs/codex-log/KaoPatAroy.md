@@ -1,0 +1,8 @@
+# Codex log: KaoPatAroy
+
+| Time | Person | Task | Model / effort | Result | How it was checked |
+|---|---|---|---|---|---|
+| 2026-11-21 11:39 +07 | KaoPatAroy | Initial build-day coordination and review of PRs #12 and #13 | GPT-6 Codex, effort unavailable | Updated #8 and assigned #3, #7, #9. Found four listings with zero buyer reviews and a failed SonarCloud gate on #13. | gh, detached checkouts, git merge-tree, uv run pytest (34 on #13 and combined, 15 on #12 plus default), offline CLI (one price YELLOW, three GREY). |
+| 2026-11-21 11:42 +07 | KaoPatAroy | PR #13 readiness handoff | GPT-6 Codex, high-effort subagent review | Reproduced conflicting measurements triggering Q3 RED. Posted the regression and live replay requirements in #8. | gh, uv run pytest (34 passed), synthetic fixture replay (expected Q4, observed Q3). |
+| 2026-11-21 11:46 +07 | KaoPatAroy | PR #13 draft cleanup | GPT-6 Codex, effort unavailable | Marked #13 ready for review per lead and updated #8. Merge decision remains open on the known regression. | gh verified draft cleared and head unchanged at a48da3b. uv run pytest passed 34. |
+| 2026-11-21 12:01 +07 | KaoPatAroy | U5 evaluation, pitch, and U3/queue recheck | GPT-6 Codex with high-effort subagents | Built scorer, froze 20% cutoff and ChatGPT prompt, drafted pitch. Confirmed U3 SonarCloud pass and reproduced its outstanding Q4 regression. | U5 uv run pytest 18 passed, #13 uv run pytest 38 passed, synthetic replay and GitHub review. Live evaluation awaits matched reviews. |
