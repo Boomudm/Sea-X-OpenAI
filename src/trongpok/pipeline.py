@@ -42,6 +42,7 @@ from .pipeline_ai import (
 from .pipeline_state import LostJobLease, PipelineState
 from .profiles import CategoryProfile, load_profile, require_profile_approval
 from .publication import masked_buyer, publish_flag
+from .references import reference_source_for
 from .reviews import (
     advertised_amounts,
     categorical_quote_supported,
@@ -250,12 +251,13 @@ class Pipeline:
             for name, definition in self.profile.units.items()
             for token in (name, *definition.all_aliases)
         }
-        self._evidence_key = _hash(self.kb_rows)
+        self._references = reference_source_for(self.profile.category, self.kb_rows)
 
     def process_listing(self, listing: dict) -> list[dict]:
-        return self._process_listing(listing, from_message=False)
+        listing_id = self._process_capture(listing, automatic=False)
+        return self._with_decisions(self.state.results(self._profile_key, listing_id))
 
-    def _process_listing(self, listing: dict, *, from_message: bool) -> list[dict]:
+    def _process_capture(self, listing: dict, *, automatic: bool) -> str:
         if not isinstance(listing, dict):
             raise ReaderInputError("A saved capture must be a listing object")
         for group in ("options", "reviews"):
@@ -278,28 +280,25 @@ class Pipeline:
             option_id = option["option_id"]
             unambiguous = bool(label) and len(options_by_variation[label]) == 1
             reviews = reviews_by_variation[label] if unambiguous else []
-            listing_context = ()
-            if self.profile.category == "storage":
-                listing_context = (listing["title"], listing["spec_text"], self._evidence_key)
-            elif self.profile.measurement_mode == "numeric" and option["promise_value"] is None:
-                listing_context = (listing["title"],)
-            evidence = _hash((listing_context, option, unambiguous, reviews))
+            promise = self._advertised_promise(listing, option)
+            option_context = self._option_context(listing, option, promise)
+            evidence = _hash((option_context, unambiguous, reviews))
             key = _hash((
                 listing_id, option_id, evidence, self.profile.version, self._profile_key, PROMPT_VERSIONS,
             ))
-            jobs[option_id] = (key, option, reviews)
+            jobs[option_id] = (key, option, reviews, promise)
         admitted = self.state.admit(
             self._profile_key, listing_id, {option_id: job[0] for option_id, job in jobs.items()},
-            revision=revision, from_message=from_message,
+            revision=revision, from_message=automatic,
         )
         if not admitted:
-            return self._with_decisions(self.state.results(self._profile_key, listing_id))
+            return listing_id
         runnable = self.state.runnable_keys(self._profile_key, listing_id)
         pending = [job for job in jobs.values() if job[0] in runnable]
         if not pending:
-            return self._with_decisions(self.state.results(self._profile_key, listing_id))
+            return listing_id
         with ReviewCache(self.state.path) as cache:
-            for key, option, reviews in pending:
+            for key, option, reviews, promise in pending:
                 owner = uuid4().hex
                 prior_error = self.state.claim(key, owner)
                 if prior_error is not None:
@@ -308,20 +307,25 @@ class Pipeline:
                         scoped_listing = {
                             **listing, "reviews": reviews, "options": options_by_variation[option["variation_label"]],
                         }
-                        flag = self._analyze(scoped_listing, option, reviews, ai, cache)
+                        flag = self._analyze(scoped_listing, option, reviews, promise, ai, cache)
                         self.state.finish(key, owner, publish_flag(flag))
                     except LostJobLease:
                         continue
-        return self._with_decisions(self.state.results(self._profile_key, listing_id))
+        return listing_id
 
     def process_file(self, path: str | Path) -> list[dict]:
         return self.process_listing(_read_capture_file(Path(path)))
+
+    def process_watched_file(self, path: str | Path) -> None:
+        """Admit a watched capture automatically, leaving result collection to the scan."""
+        self._process_capture(_read_capture_file(Path(path)), automatic=True)
 
     def process_message(self, message: dict) -> list[dict]:
         """Consume a queue message carrying a saved capture instead of a file path."""
         if not isinstance(message, dict) or set(message) != {"listing"}:
             raise ReaderInputError("A queue message must contain one listing object")
-        return self._process_listing(message["listing"], from_message=True)
+        listing_id = self._process_capture(message["listing"], automatic=True)
+        return self._with_decisions(self.state.results(self._profile_key, listing_id))
 
     def queue(self) -> list[dict]:
         return self._with_decisions(self.state.results(self._profile_key))
@@ -335,10 +339,10 @@ class Pipeline:
                     flag["verdict"] = "mismatch" if decision["decision"] == "accepted" else "no_mismatch"
         return sorted((publish_flag(flag) for flag in flags), key=queue_key)
 
-    def _claim(self, listing: dict, option: dict, ai: _JobReader) -> list[dict]:
+    def _advertised_promise(self, listing: dict, option: dict) -> Decimal | None:
         profile = self.profile
         if profile.measurement_mode != "numeric":
-            return []
+            return None
         storage = profile.category == "storage"
         key = "promise_gb" if storage else "promise_value"
         unclear = "capacity_unclear" if storage else "measurement_unclear"
@@ -346,16 +350,47 @@ class Pipeline:
         captured_text = option.get("capacity_text" if storage else "measurement_text") or label
         option_amounts = advertised_amounts(label, profile) | advertised_amounts(captured_text, profile)
         title_amounts = advertised_amounts(listing["title"], profile) if storage else set()
-        supplied = _positive_decimal(option.get(key))
+        supplied = option.get(key)
         if (
             option.get(unclear)
             or len(option_amounts) != 1
             or (storage and len(title_amounts) == 1 and option_amounts != title_amounts)
-            or (option.get(key) is not None and supplied not in option_amounts)
+            or (supplied is not None and _positive_decimal(supplied) not in option_amounts)
         ):
-            return [{"option_id": option["option_id"], unclear: True, key: None}]
-        if supplied is not None:
+            return None
+        advertised = next(iter(option_amounts))
+        return advertised if advertised > 0 else None
+
+    def _option_context(self, listing: dict, option: dict, promise: Decimal | None) -> tuple:
+        profile = self.profile
+        storage = profile.category == "storage"
+        ai_claim = promise is not None and option.get("promise_gb" if storage else "promise_value") is None
+        title_context = listing.get("title") if ai_claim else None
+        captured = {key: value for key, value in option.items() if key not in {"was_thb", "now_thb"}}
+        references = self._references.resolve(listing, {}, promise)
+        market = references.market
+        compatible = market and market.currency == profile.currency and profile.price_per_unit in (None, market.unit)
+        market_evidence = market.flag_evidence(promise, option) if compatible and promise is not None else None
+        spec = references.official or references.mall
+        spec_evidence = spec.flag_evidence(promise) if spec and promise is not None and promise not in spec.values else None
+        return (
+            captured, str(promise) if promise is not None else None, title_context,
+            references.matched, references.thin, market_evidence, spec_evidence,
+        )
+
+    def _claim(self, listing: dict, option: dict, promise: Decimal | None, ai: _JobReader) -> list[dict]:
+        profile = self.profile
+        if profile.measurement_mode != "numeric":
             return []
+        storage = profile.category == "storage"
+        key = "promise_gb" if storage else "promise_value"
+        if promise is None:
+            unclear = "capacity_unclear" if storage else "measurement_unclear"
+            return [{"option_id": option["option_id"], unclear: True, key: None}]
+        if option.get(key) is not None:
+            return []
+        label = option["variation_label"]
+        captured_text = option.get("capacity_text" if storage else "measurement_text") or label
         result = ai.request(ClaimAssessment, claim_prompt(profile), {
             "title": listing["title"],
             "variation_label": label,
@@ -379,7 +414,7 @@ class Pipeline:
         if factor is None or base is None:
             raise InvalidReaderOutput("The advertised unit has no promise conversion")
         value = Decimal(str(quantity)) * factor / base
-        if value not in option_amounts:
+        if value != promise:
             raise InvalidReaderOutput("The advertised claim conflicts with the full option label")
         return [{"option_id": option["option_id"], key: str(value)}]
 
@@ -470,10 +505,11 @@ class Pipeline:
         return findings
 
     def _analyze(
-        self, listing: dict, option: dict, reviews: list[dict], ai: _JobReader, cache: ReviewCache,
+        self, listing: dict, option: dict, reviews: list[dict], promise: Decimal | None,
+        ai: _JobReader, cache: ReviewCache,
     ) -> dict:
         try:
-            claims = self._claim(listing, option, ai)
+            claims = self._claim(listing, option, promise, ai)
         except (InvalidReaderOutput, ValidationError):
             ai.record_failure()
             claims = []
@@ -592,7 +628,7 @@ def main() -> None:
                     if path.is_symlink() or not path.is_file():
                         continue
                     try:
-                        pipeline.process_file(path)
+                        pipeline.process_watched_file(path)
                     except (ReaderInputError, ValueError, OSError):
                         print("A watched capture could not be read", file=sys.stderr)
                 snapshot = _json(pipeline.queue())

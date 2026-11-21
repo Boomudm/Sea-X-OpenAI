@@ -574,11 +574,12 @@ def test_partial_review_preserves_verified_negative_but_is_not_cached(tmp_path, 
     }
     assert len(client.calls) == 2
 
-    # A title change changes the storage job while the review request payload is unchanged.
-    [replayed] = pipeline.process_listing({**listing, "title": "Revised title, 64 GB drive"})
+    # The new review changes this job while the original request payloads stay unchanged.
+    updated = captured("Got only 29 GB", "Measured 30 GB", "Packed neatly")
+    [replayed] = pipeline.process_listing(updated)
     assert replayed["colour"] == "RED"
     assert [call[2]["review_text"] for call in client.calls] == [
-        "Got only 29 GB", "Measured 30 GB", "Got only 29 GB",
+        "Got only 29 GB", "Measured 30 GB", "Got only 29 GB", "Packed neatly",
     ]
 
 
@@ -646,3 +647,127 @@ def test_nonreference_profiles_ignore_price_reference_and_unused_metadata_change
     )
     assert changed.process_listing(listing) == [flag]
     assert len(client.calls) == attempts
+
+
+def test_watch_ignores_older_duplicate_listing_file_but_manual_replay_remains_valid(tmp_path, monkeypatch, capsys):
+    db = tmp_path / "jobs.db"
+    captures = tmp_path / "captures"
+    captures.mkdir()
+    old = {**clean_capture(), "captured_at": "2026-11-21T07:00:00Z"}
+    new = deepcopy(old)
+    new["captured_at"] = "2026-11-21T08:00:00Z"
+    new["reviews"][0]["text"] = "Got only 29 GB"
+    new["reviews"][1]["text"] = "Measured 30 GB"
+    (captures / "a-new.json").write_text(json.dumps(new))
+    old_path = captures / "z-old.json"
+    old_path.write_text(json.dumps(old))
+    client = ScriptedClient()
+    monkeypatch.setattr(pipeline_module, "PipelineResponsesClient", lambda: client)
+    monkeypatch.setattr(sys, "argv", [
+        "trongpok-pipeline", "--watch", str(captures), "--once", "--state-db", str(db),
+    ])
+
+    main()
+
+    [flag] = json.loads(capsys.readouterr().out)
+    assert flag["colour"] == "RED"
+    assert not any(call[2].get("review_text") == "Arrived on day 0" for call in client.calls)
+    [manual] = Pipeline(db, client=client).process_file(old_path)
+    assert manual["colour"] == "GREEN"
+
+
+def test_watch_enriches_queue_snapshot_once_after_scanning_files(tmp_path, monkeypatch, capsys):
+    captures = tmp_path / "captures"
+    captures.mkdir()
+    listing_ids = ("pipeline-first", "pipeline-second")
+    for listing_id in listing_ids:
+        listing = {**clean_capture(), "listing_id": listing_id}
+        (captures / f"{listing_id}.json").write_text(json.dumps(listing))
+    requests = []
+
+    def load_decision(_db, listing_id, option_id):
+        requests.append((listing_id, option_id))
+
+    result_calls = []
+    original_results = PipelineState.results
+
+    def results(state, scope, listing_id=None):
+        result_calls.append(listing_id)
+        return original_results(state, scope, listing_id)
+
+    client = ScriptedClient()
+    monkeypatch.setattr(pipeline_module, "load_decision", load_decision)
+    monkeypatch.setattr(PipelineState, "results", results)
+    monkeypatch.setattr(pipeline_module, "PipelineResponsesClient", lambda: client)
+    monkeypatch.setattr(sys, "argv", [
+        "trongpok-pipeline", "--watch", str(captures), "--once", "--state-db", str(tmp_path / "jobs.db"),
+    ])
+
+    main()
+
+    assert [flag["listing_id"] for flag in json.loads(capsys.readouterr().out)] == list(listing_ids)
+    assert sorted(requests) == [(listing_id, "opt-64") for listing_id in listing_ids]
+    assert result_calls == [None]
+
+
+def reference_row(brand):
+    return {
+        "brand": brand,
+        "aliases": [],
+        "product_line": "Standard",
+        "type": "USB flash drive",
+        "approved_by": "Reviewer",
+        "mall_capacities_gb": [64],
+        "brand_page": {
+            "url": "https://manufacturer.example.invalid/standard",
+            "date": "2026-11-21",
+            "capacities_gb": [64],
+        },
+        "market_range": [{
+            "capacity_gb": 64,
+            "low_thb_per_gb": 6.25,
+            "high_thb_per_gb": 9.375,
+            "offers_used": 3,
+            "date": "2026-11-21",
+        }],
+        "mall_sources": [{
+            "capacity_gb": 64,
+            "url": f"https://seller-{index}.example.invalid/standard",
+            "date": "2026-11-21",
+        } for index in range(3)],
+    }
+
+
+@pytest.mark.parametrize("supplied_promise", [64, None])
+def test_storage_reprocesses_only_when_matching_reference_can_use_changed_price(
+    tmp_path, supplied_promise,
+):
+    def extract(schema, payload):
+        if schema is ClaimAssessment:
+            return {"status": "ok", "unit": "GB", "quantity": 64, "quote": "64 GB"}
+        return classify(schema, payload)
+
+    client = ScriptedClient(extract)
+    db = tmp_path / "jobs.db"
+    listing = {**clean_capture(), "title": "Sample data BrandA Standard 64 GB"}
+    listing["options"][0]["promise_gb"] = supplied_promise
+    [unreferenced] = Pipeline(db, client=client).process_listing(listing)
+    assert unreferenced["colour"] == "GREEN"
+    attempts = len(client.calls)
+
+    listing["options"][0]["now_thb"] = 50
+    unrelated = reference_row("BrandB")
+    assert Pipeline(db, client=client, kb_rows=[unrelated]).process_listing(listing) == [unreferenced]
+    assert len(client.calls) == attempts
+
+    approved = reference_row("BrandA")
+    pipeline = Pipeline(db, client=client, kb_rows=[approved, unrelated])
+    [low] = pipeline.process_listing(listing)
+    assert (low["colour"], low["deciding"]) == ("RED", "Q1")
+    assert any(item.get("now_thb") == 50 for item in low["evidence"])
+    assert len(client.calls) == attempts + (2 if supplied_promise is None else 1)
+
+    listing["options"][0]["now_thb"] = 550
+    [normal] = pipeline.process_listing(listing)
+    assert normal["colour"] == "GREEN"
+    assert len(client.calls) == attempts + (4 if supplied_promise is None else 2)
