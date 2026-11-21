@@ -20,9 +20,11 @@ def write_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
 
 
-def test_bundled_web_samples_match_pipeline_fixtures():
+def test_original_bundled_samples_match_pipeline_fixtures():
     bundled = FIXTURES.parents[2] / "web/seller-guard/src/data/sampleCases.json"
-    assert read_json(bundled) == build_cases(FIXTURES / "flags", FIXTURES / "listings")
+    originals = build_cases(FIXTURES / "flags", FIXTURES / "listings")
+    original_listings = {case["listing_id"] for case in originals}
+    assert [case for case in read_json(bundled) if case["listing_id"] in original_listings] == originals
 
 
 def test_export_uses_exact_option_prices_and_pipeline_evidence(tmp_path, monkeypatch):

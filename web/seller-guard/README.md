@@ -18,7 +18,7 @@ npm run dev
 Open the local URL from Vite. The overview is at `/` and the case table is at
 `/review`. **Captured data** loads the exported U3 option records, including
 their scores and adjustments. **Sample data** shows labelled USB flash drive
-cases generated from the team's U3 test scenarios. If the export is missing,
+cases scored by the same U3 rules from 100 synthetic options. If the export is missing,
 the app opens **Sample data** by default.
 
 The U3 reports in `out/flags/` cover the six U1 listings merged in PR #12 on
@@ -66,9 +66,9 @@ status until results are available.
 ## Update the bundled samples
 
 From the repository root, regenerate the bundled web samples after the U3
-test fixtures change.
+rules or demo scenarios change. The generator scores the five original test
+options and 95 additional synthetic options.
 
 ```sh
-uv run python -m trongpok.export_web --flags-dir tests/fixtures/u4/flags \
-  --listings-dir tests/fixtures/u4/listings --output web/seller-guard/src/data/sampleCases.json --no-results
+uv run python tests/fixtures/u4/build.py --web-output web/seller-guard/src/data/sampleCases.json
 ```

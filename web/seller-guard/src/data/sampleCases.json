@@ -111,6 +111,986 @@
     }
   },
   {
+    "listing_id": "sample-usb-001",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 001",
+    "variation_label": "32 GB",
+    "priority": "red",
+    "confidence": 95,
+    "base": 95,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-001-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 9 GB.",
+        "quantity": 9.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 9663676416.0,
+        "ratio": 0.301989888,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-001-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 10 GB.",
+        "quantity": 10.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 10737418240.0,
+        "ratio": 0.33554432,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-001",
+      "was_thb": 204,
+      "now_thb": 169,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-003",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 003",
+    "variation_label": "128 GB",
+    "priority": "red",
+    "confidence": 95,
+    "base": 95,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-003-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 52 GB.",
+        "quantity": 52.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 55834574848.0,
+        "ratio": 0.436207616,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-003-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 53 GB.",
+        "quantity": 53.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 56908316672.0,
+        "ratio": 0.444596224,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-003",
+      "was_thb": 398,
+      "now_thb": 363,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-004",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 004",
+    "variation_label": "256 GB",
+    "priority": "red",
+    "confidence": 95,
+    "base": 95,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-004-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 120 GB.",
+        "quantity": 120.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 128849018880.0,
+        "ratio": 0.50331648,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-004-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 121 GB.",
+        "quantity": 121.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 129922760704.0,
+        "ratio": 0.507510784,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-004",
+      "was_thb": 630,
+      "now_thb": 595,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-006",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 006",
+    "variation_label": "1 TB",
+    "priority": "red",
+    "confidence": 95,
+    "base": 95,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-006-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 590 GB.",
+        "quantity": 590.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 633507676160.0,
+        "ratio": 0.63350767616,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-006-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 591 GB.",
+        "quantity": 591.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 634581417984.0,
+        "ratio": 0.634581417984,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-006",
+      "was_thb": 1850,
+      "now_thb": 1815,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-007",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 007",
+    "variation_label": "32 GB",
+    "priority": "red",
+    "confidence": 95,
+    "base": 95,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-007-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 21 GB.",
+        "quantity": 21.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 22548578304.0,
+        "ratio": 0.704643072,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-007-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 22 GB.",
+        "quantity": 22.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 23622320128.0,
+        "ratio": 0.738197504,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-007",
+      "was_thb": 219,
+      "now_thb": 184,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-009",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 009",
+    "variation_label": "128 GB",
+    "priority": "red",
+    "confidence": 95,
+    "base": 95,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-009-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 45 GB.",
+        "quantity": 45.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 48318382080.0,
+        "ratio": 0.37748736,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-009-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 46 GB.",
+        "quantity": 46.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 49392123904.0,
+        "ratio": 0.385875968,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-009",
+      "was_thb": 413,
+      "now_thb": 378,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-010",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 010",
+    "variation_label": "256 GB",
+    "priority": "red",
+    "confidence": 95,
+    "base": 95,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-010-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 105 GB.",
+        "quantity": 105.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 112742891520.0,
+        "ratio": 0.44040192,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-010-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 106 GB.",
+        "quantity": 106.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 113816633344.0,
+        "ratio": 0.444596224,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-010",
+      "was_thb": 645,
+      "now_thb": 610,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-012",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 012",
+    "variation_label": "1 TB",
+    "priority": "red",
+    "confidence": 95,
+    "base": 95,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-012-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 530 GB.",
+        "quantity": 530.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 569083166720.0,
+        "ratio": 0.56908316672,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-012-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 531 GB.",
+        "quantity": 531.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 570156908544.0,
+        "ratio": 0.570156908544,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-012",
+      "was_thb": 1865,
+      "now_thb": 1830,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-002",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 002",
+    "variation_label": "64 GB",
+    "priority": "red",
+    "confidence": 85,
+    "base": 85,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-002-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 22 GB.",
+        "quantity": 22.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 23622320128.0,
+        "ratio": 0.369098752,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-002-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 23 GB.",
+        "quantity": 23.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 24696061952.0,
+        "ratio": 0.385875968,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-002",
+      "was_thb": 274,
+      "now_thb": 239,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-005",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 005",
+    "variation_label": "512 GB",
+    "priority": "red",
+    "confidence": 85,
+    "base": 85,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-005-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 271 GB.",
+        "quantity": 271.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 290984034304.0,
+        "ratio": 0.568328192,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-005-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 272 GB.",
+        "quantity": 272.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 292057776128.0,
+        "ratio": 0.570425344,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-005",
+      "was_thb": 1080,
+      "now_thb": 1045,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-008",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 008",
+    "variation_label": "64 GB",
+    "priority": "red",
+    "confidence": 85,
+    "base": 85,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-008-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 19 GB.",
+        "quantity": 19.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 20401094656.0,
+        "ratio": 0.318767104,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-008-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 20 GB.",
+        "quantity": 20.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 21474836480.0,
+        "ratio": 0.33554432,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-008",
+      "was_thb": 289,
+      "now_thb": 254,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-011",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 011",
+    "variation_label": "512 GB",
+    "priority": "red",
+    "confidence": 85,
+    "base": 85,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-011-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 241 GB.",
+        "quantity": 241.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 258771779584.0,
+        "ratio": 0.505413632,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-usb-011-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "Files corrupt after 242 GB.",
+        "quantity": 242.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 259845521408.0,
+        "ratio": 0.507510784,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-011",
+      "was_thb": 1020,
+      "now_thb": 985,
+      "photo_count": 0
+    }
+  },
+  {
     "listing_id": "sample-discount-1tb",
     "option_id": "1-tb",
     "title": "Sample · Fixture Brand Discount",
@@ -178,6 +1158,2130 @@
       "listing_url": "https://example.invalid/trongpok-sample/sample-discount-1tb",
       "was_thb": 2990,
       "now_thb": 299,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-013",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 013",
+    "variation_label": "32 GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 204,
+        "now_thb": 28,
+        "low_thb": 134.0,
+        "high_thb": 204.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-1",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 134
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-2",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 169
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-3",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 204
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-013",
+      "was_thb": 204,
+      "now_thb": 28,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-015",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 015",
+    "variation_label": "128 GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 398,
+        "now_thb": 108,
+        "low_thb": 328.0,
+        "high_thb": 398.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-1",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 328
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-2",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 363
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-3",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 398
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-015",
+      "was_thb": 398,
+      "now_thb": 108,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-016",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 016",
+    "variation_label": "256 GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 630,
+        "now_thb": 218,
+        "low_thb": 560.0,
+        "high_thb": 630.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/256-1",
+            "date": "2026-11-21",
+            "capacity_gb": 256,
+            "now_thb": 560
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/256-2",
+            "date": "2026-11-21",
+            "capacity_gb": 256,
+            "now_thb": 595
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/256-3",
+            "date": "2026-11-21",
+            "capacity_gb": 256,
+            "now_thb": 630
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-016",
+      "was_thb": 630,
+      "now_thb": 218,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-018",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 018",
+    "variation_label": "1 TB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 1850,
+        "now_thb": 481,
+        "low_thb": 1780.0,
+        "high_thb": 1850.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-1",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 1780
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-2",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 1815
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-3",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 1850
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-018",
+      "was_thb": 1850,
+      "now_thb": 481,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-019",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 019",
+    "variation_label": "32 GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 219,
+        "now_thb": 49,
+        "low_thb": 149.0,
+        "high_thb": 219.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-1",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 149
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-2",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 184
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-3",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 219
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-019",
+      "was_thb": 219,
+      "now_thb": 49,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-021",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 021",
+    "variation_label": "128 GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 413,
+        "now_thb": 72,
+        "low_thb": 343.0,
+        "high_thb": 413.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-1",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 343
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-2",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 378
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-3",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 413
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-021",
+      "was_thb": 413,
+      "now_thb": 72,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-022",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 022",
+    "variation_label": "256 GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 645,
+        "now_thb": 155,
+        "low_thb": 575.0,
+        "high_thb": 645.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/256-1",
+            "date": "2026-11-21",
+            "capacity_gb": 256,
+            "now_thb": 575
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/256-2",
+            "date": "2026-11-21",
+            "capacity_gb": 256,
+            "now_thb": 610
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/256-3",
+            "date": "2026-11-21",
+            "capacity_gb": 256,
+            "now_thb": 645
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-022",
+      "was_thb": 645,
+      "now_thb": 155,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-024",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 024",
+    "variation_label": "32 GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q2",
+    "findings": [
+      "unsupported"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: decided",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "The brand page does not list this capacity"
+    ],
+    "evidence": [
+      {
+        "url": "https://example.invalid/trongpok-sample/brand/sample-usb-024",
+        "date": "2026-11-21",
+        "capacities_gb": [
+          64,
+          128,
+          256,
+          512,
+          1000
+        ],
+        "source": "brand_page",
+        "promise_gb": 32.0
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-024",
+      "was_thb": 204,
+      "now_thb": 169,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-026",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 026",
+    "variation_label": "128 GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q2",
+    "findings": [
+      "unsupported"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: decided",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "The brand page does not list this capacity"
+    ],
+    "evidence": [
+      {
+        "url": "https://example.invalid/trongpok-sample/brand/sample-usb-026",
+        "date": "2026-11-21",
+        "capacities_gb": [
+          32,
+          64,
+          256,
+          512,
+          1000
+        ],
+        "source": "brand_page",
+        "promise_gb": 128.0
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-026",
+      "was_thb": 398,
+      "now_thb": 363,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-027",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 027",
+    "variation_label": "256 GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q2",
+    "findings": [
+      "unsupported"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: decided",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "The brand page does not list this capacity"
+    ],
+    "evidence": [
+      {
+        "url": "https://example.invalid/trongpok-sample/brand/sample-usb-027",
+        "date": "2026-11-21",
+        "capacities_gb": [
+          32,
+          64,
+          128,
+          512,
+          1000
+        ],
+        "source": "brand_page",
+        "promise_gb": 256.0
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-027",
+      "was_thb": 630,
+      "now_thb": 595,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-029",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 029",
+    "variation_label": "1 TB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q2",
+    "findings": [
+      "unsupported"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: decided",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "The brand page does not list this capacity"
+    ],
+    "evidence": [
+      {
+        "url": "https://example.invalid/trongpok-sample/brand/sample-usb-029",
+        "date": "2026-11-21",
+        "capacities_gb": [
+          32,
+          64,
+          128,
+          256,
+          512
+        ],
+        "source": "brand_page",
+        "promise_gb": 1000.0
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-029",
+      "was_thb": 1850,
+      "now_thb": 1815,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-030",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 030",
+    "variation_label": "32 GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q2",
+    "findings": [
+      "unsupported"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: decided",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "The brand page does not list this capacity"
+    ],
+    "evidence": [
+      {
+        "url": "https://example.invalid/trongpok-sample/brand/sample-usb-030",
+        "date": "2026-11-21",
+        "capacities_gb": [
+          64,
+          128,
+          256,
+          512,
+          1000
+        ],
+        "source": "brand_page",
+        "promise_gb": 32.0
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-030",
+      "was_thb": 219,
+      "now_thb": 184,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-014",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 014",
+    "variation_label": "64 GB",
+    "priority": "red",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 274,
+        "now_thb": 55,
+        "low_thb": 204.0,
+        "high_thb": 274.0,
+        "date": "2026-11-20",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-1",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 204
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-2",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 239
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-3",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 274
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-014",
+      "was_thb": 274,
+      "now_thb": 55,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-017",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 017",
+    "variation_label": "512 GB",
+    "priority": "red",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 1080,
+        "now_thb": 212,
+        "low_thb": 1010.0,
+        "high_thb": 1080.0,
+        "date": "2026-11-20",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/512-1",
+            "date": "2026-11-20",
+            "capacity_gb": 512,
+            "now_thb": 1010
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/512-2",
+            "date": "2026-11-20",
+            "capacity_gb": 512,
+            "now_thb": 1045
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/512-3",
+            "date": "2026-11-20",
+            "capacity_gb": 512,
+            "now_thb": 1080
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-017",
+      "was_thb": 1080,
+      "now_thb": 212,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-020",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 020",
+    "variation_label": "64 GB",
+    "priority": "red",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 289,
+        "now_thb": 85,
+        "low_thb": 219.0,
+        "high_thb": 289.0,
+        "date": "2026-11-20",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-1",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 219
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-2",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 254
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-3",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 289
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-020",
+      "was_thb": 289,
+      "now_thb": 85,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-023",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 023",
+    "variation_label": "512 GB",
+    "priority": "red",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 1020,
+        "now_thb": 313,
+        "low_thb": 950.0,
+        "high_thb": 1020.0,
+        "date": "2026-11-20",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/512-1",
+            "date": "2026-11-20",
+            "capacity_gb": 512,
+            "now_thb": 950
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/512-2",
+            "date": "2026-11-20",
+            "capacity_gb": 512,
+            "now_thb": 985
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/512-3",
+            "date": "2026-11-20",
+            "capacity_gb": 512,
+            "now_thb": 1020
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-023",
+      "was_thb": 1020,
+      "now_thb": 313,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-025",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 025",
+    "variation_label": "64 GB",
+    "priority": "red",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q2",
+    "findings": [
+      "unsupported"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: decided",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "The brand page does not list this capacity"
+    ],
+    "evidence": [
+      {
+        "url": "https://example.invalid/trongpok-sample/brand/sample-usb-025",
+        "date": "2026-11-21",
+        "capacities_gb": [
+          32,
+          128,
+          256,
+          512,
+          1000
+        ],
+        "source": "brand_page",
+        "promise_gb": 64.0
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-025",
+      "was_thb": 274,
+      "now_thb": 239,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-028",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 028",
+    "variation_label": "512 GB",
+    "priority": "red",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q2",
+    "findings": [
+      "unsupported"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: decided",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "The brand page does not list this capacity"
+    ],
+    "evidence": [
+      {
+        "url": "https://example.invalid/trongpok-sample/brand/sample-usb-028",
+        "date": "2026-11-21",
+        "capacities_gb": [
+          32,
+          64,
+          128,
+          256,
+          1000
+        ],
+        "source": "brand_page",
+        "promise_gb": 512.0
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-028",
+      "was_thb": 1080,
+      "now_thb": 1045,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-031",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 031",
+    "variation_label": "32 GB",
+    "priority": "yellow",
+    "confidence": 90,
+    "base": 90,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      },
+      {
+        "points": 10,
+        "reason": "Completed write-and-verify result"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-031-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "Completed a write and verify test and measured 9 GB.",
+        "quantity": 9.0,
+        "unit": "GB",
+        "role": "test_result",
+        "bytes": 9663676416.0,
+        "ratio": 0.301989888,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Look for an independent measured report for this variation"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-031",
+      "was_thb": 204,
+      "now_thb": 169,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-034",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 034",
+    "variation_label": "256 GB",
+    "priority": "yellow",
+    "confidence": 90,
+    "base": 90,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      },
+      {
+        "points": 10,
+        "reason": "Completed write-and-verify result"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-034-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "Completed a write and verify test and measured 120 GB.",
+        "quantity": 120.0,
+        "unit": "GB",
+        "role": "test_result",
+        "bytes": 128849018880.0,
+        "ratio": 0.50331648,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Look for an independent measured report for this variation"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-034",
+      "was_thb": 630,
+      "now_thb": 595,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-037",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 037",
+    "variation_label": "32 GB",
+    "priority": "yellow",
+    "confidence": 90,
+    "base": 90,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      },
+      {
+        "points": 10,
+        "reason": "Completed write-and-verify result"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-037-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "Completed a write and verify test and measured 21 GB.",
+        "quantity": 21.0,
+        "unit": "GB",
+        "role": "test_result",
+        "bytes": 22548578304.0,
+        "ratio": 0.704643072,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Look for an independent measured report for this variation"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-037",
+      "was_thb": 219,
+      "now_thb": 184,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-033",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 033",
+    "variation_label": "128 GB",
+    "priority": "yellow",
+    "confidence": 80,
+    "base": 80,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-033-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 52 GB.",
+        "quantity": 52.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 55834574848.0,
+        "ratio": 0.436207616,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Look for an independent measured report for this variation"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-033",
+      "was_thb": 398,
+      "now_thb": 363,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-036",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 036",
+    "variation_label": "1 TB",
+    "priority": "yellow",
+    "confidence": 80,
+    "base": 80,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-036-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 590 GB.",
+        "quantity": 590.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 633507676160.0,
+        "ratio": 0.63350767616,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Look for an independent measured report for this variation"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-036",
+      "was_thb": 1850,
+      "now_thb": 1815,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-039",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 039",
+    "variation_label": "128 GB",
+    "priority": "yellow",
+    "confidence": 80,
+    "base": 80,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-039-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 45 GB.",
+        "quantity": 45.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 48318382080.0,
+        "ratio": 0.37748736,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Look for an independent measured report for this variation"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-039",
+      "was_thb": 413,
+      "now_thb": 378,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-032",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 032",
+    "variation_label": "64 GB",
+    "priority": "yellow",
+    "confidence": 70,
+    "base": 70,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-032-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 22 GB.",
+        "quantity": 22.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 23622320128.0,
+        "ratio": 0.369098752,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Look for an independent measured report for this variation"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-032",
+      "was_thb": 274,
+      "now_thb": 239,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-035",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 035",
+    "variation_label": "512 GB",
+    "priority": "yellow",
+    "confidence": 70,
+    "base": 70,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-035-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 271 GB.",
+        "quantity": 271.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 290984034304.0,
+        "ratio": 0.568328192,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Look for an independent measured report for this variation"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-035",
+      "was_thb": 1080,
+      "now_thb": 1045,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-038",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 038",
+    "variation_label": "64 GB",
+    "priority": "yellow",
+    "confidence": 70,
+    "base": 70,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-038-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "I measured only 19 GB.",
+        "quantity": 19.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 20401094656.0,
+        "ratio": 0.318767104,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Look for an independent measured report for this variation"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-038",
+      "was_thb": 289,
+      "now_thb": 254,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-049",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 049",
+    "variation_label": "32 GB",
+    "priority": "yellow",
+    "confidence": 70,
+    "base": 70,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-049-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "The capacity seems much smaller than the advertised size.",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Verify the reported capacity against the original review or completed test"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-049",
+      "was_thb": 204,
+      "now_thb": 169,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-051",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 051",
+    "variation_label": "128 GB",
+    "priority": "yellow",
+    "confidence": 70,
+    "base": 70,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-051-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "The capacity seems much smaller than the advertised size.",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Verify the reported capacity against the original review or completed test"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-051",
+      "was_thb": 398,
+      "now_thb": 363,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-052",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 052",
+    "variation_label": "256 GB",
+    "priority": "yellow",
+    "confidence": 70,
+    "base": 70,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-052-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "The capacity seems much smaller than the advertised size.",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Verify the reported capacity against the original review or completed test"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-052",
+      "was_thb": 630,
+      "now_thb": 595,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-054",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 054",
+    "variation_label": "1 TB",
+    "priority": "yellow",
+    "confidence": 70,
+    "base": 70,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-054-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "The capacity seems much smaller than the advertised size.",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Verify the reported capacity against the original review or completed test"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-054",
+      "was_thb": 1850,
+      "now_thb": 1815,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-055",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 055",
+    "variation_label": "32 GB",
+    "priority": "yellow",
+    "confidence": 70,
+    "base": 70,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-055-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "The capacity seems much smaller than the advertised size.",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Verify the reported capacity against the original review or completed test"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-055",
+      "was_thb": 219,
+      "now_thb": 184,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-057",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 057",
+    "variation_label": "128 GB",
+    "priority": "yellow",
+    "confidence": 70,
+    "base": 70,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-057-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "The capacity seems much smaller than the advertised size.",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Verify the reported capacity against the original review or completed test"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-057",
+      "was_thb": 413,
+      "now_thb": 378,
       "photo_count": 0
     }
   },
@@ -253,6 +3357,807 @@
     }
   },
   {
+    "listing_id": "sample-usb-040",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 040",
+    "variation_label": "32 GB",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 204,
+        "now_thb": 105,
+        "low_thb": 134.0,
+        "high_thb": 204.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-1",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 134
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-2",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 169
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-3",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 204
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-040",
+      "was_thb": 204,
+      "now_thb": 105,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-042",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 042",
+    "variation_label": "128 GB",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 398,
+        "now_thb": 282,
+        "low_thb": 328.0,
+        "high_thb": 398.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-1",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 328
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-2",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 363
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-3",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 398
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-042",
+      "was_thb": 398,
+      "now_thb": 282,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-043",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 043",
+    "variation_label": "256 GB",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 630,
+        "now_thb": 504,
+        "low_thb": 560.0,
+        "high_thb": 630.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/256-1",
+            "date": "2026-11-21",
+            "capacity_gb": 256,
+            "now_thb": 560
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/256-2",
+            "date": "2026-11-21",
+            "capacity_gb": 256,
+            "now_thb": 595
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/256-3",
+            "date": "2026-11-21",
+            "capacity_gb": 256,
+            "now_thb": 630
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-043",
+      "was_thb": 630,
+      "now_thb": 504,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-045",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 045",
+    "variation_label": "1 TB",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 1850,
+        "now_thb": 1460,
+        "low_thb": 1780.0,
+        "high_thb": 1850.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-1",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 1780
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-2",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 1815
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-3",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 1850
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-045",
+      "was_thb": 1850,
+      "now_thb": 1460,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-046",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 046",
+    "variation_label": "32 GB",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 219,
+        "now_thb": 128,
+        "low_thb": 149.0,
+        "high_thb": 219.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-1",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 149
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-2",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 184
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/32-3",
+            "date": "2026-11-21",
+            "capacity_gb": 32,
+            "now_thb": 219
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-046",
+      "was_thb": 219,
+      "now_thb": 128,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-048",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 048",
+    "variation_label": "128 GB",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 413,
+        "now_thb": 268,
+        "low_thb": 343.0,
+        "high_thb": 413.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-1",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 343
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-2",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 378
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/128-3",
+            "date": "2026-11-21",
+            "capacity_gb": 128,
+            "now_thb": 413
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-048",
+      "was_thb": 413,
+      "now_thb": 268,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-050",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 050",
+    "variation_label": "64 GB",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-050-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "The capacity seems much smaller than the advertised size.",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Verify the reported capacity against the original review or completed test"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-050",
+      "was_thb": 274,
+      "now_thb": 239,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-053",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 053",
+    "variation_label": "512 GB",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-053-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "The capacity seems much smaller than the advertised size.",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Verify the reported capacity against the original review or completed test"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-053",
+      "was_thb": 1080,
+      "now_thb": 1045,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-056",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 056",
+    "variation_label": "64 GB",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-usb-056-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "The capacity seems much smaller than the advertised size.",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Verify the reported capacity against the original review or completed test"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-056",
+      "was_thb": 289,
+      "now_thb": 254,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-041",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 041",
+    "variation_label": "64 GB",
+    "priority": "yellow",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 274,
+        "now_thb": 167,
+        "low_thb": 204.0,
+        "high_thb": 274.0,
+        "date": "2026-11-20",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-1",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 204
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-2",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 239
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-3",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 274
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-041",
+      "was_thb": 274,
+      "now_thb": 167,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-044",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 044",
+    "variation_label": "512 GB",
+    "priority": "yellow",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 1080,
+        "now_thb": 788,
+        "low_thb": 1010.0,
+        "high_thb": 1080.0,
+        "date": "2026-11-20",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/512-1",
+            "date": "2026-11-20",
+            "capacity_gb": 512,
+            "now_thb": 1010
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/512-2",
+            "date": "2026-11-20",
+            "capacity_gb": 512,
+            "now_thb": 1045
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/512-3",
+            "date": "2026-11-20",
+            "capacity_gb": 512,
+            "now_thb": 1080
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-044",
+      "was_thb": 1080,
+      "now_thb": 788,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-047",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 047",
+    "variation_label": "64 GB",
+    "priority": "yellow",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 289,
+        "now_thb": 197,
+        "low_thb": 219.0,
+        "high_thb": 289.0,
+        "date": "2026-11-20",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-1",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 219
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-2",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 254
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/64-3",
+            "date": "2026-11-20",
+            "capacity_gb": 64,
+            "now_thb": 289
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-047",
+      "was_thb": 289,
+      "now_thb": 197,
+      "photo_count": 0
+    }
+  },
+  {
     "listing_id": "sample-reference-1tb",
     "option_id": "1-tb",
     "title": "Sample · Fixture Brand Reference",
@@ -297,6 +4202,913 @@
     }
   },
   {
+    "listing_id": "sample-usb-082",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 082",
+    "variation_label": "32 GB",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [
+      "Collect 10 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-082",
+      "was_thb": 204,
+      "now_thb": 169,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-084",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 084",
+    "variation_label": "128 GB",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews",
+      "Matched text reviews are still unchecked"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 8 more matched text reviews",
+      "Read 1 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-084",
+      "was_thb": 398,
+      "now_thb": 363,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-085",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 085",
+    "variation_label": "256 GB",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews",
+      "Matched text reviews are still unchecked"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 3,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 7 more matched text reviews",
+      "Read 2 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-085",
+      "was_thb": 630,
+      "now_thb": 595,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-087",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 087",
+    "variation_label": "1 TB",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 9 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-087",
+      "was_thb": 1850,
+      "now_thb": 1815,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-088",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 088",
+    "variation_label": "32 GB",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews",
+      "Matched text reviews are still unchecked"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 8 more matched text reviews",
+      "Read 1 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-088",
+      "was_thb": 219,
+      "now_thb": 184,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-090",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 090",
+    "variation_label": "128 GB",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [
+      "Collect 10 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-090",
+      "was_thb": 413,
+      "now_thb": 378,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-091",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 091",
+    "variation_label": "256 GB",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 9 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-091",
+      "was_thb": 645,
+      "now_thb": 610,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-093",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 093",
+    "variation_label": "1 TB",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews",
+      "Matched text reviews are still unchecked"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 3,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 7 more matched text reviews",
+      "Read 2 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-093",
+      "was_thb": 1865,
+      "now_thb": 1830,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-094",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 094",
+    "variation_label": "32 GB",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [
+      "Collect 10 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-094",
+      "was_thb": 234,
+      "now_thb": 199,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-083",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 083",
+    "variation_label": "64 GB",
+    "priority": "unknown",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 9 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-083",
+      "was_thb": 274,
+      "now_thb": 239,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-086",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 086",
+    "variation_label": "512 GB",
+    "priority": "unknown",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [
+      "Collect 10 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-086",
+      "was_thb": 1080,
+      "now_thb": 1045,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-089",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 089",
+    "variation_label": "64 GB",
+    "priority": "unknown",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews",
+      "Matched text reviews are still unchecked"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 3,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 7 more matched text reviews",
+      "Read 2 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-089",
+      "was_thb": 289,
+      "now_thb": 254,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-092",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 092",
+    "variation_label": "512 GB",
+    "priority": "unknown",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews",
+      "Matched text reviews are still unchecked"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 8 more matched text reviews",
+      "Read 1 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-092",
+      "was_thb": 1020,
+      "now_thb": 985,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-095",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 095",
+    "variation_label": "64 GB",
+    "priority": "unknown",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 9 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-095",
+      "was_thb": 304,
+      "now_thb": 269,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-059",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 059",
+    "variation_label": "64 GB",
+    "priority": "green",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-059",
+      "was_thb": 274,
+      "now_thb": 239,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-062",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 062",
+    "variation_label": "512 GB",
+    "priority": "green",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-062",
+      "was_thb": 1080,
+      "now_thb": 1045,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-065",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 065",
+    "variation_label": "64 GB",
+    "priority": "green",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-065",
+      "was_thb": 289,
+      "now_thb": 254,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-068",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 068",
+    "variation_label": "512 GB",
+    "priority": "green",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-068",
+      "was_thb": 1020,
+      "now_thb": 985,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-071",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 071",
+    "variation_label": "64 GB",
+    "priority": "green",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-071",
+      "was_thb": 304,
+      "now_thb": 269,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-074",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 074",
+    "variation_label": "512 GB",
+    "priority": "green",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-074",
+      "was_thb": 1035,
+      "now_thb": 1000,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-077",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Slider 077",
+    "variation_label": "64 GB",
+    "priority": "green",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-077",
+      "was_thb": 319,
+      "now_thb": 284,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-080",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Swivel 080",
+    "variation_label": "512 GB",
+    "priority": "green",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-080",
+      "was_thb": 1050,
+      "now_thb": 1015,
+      "photo_count": 0
+    }
+  },
+  {
     "listing_id": "sample-standard-64",
     "option_id": "64-gb",
     "title": "Sample · Fixture Brand Standard",
@@ -336,6 +5148,694 @@
       "listing_url": "https://example.invalid/trongpok-sample/sample-standard-64",
       "was_thb": 256,
       "now_thb": 224,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-058",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 058",
+    "variation_label": "32 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-058",
+      "was_thb": 204,
+      "now_thb": 169,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-060",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 060",
+    "variation_label": "128 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-060",
+      "was_thb": 398,
+      "now_thb": 363,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-061",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 061",
+    "variation_label": "256 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-061",
+      "was_thb": 630,
+      "now_thb": 595,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-063",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 063",
+    "variation_label": "1 TB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-063",
+      "was_thb": 1850,
+      "now_thb": 1815,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-064",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 064",
+    "variation_label": "32 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-064",
+      "was_thb": 219,
+      "now_thb": 184,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-066",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 066",
+    "variation_label": "128 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-066",
+      "was_thb": 413,
+      "now_thb": 378,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-067",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 067",
+    "variation_label": "256 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-067",
+      "was_thb": 645,
+      "now_thb": 610,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-069",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 069",
+    "variation_label": "1 TB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-069",
+      "was_thb": 1865,
+      "now_thb": 1830,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-070",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 070",
+    "variation_label": "32 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-070",
+      "was_thb": 234,
+      "now_thb": 199,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-072",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 072",
+    "variation_label": "128 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-072",
+      "was_thb": 428,
+      "now_thb": 393,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-073",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 073",
+    "variation_label": "256 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-073",
+      "was_thb": 585,
+      "now_thb": 550,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-075",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 075",
+    "variation_label": "1 TB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-075",
+      "was_thb": 1880,
+      "now_thb": 1845,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-076",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Pocket 076",
+    "variation_label": "32 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-076",
+      "was_thb": 249,
+      "now_thb": 214,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-078",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Attach 078",
+    "variation_label": "128 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-078",
+      "was_thb": 368,
+      "now_thb": 333,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-079",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Keyring 079",
+    "variation_label": "256 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-079",
+      "was_thb": 600,
+      "now_thb": 565,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-usb-081",
+    "option_id": "usb",
+    "title": "Sample · Fixture Brand Mini 081",
+    "variation_label": "1 TB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-usb-081",
+      "was_thb": 1895,
+      "now_thb": 1860,
       "photo_count": 0
     }
   }

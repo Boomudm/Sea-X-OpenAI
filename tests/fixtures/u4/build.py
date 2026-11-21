@@ -1,8 +1,11 @@
 """Regenerate the explicitly labelled reviewer-queue samples with U3."""
 
 import argparse
+from itertools import chain
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
+from trongpok.export_web import build_cases
 from trongpok.paths import write_json
 from trongpok.rules import build_flags
 
@@ -68,7 +71,7 @@ def finding(review, option_id, quantity=None, role="other", complaint="none"):
     }
 
 
-def reference(line, capacity, prices):
+def reference(line, capacity, prices, date=DAY):
     return {
         "brand": "Fixture Brand",
         "aliases": [],
@@ -81,12 +84,12 @@ def reference(line, capacity, prices):
             "low_thb_per_gb": min(prices) / capacity,
             "high_thb_per_gb": max(prices) / capacity,
             "offers_used": len(prices),
-            "date": DAY,
+            "date": date,
         }],
         "mall_sources": [
             {
                 "url": f"{BASE_URL}/mall/{capacity}-{index}",
-                "date": DAY,
+                "date": date,
                 "capacity_gb": capacity,
                 "now_thb": price,
             }
@@ -160,18 +163,125 @@ def sample_inputs():
     )
 
 
-def generate(root):
+DEMO_GROUPS = {
+    "multiple shortfalls": 12,
+    "very low price": 11,
+    "unsupported capacity": 7,
+    "one shortfall": 9,
+    "low price": 9,
+    "unmeasured complaint": 9,
+    "checked reviews": 24,
+    "too few reviews": 14,
+}
+DRIVE_SIZES = (
+    (32, "32 GB"), (64, "64 GB"), (128, "128 GB"),
+    (256, "256 GB"), (512, "512 GB"), (1000, "1 TB"),
+)
+DRIVE_LINES = ("Pocket", "Slider", "Attach", "Keyring", "Swivel", "Mini")
+NEUTRAL_REVIEWS = (
+    "Recognized immediately by my laptop.",
+    "I used it to transfer a folder.",
+    "Reopened the copied files successfully.",
+    "Works with the USB port on my computer.",
+    "Used it for school documents.",
+    "It mounted and ejected normally.",
+    "Transferred the photos I needed.",
+    "Backed up a folder and opened it again.",
+    "It works for moving files between computers.",
+)
+
+
+def volume_sample_inputs():
+    """Produce synthetic inputs for the larger web queue."""
+    serial = 0
+    for scenario, count in DEMO_GROUPS.items():
+        for index in range(count):
+            serial += 1
+            listing_id = f"sample-usb-{serial:03}"
+            line = f"{DRIVE_LINES[index % len(DRIVE_LINES)]} {serial:03}"
+            size, label = DRIVE_SIZES[index % len(DRIVE_SIZES)]
+            market_low = round(80 + size * 1.7) + (index % 5) * 15
+            prices = [market_low, market_low + 35, market_low + 70]
+            dated = "2026-11-20" if index % 3 == 1 else DAY
+            kb = reference(line, size, prices, dated)
+
+            current = prices[1]
+            if scenario == "very low price":
+                current = round(market_low * (0.21 + index % 4 * 0.06))
+            elif scenario == "low price":
+                current = round(market_low * (0.78 + index % 4 * 0.04))
+            elif scenario == "unsupported capacity":
+                kb["brand_page"] = {
+                    "url": f"{BASE_URL}/brand/{listing_id}",
+                    "date": DAY,
+                    "capacities_gb": [capacity for capacity, _ in DRIVE_SIZES if capacity != size],
+                }
+
+            drive = option("usb", size, label, prices[-1], current)
+            reviews, findings = volume_sample_reviews(scenario, listing_id, drive, index)
+            yield listing(listing_id, line, [drive], reviews), kb, findings
+
+
+def volume_sample_reviews(scenario, listing_id, drive, index):
+    option_id = drive["option_id"]
+    variation = drive["variation_label"]
+    size = drive["promise_gb"]
+    if scenario in {"one shortfall", "multiple shortfalls"}:
+        measured = round(size * (0.29 + index % 7 * 0.06))
+        completed = scenario == "one shortfall" and index % 3 == 0
+        quote = (
+            f"Completed a write and verify test and measured {measured} GB."
+            if completed else f"I measured only {measured} GB."
+        )
+        first = review(listing_id, variation, 1, quote, stars=3)
+        role = "test_result" if completed else "delivered_capacity"
+        first_finding = finding(first, option_id, measured, role, "capacity_short")
+        if scenario == "one shortfall":
+            return [first], [first_finding]
+        second = review(listing_id, variation, 2, f"Files corrupt after {measured + 1} GB.", stars=2)
+        second_finding = finding(second, option_id, measured + 1, "fails_after", "capacity_short")
+        return [first, second], [first_finding, second_finding]
+    if scenario == "unmeasured complaint":
+        row = review(listing_id, variation, 1, "The capacity seems much smaller than the advertised size.", stars=3)
+        return [row], [finding(row, option_id, complaint="capacity_no_number")]
+    if scenario == "checked reviews":
+        measured = round(size * 0.93)
+        first = review(listing_id, variation, 1, f"Verified {measured} GB on the drive.")
+        other = [review(listing_id, variation, number, text) for number, text in enumerate(NEUTRAL_REVIEWS, 2)]
+        findings = [finding(first, option_id, measured, "delivered_capacity")]
+        findings.extend(finding(row, option_id) for row in other)
+        return [first, *other], findings
+    if scenario == "too few reviews":
+        excerpts = NEUTRAL_REVIEWS[:index % 4]
+        rows = [review(listing_id, variation, number, text) for number, text in enumerate(excerpts, 1)]
+        return rows, [finding(row, option_id) for row in rows[:1]]
+    return [], []
+
+
+def generate(root, inputs):
     listings = root / "listings"
     flags = root / "flags"
     listings.mkdir(parents=True, exist_ok=True)
     flags.mkdir(parents=True, exist_ok=True)
-    for captured, reference_row, findings in sample_inputs():
+    for captured, reference_row, findings in inputs:
         filename = f"{captured['listing_id']}.json"
         write_json(listings / filename, captured)
         write_json(flags / filename, build_flags(captured, [reference_row], findings, as_of=DAY))
 
 
+def generate_web(output):
+    with TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        generate(root, chain(sample_inputs(), volume_sample_inputs()))
+        write_json(output, build_cases(root / "flags", root / "listings"))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path, nargs="?", default=ROOT)
-    generate(parser.parse_args().output)
+    parser.add_argument("--web-output", type=Path, help="Write the larger bundled sample queue")
+    args = parser.parse_args()
+    if args.web_output:
+        generate_web(args.web_output)
+    else:
+        generate(args.output, sample_inputs())

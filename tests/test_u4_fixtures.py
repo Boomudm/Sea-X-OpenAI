@@ -3,12 +3,15 @@
 import json
 import subprocess
 import sys
+from collections import Counter
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from trongpok.rules import queue_key
 
 
 SAMPLE_ROOT = Path(__file__).parent / "fixtures" / "u4"
+BUNDLED_SAMPLES = SAMPLE_ROOT.parents[2] / "web/seller-guard/src/data/sampleCases.json"
 
 
 def read_json(path):
@@ -22,6 +25,19 @@ def test_saved_demo_files_match_current_rules(tmp_path):
         assert names == sorted(path.name for path in (tmp_path / directory).glob("*.json"))
         for name in names:
             assert read_json(SAMPLE_ROOT / directory / name) == read_json(tmp_path / directory / name)
+
+
+def test_bundled_sample_queue_matches_generator(tmp_path):
+    output = tmp_path / "sampleCases.json"
+    subprocess.run([sys.executable, SAMPLE_ROOT / "build.py", "--web-output", output], check=True)
+    cases = read_json(output)
+    assert cases == read_json(BUNDLED_SAMPLES)
+    assert len({(case["listing_id"], case["option_id"]) for case in cases}) == len(cases) == 100
+    assert Counter(case["priority"] for case in cases) == {"red": 32, "yellow": 28, "green": 25, "unknown": 15}
+    assert {urlsplit(case["capture"]["listing_url"]).hostname for case in cases} == {"example.invalid"}
+    assert {finding for case in cases for finding in case["findings"]} == {
+        "unsupported", "capacity", "price", "reports", "clear",
+    }
 
 
 def test_demo_pairs_show_the_claimed_evidence():
