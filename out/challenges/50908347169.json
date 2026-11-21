@@ -1,0 +1,16 @@
+{
+  "SDCZ73-64GB": [
+    {
+      "points": -5,
+      "reason": "The ฿620 price is only ฿4 (0.6%) below the lowest cited offer, which weakens the case that it is unusually low for a 64 GB drive.",
+      "source": "https://shopee.co.th/SanDisk-Ultra-Shift--USB-3.2-Flash-Drive-64GB-%28SDCZ410-064G-G46%29-i.60775884.7455133332",
+      "kind": "other"
+    },
+    {
+      "points": 5,
+      "reason": "The ฿620 price is ฿94 (13.2%) below the same-day ฿714 offer for the matching 64 GB Ultra Flair SDCZ73 model, which supports the low-price flag.",
+      "source": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-64GB-Speed-150MB-%28SDCZ73-064G-G46%29-i.60775884.1005965919?extraParams=%7B%22display_model_id%22%3A90081194215%2C%22model_selection_logic%22%3A3%7D",
+      "kind": "other"
+    }
+  ]
+}

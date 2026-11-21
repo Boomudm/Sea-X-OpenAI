@@ -37,7 +37,7 @@
     ],
     "verdict": "unsure",
     "confidence": {
-      "score": 60,
+      "score": 75,
       "base": 60,
       "adjustments": [
         {
@@ -51,13 +51,21 @@
         {
           "points": -10,
           "reason": "Market range is thin or the KB row is missing"
+        },
+        {
+          "points": 10,
+          "reason": "The review carries the exact 128 GB variation label, and the buyer says they ordered 128 GB."
+        },
+        {
+          "points": 5,
+          "reason": "The buyer reports being able to store only 6 G, which is below 6% of the advertised 128 GB under either unit interpretation and far below the 85% threshold."
         }
       ],
       "missing_evidence": [
         "Find an approved reference for this brand, product line and type",
         "Look for an independent measured report for this variation"
       ],
-      "rounds": 0
+      "rounds": 1
     },
     "reviewer_decision": null
   }

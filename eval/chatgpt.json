@@ -1,1 +1,27 @@
-[]
+[
+  {
+    "listing_id": "16397222698",
+    "option_id": "SDCZ73_032G_G46B",
+    "buyers_report_shortfall": false
+  },
+  {
+    "listing_id": "16397222698",
+    "option_id": "SDCZ73_064G_G46",
+    "buyers_report_shortfall": false
+  },
+  {
+    "listing_id": "28894372103",
+    "option_id": "1tb",
+    "buyers_report_shortfall": false
+  },
+  {
+    "listing_id": "28894372103",
+    "option_id": "2tb",
+    "buyers_report_shortfall": false
+  },
+  {
+    "listing_id": "47255645924",
+    "option_id": "128gb",
+    "buyers_report_shortfall": true
+  }
+]

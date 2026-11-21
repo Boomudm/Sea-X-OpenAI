@@ -1,0 +1,16 @@
+{
+  "128gb": [
+    {
+      "points": 10,
+      "reason": "The review carries the exact 128 GB variation label, and the buyer says they ordered 128 GB.",
+      "source": "47255645924-r01",
+      "kind": "wrong_option"
+    },
+    {
+      "points": 5,
+      "reason": "The buyer reports being able to store only 6 G, which is below 6% of the advertised 128 GB under either unit interpretation and far below the 85% threshold.",
+      "source": "ที่เก็บได้6gเองครับ",
+      "kind": "gb_vs_gib"
+    }
+  ]
+}
