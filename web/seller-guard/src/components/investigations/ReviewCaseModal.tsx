@@ -21,11 +21,11 @@ const PATH_STATES: Record<string, string> = {
   decided: 'Set priority', triggered: 'Also triggered', clear: 'No reason recorded',
 }
 
-export function ReviewCaseModal({ item, onClose, onSave }: {
+export function ReviewCaseModal({ item, onClose, onSave }: Readonly<{
   item: ReviewCase
   onClose: () => void
   onSave: (submission: ReviewSubmission) => void
-}) {
+}>) {
   const dialog = useRef<HTMLDialogElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
   const submitLock = useRef(false)
@@ -115,7 +115,7 @@ export function ReviewCaseModal({ item, onClose, onSave }: {
   )
 }
 
-function PipelineDetails({ item, report }: { item: ReviewCase; report: PipelineCase }) {
+function PipelineDetails({ item, report }: Readonly<{ item: ReviewCase; report: PipelineCase }>) {
   const [primary, ...other] = report.reasons
   const hasMarketRange = report.evidence.some((entry) => entry.source === 'market_range')
   return (
@@ -123,10 +123,10 @@ function PipelineDetails({ item, report }: { item: ReviewCase; report: PipelineC
       <section className="space-y-3 rounded-lg border border-line bg-canvas p-4" aria-label="Pipeline evidence">
         <h3 className="text-lg font-semibold">{primary ? publicText(primary) : 'Review evidence'}</h3>
         {other.length > 0 && <ul className="list-disc space-y-1 pl-5 text-sm">
-          {other.map((reason, index) => <li key={index}>{publicText(reason)}</li>)}
+          {other.map((reason) => <li key={reason}>{publicText(reason)}</li>)}
         </ul>}
         <CaptureDetails item={item} showPrices={!hasMarketRange} />
-        {report.evidence.map((entry, index) => <EvidenceEntry key={index} entry={entry} />)}
+        {report.evidence.map((entry) => <EvidenceEntry key={JSON.stringify(entry)} entry={entry} />)}
       </section>
       <details open className="rounded-lg border border-line bg-white p-4">
         <summary className="focus-ring cursor-pointer rounded font-semibold">Why {report.confidence}% confidence?</summary>
@@ -146,9 +146,9 @@ function PipelineDetails({ item, report }: { item: ReviewCase; report: PipelineC
       {report.path.length > 0 && <details className="rounded-lg border border-line bg-white p-4">
         <summary className="focus-ring cursor-pointer rounded font-semibold">Decision path</summary>
         <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm">
-          {report.path.map((entry, index) => {
+          {report.path.map((entry) => {
             const [check, state] = entry.split(': ')
-            return <li key={index}>{CHECKS[check] && PATH_STATES[state]
+            return <li key={entry}>{CHECKS[check] && PATH_STATES[state]
               ? `${CHECKS[check]} · ${PATH_STATES[state]}`
               : publicText(entry)}</li>
           })}
@@ -161,25 +161,48 @@ function PipelineDetails({ item, report }: { item: ReviewCase; report: PipelineC
 const thb = new Intl.NumberFormat('en', { style: 'currency', currency: 'THB', maximumFractionDigits: 2, minimumFractionDigits: 0 })
 const percent = new Intl.NumberFormat('en', { style: 'percent', maximumFractionDigits: 1 })
 
-function Money({ label, amount }: { label: string; amount?: number | null }) {
+function Money({ label, amount }: Readonly<{ label: string; amount?: number | null }>) {
   return typeof amount === 'number' && Number.isFinite(amount)
     ? <p>{label} <strong className="tabular-nums">{thb.format(amount)}</strong></p> : null
 }
 
-function EvidenceEntry({ entry }: { entry: PipelineEvidence }) {
-  if (entry.source === 'review') {
-    const buyer = typeof entry.buyer_masked === 'string' && /[*…•]/.test(entry.buyer_masked)
-      ? publicText(entry.buyer_masked) : 'Buyer'
-    const quantity = typeof entry.quantity === 'number' && entry.unit && entry.unit !== 'none'
-      ? `${entry.quantity} ${publicText(entry.unit)}` : undefined
-    const ratio = typeof entry.ratio === 'number' && Number.isFinite(entry.ratio)
-      ? percent.format(entry.ratio) + ' of advertised capacity' : undefined
-    return <blockquote className="rounded-r-lg border-l-2 border-line bg-white px-3 py-2 text-sm">
-      {entry.quote && <p className="whitespace-pre-wrap">{publicText(entry.quote)}</p>}
-      <footer className="mt-1 text-muted">{[buyer, entry.date, quantity, ratio].filter(Boolean).join(' · ')}</footer>
-    </blockquote>
+type EvidenceProps = Readonly<{ entry: PipelineEvidence }>
+
+function EvidenceEntry({ entry }: EvidenceProps) {
+  switch (entry.source) {
+    case 'review':
+      return <BuyerReviewEvidence entry={entry} />
+    case 'market_range':
+      return <MarketRangeEvidence entry={entry} />
+    case 'brand_page':
+    case 'mall_capacities':
+      return <CapacityEvidence entry={entry} />
+    case 'review_count':
+      if (typeof entry.matched_text_reviews !== 'number' || typeof entry.checked_text_reviews !== 'number') return null
+      return <p className="text-sm text-muted">{entry.checked_text_reviews} of {entry.matched_text_reviews} matched text reviews checked</p>
+    case 'option':
+      return entry.capacity_text
+        ? <p className="text-sm">Captured capacity · {publicText(entry.capacity_text)}</p> : null
+    default:
+      return null
   }
-  if (entry.source === 'market_range') return (
+}
+
+function BuyerReviewEvidence({ entry }: EvidenceProps) {
+  const buyer = typeof entry.buyer_masked === 'string' && /[*…•]/.test(entry.buyer_masked)
+    ? publicText(entry.buyer_masked) : 'Buyer'
+  const quantity = typeof entry.quantity === 'number' && entry.unit && entry.unit !== 'none'
+    ? `${entry.quantity} ${publicText(entry.unit)}` : undefined
+  const ratio = typeof entry.ratio === 'number' && Number.isFinite(entry.ratio)
+    ? percent.format(entry.ratio) + ' of advertised capacity' : undefined
+  return <blockquote className="rounded-r-lg border-l-2 border-line bg-white px-3 py-2 text-sm">
+    {entry.quote && <p className="whitespace-pre-wrap">{publicText(entry.quote)}</p>}
+    <footer className="mt-1 text-muted">{[buyer, entry.date, quantity, ratio].filter(Boolean).join(' · ')}</footer>
+  </blockquote>
+}
+
+function MarketRangeEvidence({ entry }: EvidenceProps) {
+  return (
     <div className="space-y-2 rounded-lg bg-white p-3 text-sm">
       <h4 className="font-semibold">Market comparison</h4>
       <div className="flex flex-wrap gap-x-5 gap-y-1">
@@ -191,7 +214,10 @@ function EvidenceEntry({ entry }: { entry: PipelineEvidence }) {
       {entry.sources?.map((offer, index) => <SourceOffer key={index} offer={offer} />)}
     </div>
   )
-  if (entry.source === 'brand_page' || entry.source === 'mall_capacities') return (
+}
+
+function CapacityEvidence({ entry }: EvidenceProps) {
+  return (
     <div className="space-y-2 rounded-lg bg-white p-3 text-sm">
       <h4 className="font-semibold">{entry.source === 'brand_page' ? 'Brand capacity list' : 'Official Mall capacity list'}</h4>
       {entry.capacities_gb && entry.capacities_gb.length > 0 && <p>{entry.capacities_gb.map((capacity) => `${capacity} GB`).join(', ')}</p>}
@@ -201,15 +227,9 @@ function EvidenceEntry({ entry }: { entry: PipelineEvidence }) {
       {entry.sources?.map((offer, index) => <SourceOffer key={index} offer={offer} />)}
     </div>
   )
-  if (entry.source === 'review_count' && typeof entry.matched_text_reviews === 'number' &&
-      typeof entry.checked_text_reviews === 'number') {
-    return <p className="text-sm text-muted">{entry.checked_text_reviews} of {entry.matched_text_reviews} matched text reviews checked</p>
-  }
-  if (entry.source === 'option' && entry.capacity_text) return <p className="text-sm">Captured capacity · {publicText(entry.capacity_text)}</p>
-  return null
 }
 
-function SourceOffer({ offer }: { offer: EvidenceSource }) {
+function SourceOffer({ offer }: Readonly<{ offer: EvidenceSource }>) {
   return <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
     <SourceLink label="Official offer" value={offer.url} />
     <Money label="Now" amount={offer.now_thb} />
@@ -217,7 +237,7 @@ function SourceOffer({ offer }: { offer: EvidenceSource }) {
   </div>
 }
 
-function CaptureDetails({ item, showPrices = true }: { item: ReviewCase; showPrices?: boolean }) {
+function CaptureDetails({ item, showPrices = true }: Readonly<{ item: ReviewCase; showPrices?: boolean }>) {
   const capture = item.capture
   if (!capture) return null
   return (
@@ -236,7 +256,7 @@ function CaptureDetails({ item, showPrices = true }: { item: ReviewCase; showPri
   )
 }
 
-function SourceLink({ label, value }: { label: string; value?: string }) {
+function SourceLink({ label, value }: Readonly<{ label: string; value?: string }>) {
   if (!value) return null
   try {
     const url = new URL(value)

@@ -1,0 +1,45 @@
+[
+  {
+    "listing_id": "47255645924",
+    "option_id": "128gb",
+    "colour": "GREY",
+    "deciding": "grey",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews",
+      "Matched text reviews are still unchecked"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 0
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 40,
+      "base": 40,
+      "adjustments": [
+        {
+          "points": -10,
+          "reason": "Market range is thin or the KB row is missing"
+        }
+      ],
+      "missing_evidence": [
+        "Find an approved reference for this brand, product line and type",
+        "Collect 9 more matched text reviews",
+        "Read 1 more matched text reviews"
+      ],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]

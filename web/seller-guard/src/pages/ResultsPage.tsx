@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { PageHeader } from '../components/layout/PageHeader'
 import { Button } from '../components/ui/Button'
 
 const reportTitle = '# Buyer-evidence evaluation'
 const protocolUrl = 'https://github.com/Boomudm/Sea-X-OpenAI/blob/prep/research/eval/protocol.md'
+const protocolLabel = 'frozen protocol'
+const protocolMarkup = `[${protocolLabel}](protocol.md)`
 
 type ReportState =
   | { status: 'loading' | 'missing' | 'error' }
@@ -26,7 +28,7 @@ function parseReport(body: string): Block[] {
     if (!line) continue
     if (line.startsWith('## ')) {
       blocks.push({ type: 'heading', text: line.slice(3) })
-    } else if (line.startsWith('|') && /^\|[\s:|\-]+\|$/.test(lines[index + 1] ?? '')) {
+    } else if (line.startsWith('|') && /^\|[\s:|-]+\|$/.test(lines[index + 1] ?? '')) {
       const headings = tableCells(line)
       const rows: string[][] = []
       index += 1
@@ -42,21 +44,34 @@ function parseReport(body: string): Block[] {
   return blocks
 }
 
-function ReportText({ text }: { text: string }) {
-  return text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/).map((piece, index) => {
-    if (piece.startsWith('**') && piece.endsWith('**')) {
-      return <strong key={index} className="font-semibold text-ink">{piece.slice(2, -2)}</strong>
+function ReportText({ text }: Readonly<{ text: string }>) {
+  const parts: ReactNode[] = []
+  let plainStart = 0
+  let cursor = 0
+  while (cursor < text.length) {
+    const boldEnd = text.startsWith('**', cursor) ? text.indexOf('*', cursor + 2) : -1
+    if (boldEnd > cursor + 2 && text[boldEnd + 1] === '*') {
+      parts.push(text.slice(plainStart, cursor), (
+        <strong key={cursor} className="font-semibold text-ink">{text.slice(cursor + 2, boldEnd)}</strong>
+      ))
+      cursor = boldEnd + 2
+    } else if (text.startsWith(protocolMarkup, cursor)) {
+      parts.push(text.slice(plainStart, cursor), (
+        <a key={cursor} className="focus-ring font-semibold text-[#a82d18] underline"
+          href={protocolUrl}>{protocolLabel}</a>
+      ))
+      cursor += protocolMarkup.length
+    } else {
+      cursor += 1
+      continue
     }
-    const link = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(piece)
-    if (link?.[2] === 'protocol.md') {
-      return <a key={index} className="focus-ring font-semibold text-[#a82d18] underline"
-        href={protocolUrl}>{link[1]}</a>
-    }
-    return link?.[1] ?? piece
-  })
+    plainStart = cursor
+  }
+  parts.push(text.slice(plainStart))
+  return parts
 }
 
-function EvaluationReport({ body }: { body: string }) {
+function EvaluationReport({ body }: Readonly<{ body: string }>) {
   return (
     <article className="surface mt-6 space-y-4 p-4 sm:p-6" aria-label="Buyer evidence evaluation">
       {parseReport(body).map((block, index) => {
@@ -65,8 +80,8 @@ function EvaluationReport({ body }: { body: string }) {
           return <p key={index} className="body-3 max-w-prose text-muted"><ReportText text={block.text} /></p>
         }
         return (
-          <div key={index} className="focus-ring overflow-x-auto rounded-lg border border-line"
-            tabIndex={0} role="region" aria-label={block.headings[0] + ' results'}>
+          <section key={index} className="focus-ring overflow-x-auto rounded-lg border border-line"
+            tabIndex={0} aria-label={block.headings[0] + ' results'}>
             <table className="w-full border-collapse text-left text-sm tabular-nums">
               <thead className="border-b border-line bg-[#fff9f5] text-muted">
                 <tr>{block.headings.map((heading, column) => <th key={column} scope="col" className="px-3 py-2">{heading}</th>)}</tr>
@@ -81,7 +96,7 @@ function EvaluationReport({ body }: { body: string }) {
               </tbody>
             </table>
             {block.rows.length === 0 && <p className="caption-5 px-3 py-2 text-muted">No matching results.</p>}
-          </div>
+          </section>
         )
       })}
     </article>
@@ -120,12 +135,12 @@ export function ResultsPage() {
         }}>Reload results</Button>} />
       {report.status === 'ready'
         ? <EvaluationReport body={report.body} />
-        : <div className="surface mt-6 p-4 sm:p-6" role="status">
-          <p className="body-3 text-muted">
+        : <div className="surface mt-6 p-4 sm:p-6">
+          <output className="body-3 block text-muted">
             {report.status === 'loading' && 'Loading the evaluation report.'}
             {report.status === 'missing' && 'No evaluation report is available. Run the scorer and export its report to see results here.'}
             {report.status === 'error' && 'The evaluation report could not be loaded. Reload results to try again.'}
-          </p>
+          </output>
         </div>}
     </div>
   )

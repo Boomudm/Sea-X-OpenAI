@@ -14,6 +14,8 @@ from .rules import queue_key
 from .shapes import Adjustment, Flag, Listing, Number, Question
 
 DEFAULT_OUTPUT = Path("web/seller-guard/public/data/cases.json")
+RESULTS_SOURCE = Path("eval/results.md")
+RESULTS_OUTPUT = DEFAULT_OUTPUT.with_name("results.md")
 PRIORITY = {"RED": "red", "YELLOW": "yellow", "GREEN": "green", "GREY": "unknown"}
 SIGNAL = {"Q3": "capacity", "Q2": "unsupported", "Q1": "price", "Q4": "reports", "Q5": "clear"}
 _FLAGS = TypeAdapter(list[Flag])
@@ -115,8 +117,13 @@ def build_cases(flags_dir: Path, listings_dir: Path) -> list[WebCase]:
     return [_web_case(flag, listings.get(flag["listing_id"])) for flag in sorted(flags.values(), key=queue_key)]
 
 
-def _publish_results(source: Path, destination: Path) -> None:
+def _publish_results() -> None:
     """Publish U5's completed or pending Markdown report as a whole file."""
+    root = Path.cwd()
+    source = root / RESULTS_SOURCE
+    destination = root / RESULTS_OUTPUT
+    if source.resolve() != source or destination.resolve() != destination:
+        raise ReaderInputError("Evaluation report paths must not use symbolic links")
     try:
         content = source.read_bytes()
     except FileNotFoundError:
@@ -136,7 +143,6 @@ def main() -> None:
     parser.add_argument("--flags-dir", type=Path, default=Path("out/flags"))
     parser.add_argument("--listings-dir", type=Path, default=Path("data/listings"))
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--results", type=Path, default=Path("eval/results.md"))
     parser.add_argument("--no-results", action="store_true", help="Publish only cases.json.")
     args = parser.parse_args()
 
@@ -144,13 +150,11 @@ def main() -> None:
         output = within_directory(args.output, Path.cwd())
         if output.suffix != ".json":
             raise ReaderInputError("The cases output must be a JSON file")
-        if not args.no_results:
-            results = within_directory(output.with_name("results.md"), Path.cwd())
         cases = build_cases(args.flags_dir, args.listings_dir)
         output.parent.mkdir(parents=True, exist_ok=True)
+        if not args.no_results and output == Path.cwd() / DEFAULT_OUTPUT:
+            _publish_results()
         write_json(output, cases)
-        if not args.no_results:
-            _publish_results(args.results, results)
     except (ReaderInputError, OSError, ValueError) as error:
         parser.exit(1, f"{error}\n")
     print(f"{output}: {len(cases)} option(s)")

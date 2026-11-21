@@ -36,6 +36,46 @@ function queueLink(source: CaseSource, priority: ReviewPriority | null, signal?:
   return '/review?' + search
 }
 
+function activeSource(requested: string | null, feedState: CaptureFeed['state']): CaseSource {
+  if (requested === 'sample' || requested === 'captured') return requested
+  return feedState === 'missing' || feedState === 'error' ? 'sample' : 'captured'
+}
+
+function ReviewSourceControls({ source, feedState, onSelect, onRefresh }: Readonly<{
+  source: CaseSource
+  feedState: CaptureFeed['state']
+  onSelect: (source: CaseSource) => void
+  onRefresh: () => void
+}>) {
+  const captured = source === 'captured'
+  const unavailable = feedState === 'error' || (captured && feedState === 'missing')
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-3">
+      <fieldset className="flex gap-1 rounded-lg border border-line bg-white p-1">
+        <legend className="sr-only">Case source</legend>
+        {(['captured', 'sample'] as const).map((kind) => (
+          <Button key={kind} type="button" size="sm" variant={source === kind ? 'secondary' : 'ghost'}
+            aria-pressed={source === kind}
+            onClick={() => onSelect(kind)}>
+            {kind === 'captured' ? 'Captured data' : 'Sample data'}
+          </Button>
+        ))}
+      </fieldset>
+      {!captured && <output className="rounded-lg border border-line bg-peach px-3 py-2 text-sm">
+        <strong>Sample data.</strong> These USB flash drive cases are for the demo.
+      </output>}
+      {captured && feedState === 'loading' && <output className="text-sm text-muted">Loading captured reports…</output>}
+      {captured && feedState === 'available' && <output className="text-sm text-muted">Showing options scored by the pipeline.</output>}
+      {unavailable && (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <output>{feedState === 'error' ? 'Captured reports could not be read.' : 'No exported reports are available yet.'}</output>
+          <Button type="button" size="sm" variant="outline" onClick={onRefresh}>Refresh reports</Button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function ReviewQueuePage() {
   const { sellers, decisions, submitDecision } = useInvestigations()
   const { toast } = useToast()
@@ -49,10 +89,7 @@ export function ReviewQueuePage() {
   const trigger = useRef<HTMLButtonElement | null>(null)
   const nextButton = useRef<HTMLButtonElement>(null)
   const tableTitle = useRef<HTMLHeadingElement>(null)
-  const requestedSource = params.get('source')
-  const source = requestedSource === 'sample' || requestedSource === 'captured'
-    ? requestedSource
-    : feed.state === 'missing' || feed.state === 'error' ? 'sample' : 'captured'
+  const source = activeSource(params.get('source'), feed.state)
   const loading = source === 'captured' && feed.state === 'loading'
   const allCases = useMemo(() => buildReviewCases(
     sellers, decisions, feed.state === 'available' ? feed.cases : [], source,
@@ -150,30 +187,9 @@ export function ReviewQueuePage() {
   }
 
   const sourceControls = (
-    <div className="mt-4 flex flex-wrap items-center gap-3">
-      <div className="flex gap-1 rounded-lg border border-line bg-white p-1" role="group" aria-label="Case source">
-        {(['captured', 'sample'] as const).map((kind) => (
-          <Button key={kind} type="button" size="sm" variant={source === kind ? 'secondary' : 'ghost'}
-            aria-pressed={source === kind}
-            onClick={() => updateParams({ source: kind, priority: null, signal: null, band: null, case: null, q: null, status: null })}>
-            {kind === 'captured' ? 'Captured data' : 'Sample data'}
-          </Button>
-        ))}
-      </div>
-      {source === 'sample' && <p className="rounded-lg border border-line bg-peach px-3 py-2 text-sm" role="status">
-        <strong>Sample data.</strong> These USB flash drive cases are for the demo.
-      </p>}
-      {source === 'captured' && feed.state === 'loading' && <p className="text-sm text-muted" role="status">Loading captured reports…</p>}
-      {source === 'captured' && feed.state === 'available' && <p className="text-sm text-muted" role="status">Showing options scored by the pipeline.</p>}
-      {(feed.state === 'error' || (source === 'captured' && feed.state === 'missing')) && (
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <p role="status">{feed.state === 'error' ? 'Captured reports could not be read.' : 'No exported reports are available yet.'}</p>
-          <Button type="button" size="sm" variant="outline" onClick={() => { setFeed({ state: 'loading' }); setLoadAttempt((n) => n + 1) }}>
-            Refresh reports
-          </Button>
-        </div>
-      )}
-    </div>
+    <ReviewSourceControls source={source} feedState={feed.state}
+      onSelect={(kind) => updateParams({ source: kind, priority: null, signal: null, band: null, case: null, q: null, status: null })}
+      onRefresh={() => { setFeed({ state: 'loading' }); setLoadAttempt((n) => n + 1) }} />
   )
 
   if (!isQueue) return (
@@ -244,6 +260,7 @@ export function ReviewQueuePage() {
                 const finding = group ? item.findings.find((result) => result.signal === group.signal && inConfidenceBand(result.confidence, group.band)) : item.findings[0]
                 const score = finding?.confidence ?? item.confidence
                 const [primaryReason, ...otherReasons] = item.pipeline?.reasons ?? []
+                const fallbackFinding = finding ? signals[finding.signal].label : 'Insufficient evidence'
                 return (
                   <tr key={item.id} className="cursor-pointer border-b border-line transition-colors hover:bg-peach/60 focus-within:bg-peach/60"
                     onClick={(event) => openCase(item, event.currentTarget.querySelector('button'))}>
@@ -253,8 +270,7 @@ export function ReviewQueuePage() {
                     </td>
                     <td className="px-4 py-3"><Badge tone={priorities[item.priority].tone}>{priorities[item.priority].label}</Badge></td>
                     <td className="px-4 py-3 font-semibold tabular-nums">{score === null ? '—' : `${score}%`}</td>
-                    <td className="px-4 py-3">{primaryReason ? publicText(primaryReason)
-                      : finding ? signals[finding.signal].label : 'Insufficient evidence'}
+                    <td className="px-4 py-3">{primaryReason ? publicText(primaryReason) : fallbackFinding}
                       {otherReasons.length > 0 && <span className="caption-5 block text-muted">+{otherReasons.length} more</span>}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-muted">

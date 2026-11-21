@@ -1,0 +1,42 @@
+[
+  {
+    "listing_id": "1005965919",
+    "option_id": "SDCZ73-064G-G46",
+    "colour": "GREY",
+    "deciding": "grey",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 60,
+      "base": 60,
+      "adjustments": [
+        {
+          "points": 10,
+          "reason": "Market range and at least 3 offers captured today"
+        }
+      ],
+      "missing_evidence": [
+        "Collect 10 more matched text reviews"
+      ],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]

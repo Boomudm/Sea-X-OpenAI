@@ -110,3 +110,41 @@ def test_cli_rejects_output_outside_project(tmp_path, monkeypatch, capsys):
     assert error.value.code == 1
     assert "Path must stay inside" in capsys.readouterr().err
     assert list(outside.iterdir()) == []
+
+
+@pytest.mark.parametrize("linked_path", ["eval/results.md", DEFAULT_OUTPUT.with_name("results.md")])
+def test_results_export_rejects_redirected_files(tmp_path, monkeypatch, capsys, linked_path):
+    project = tmp_path / "project"
+    source = project / "eval/results.md"
+    source.parent.mkdir(parents=True)
+    destination = project / DEFAULT_OUTPUT.with_name("results.md")
+    destination.parent.mkdir(parents=True)
+    unrelated = tmp_path / "unrelated.md"
+    unrelated.write_text("Unrelated contents", encoding="utf-8")
+    if linked_path != "eval/results.md":
+        source.write_text("# Buyer-evidence evaluation\n", encoding="utf-8")
+    (project / linked_path).symlink_to(unrelated)
+    monkeypatch.chdir(project)
+    monkeypatch.setattr(sys, "argv", ["trongpok.export_web"])
+
+    with pytest.raises(SystemExit) as error:
+        main()
+
+    assert error.value.code == 1
+    assert "Evaluation report paths" in capsys.readouterr().err
+    assert unrelated.read_text(encoding="utf-8") == "Unrelated contents"
+    assert not (project / DEFAULT_OUTPUT).exists()
+
+
+def test_custom_cases_output_does_not_publish_results(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    source = Path("eval/results.md")
+    source.parent.mkdir()
+    source.write_text("# Buyer-evidence evaluation\n", encoding="utf-8")
+    monkeypatch.setattr(sys, "argv", ["trongpok.export_web", "--output", "scratch/cases.json"])
+
+    main()
+
+    assert read_json(Path("scratch/cases.json")) == []
+    assert not Path("scratch/results.md").exists()
+    assert not DEFAULT_OUTPUT.with_name("results.md").exists()

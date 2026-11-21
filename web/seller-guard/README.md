@@ -21,9 +21,16 @@ their scores and adjustments. **Sample data** shows labelled USB flash drive
 cases generated from the team's U3 test scenarios. If the export is missing,
 the app opens **Sample data** by default.
 
+The U3 reports in `out/flags/` cover the six U1 listings merged in PR #12 on
+21 Nov 2026. They contain eight options: one red price warning, one yellow
+price warning, and six with insufficient evidence. Captured buyer reviews
+are awaiting the U2 reader results.
+
 The exporter writes local capture and evaluation reports under `public/data/`.
 These generated files are ignored by Git. Export again after the pipeline
 updates. When using `npm run build` and `npm run preview`, export before building.
+The default export publishes `eval/results.md` to `public/data/results.md`
+when the report exists. Use `--no-results` to export cases alone.
 Browser submissions enter the captured queue as unscored listing links.
 
 ## Review outcomes and evaluation

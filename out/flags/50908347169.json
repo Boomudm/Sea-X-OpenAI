@@ -1,0 +1,67 @@
+[
+  {
+    "listing_id": "50908347169",
+    "option_id": "SDCZ73-64GB",
+    "colour": "YELLOW",
+    "deciding": "Q4",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 1716,
+        "now_thb": 620,
+        "low_thb": 624.0,
+        "high_thb": 714.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://shopee.co.th/SanDisk-Ultra-Shift--USB-3.2-Flash-Drive-64GB-%28SDCZ410-064G-G46%29-i.60775884.7455133332",
+            "date": "2026-11-21",
+            "capacity_gb": 64,
+            "now_thb": 624
+          },
+          {
+            "url": "https://shopee.co.th/SanDisk-Ultra-USB-3.0-64GB--USB3.0-%E0%B8%AD%E0%B9%88%E0%B8%B2%E0%B8%99-100MB-s-%28SDCZ48_064G_U46--Black%29-i.60775884.1005966198",
+            "date": "2026-11-21",
+            "capacity_gb": 64,
+            "now_thb": 698
+          },
+          {
+            "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-64GB-Speed-150MB-%28SDCZ73-064G-G46%29-i.60775884.1005965919?extraParams=%7B%22display_model_id%22%3A90081194215%2C%22model_selection_logic%22%3A3%7D",
+            "date": "2026-11-21",
+            "capacity_gb": 64,
+            "now_thb": 714
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 60,
+      "base": 60,
+      "adjustments": [
+        {
+          "points": 10,
+          "reason": "Market range and at least 3 offers captured today"
+        }
+      ],
+      "missing_evidence": [],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]
