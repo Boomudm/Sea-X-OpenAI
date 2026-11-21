@@ -9,8 +9,9 @@ import math
 import re
 import sys
 import time
-from collections import Counter
+from collections import defaultdict
 from collections.abc import Callable, Iterable
+from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from functools import cache
 from pathlib import Path
@@ -40,14 +41,28 @@ from .pipeline_ai import (
 from .pipeline_state import LostJobLease, PipelineState
 from .profiles import CategoryProfile, load_profile, require_profile_approval
 from .publication import masked_buyer, publish_flag
-from .reviews import review_number_units
-from .rules import build_flags, queue_key
+from .reviews import (
+    advertised_amounts,
+    categorical_quote_supported,
+    quoted_number_units,
+)
+from .rules import build_option_flag, queue_key, rescore_option_flag
 
 PROMPT_VERSIONS = (CLAIM_VERSION, REVIEW_VERSION, CONFIDENCE_VERSION)
 DEFAULT_BUDGET_MICROUSD = 500_000
 DEFAULT_RETRIES = 2
 _MAX_OUTPUT_TOKENS = 768
 _MAX_CAPTURE_BYTES = 2_000_000
+_ISO_DATE = re.compile(
+    r"[0-9]{4}-[0-9]{2}-[0-9]{2}"
+    r"(?:[T ][0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]{1,6})?)?(?:Z|[+-][0-9]{2}:[0-9]{2}))?"
+)
+_OPTION_FIELDS = (
+    "option_id", "variation_label", "capacity_text", "measurement_text",
+    "promise_gb", "promise_value", "capacity_unclear", "measurement_unclear", "was_thb", "now_thb",
+)
+_REVIEW_FIELDS = ("review_id", "variation_label", "buyer_masked", "date", "text")
+_MEASUREMENT_MISMATCHES = {"none", "other", "capacity_short", "capacity_no_number"}
 
 
 def _json(value: object) -> str:
@@ -112,6 +127,18 @@ class _JobReader:
         raise AssertionError("request attempts exhausted")
 
 
+def _capture_timestamp(value: object) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str) or _ISO_DATE.fullmatch(value) is None:
+        raise ReaderInputError("Capture timestamps must use ISO dates or timezone-qualified datetimes")
+    try:
+        parsed = datetime.fromisoformat(value)
+        return parsed.replace(tzinfo=parsed.tzinfo or UTC).astimezone(UTC).isoformat(timespec="microseconds")
+    except (ValueError, OverflowError) as error:
+        raise ReaderInputError("Capture timestamps must contain valid ISO dates") from error
+
+
 def _validated_capture(listing: dict) -> dict:
     listing_filename(listing.get("listing_id"))
     for group, identifier in (("options", "option_id"), ("reviews", "review_id")):
@@ -128,53 +155,57 @@ def _validated_capture(listing: dict) -> dict:
             if not isinstance(record.get("variation_label"), str):
                 raise ReaderInputError(f"Capture {group} entries must contain a variation label")
             seen.add(value)
+    listing_context = {"listing_id": listing["listing_id"]}
+    for field in ("title", "spec_text"):
+        value = listing.get(field, "")
+        if not isinstance(value, str):
+            raise ReaderInputError("Captured listing title and specifications must be text")
+        listing_context[field] = value
+    options = []
+    for option in listing["options"]:
+        for field in ("capacity_text", "measurement_text"):
+            if option.get(field) is not None and not isinstance(option[field], str):
+                raise ReaderInputError("Captured option measurement labels must be text")
+        options.append({field: option.get(field) for field in _OPTION_FIELDS})
+    reviews = []
     for review in listing["reviews"]:
         if not isinstance(review.get("text"), str):
             raise ReaderInputError("Captured review text must be a string")
-    return {
-        **listing,
-        "options": [{"now_thb": None, **option} for option in listing["options"]],
-        "reviews": [
-            {
-                **review,
-                "buyer_masked": masked_buyer(buyer) if isinstance(buyer := review.get("buyer_masked"), str) else "",
-            }
-            for review in listing["reviews"]
-        ],
-    }
+        _capture_timestamp(review.get("date"))
+        buyer = review.get("buyer_masked")
+        if buyer is not None and not isinstance(buyer, str):
+            raise ReaderInputError("Captured buyer must be text")
+        reviews.append({
+            **{field: review.get(field) for field in _REVIEW_FIELDS},
+            "buyer_masked": masked_buyer(buyer or ""),
+        })
+    return {**listing_context, "options": options, "reviews": reviews}
 
 
-def _finite_positive(value: object) -> bool:
+def _positive_decimal(value: object) -> Decimal | None:
     try:
         number = Decimal(str(value))
     except InvalidOperation:
-        return False
-    return number.is_finite() and number > 0
+        return None
+    return number if number.is_finite() and number > 0 else None
 
 
 def _exact_quote(quote: str, text: str) -> bool:
     return bool(quote.strip()) and quote in text
 
 
-def _source_keys(flag: dict, checked_reviews: list[dict]) -> dict[str, str]:
-    keys = {item["review_id"]: f"review:{item['review_id']}" for item in checked_reviews}
-    quote_owners: dict[str, set[str]] = {}
+def _eligible_sources(flag: dict, checked_reviews: list[dict]) -> dict[str, str]:
+    sources = {f"review:{item['review_id']}": item["text"] for item in checked_reviews}
     for item in flag["evidence"]:
         if review_id := item.get("review_id"):
-            key = f"review:{review_id}"
-            keys[review_id] = key
-            if quote := item.get("quote"):
-                quote_owners.setdefault(quote, set()).add(key)
-        for name in ("url", "image_ref"):
-            if source := item.get(name):
-                keys[source] = source
+            sources[f"review:{review_id}"] = item["quote"]
+        for field, namespace in (("url", "url"), ("image_ref", "image")):
+            if locator := item.get(field):
+                sources[f"{namespace}:{locator}"] = locator
         for source_item in item.get("sources", ()):
             if url := source_item.get("url"):
-                keys[url] = url
-    for quote, owners in quote_owners.items():
-        if len(owners) == 1:
-            keys.setdefault(quote, next(iter(owners)))
-    return keys
+                sources[f"url:{url}"] = url
+    return sources
 
 
 class Pipeline:
@@ -215,36 +246,43 @@ class Pipeline:
         self._evidence_key = _hash(self.kb_rows)
 
     def process_listing(self, listing: dict) -> list[dict]:
+        return self._process_listing(listing, from_message=False)
+
+    def _process_listing(self, listing: dict, *, from_message: bool) -> list[dict]:
         if not isinstance(listing, dict):
             raise ReaderInputError("A saved capture must be a listing object")
         for group in ("options", "reviews"):
             records = listing.get(group)
             if not isinstance(records, list) or any(not isinstance(item, dict) for item in records):
                 raise ReaderInputError(f"Capture must contain a {group} object array")
+        revision = _capture_timestamp(listing.get("captured_at"))
         listing = _validated_capture(normalize_marketplace_fields(listing, self.profile))
         options = listing["options"]
-        variations = Counter(option["variation_label"] for option in options)
+        options_by_variation = defaultdict(list)
+        reviews_by_variation = defaultdict(list)
+        for option in options:
+            options_by_variation[option["variation_label"]].append(option)
+        for review in listing["reviews"]:
+            reviews_by_variation[review["variation_label"]].append(review)
         listing_id = listing["listing_id"]
-        listing_context = {
-            key: value
-            for key, value in listing.items()
-            if key not in {"options", "reviews"}
-        }
+        listing_context = (listing["title"], listing["spec_text"])
         jobs = {}
         for option in options:
             label = option["variation_label"]
             option_id = option["option_id"]
-            unambiguous = bool(label) and variations[label] == 1
-            reviews = [
-                review for review in listing["reviews"]
-                if unambiguous and review["variation_label"] == label
-            ]
+            unambiguous = bool(label) and len(options_by_variation[label]) == 1
+            reviews = reviews_by_variation[label] if unambiguous else []
             evidence = _hash((listing_context, option, unambiguous, reviews, self._evidence_key))
             key = _hash((
                 listing_id, option_id, evidence, self.profile.version, self._profile_key, PROMPT_VERSIONS,
             ))
             jobs[option_id] = (key, option, reviews)
-        self.state.admit(listing_id, {option_id: job[0] for option_id, job in jobs.items()})
+        admitted = self.state.admit(
+            self._profile_key, listing_id, {option_id: job[0] for option_id, job in jobs.items()},
+            revision=revision, from_message=from_message,
+        )
+        if not admitted:
+            return self._with_decisions(self.state.results(self._profile_key, listing_id))
         with ReviewCache(self.state.path) as cache:
             for key, option, reviews in jobs.values():
                 owner = uuid4().hex
@@ -252,11 +290,14 @@ class Pipeline:
                 if prior_error is not None:
                     try:
                         ai = _JobReader(self, key, owner, prior_error=prior_error)
-                        flag = self._analyze(listing, option, reviews, ai, cache)
+                        scoped_listing = {
+                            **listing, "reviews": reviews, "options": options_by_variation[option["variation_label"]],
+                        }
+                        flag = self._analyze(scoped_listing, option, reviews, ai, cache)
                         self.state.finish(key, owner, publish_flag(flag))
                     except LostJobLease:
                         continue
-        return self._with_decisions(self.state.results(listing_id))
+        return self._with_decisions(self.state.results(self._profile_key, listing_id))
 
     def process_file(self, path: str | Path) -> list[dict]:
         return self.process_listing(_read_capture_file(Path(path)))
@@ -265,10 +306,10 @@ class Pipeline:
         """Consume a queue message carrying a saved capture instead of a file path."""
         if not isinstance(message, dict) or set(message) != {"listing"}:
             raise ReaderInputError("A queue message must contain one listing object")
-        return self.process_listing(message["listing"])
+        return self._process_listing(message["listing"], from_message=True)
 
     def queue(self) -> list[dict]:
-        return self._with_decisions(self.state.results())
+        return self._with_decisions(self.state.results(self._profile_key))
 
     def _with_decisions(self, flags: list[dict]) -> list[dict]:
         if self.decisions_db is not None:
@@ -281,30 +322,48 @@ class Pipeline:
 
     def _claim(self, listing: dict, option: dict, ai: _JobReader) -> list[dict]:
         profile = self.profile
+        if profile.measurement_mode != "numeric":
+            return []
         storage = profile.category == "storage"
         key = "promise_gb" if storage else "promise_value"
-        if profile.measurement_mode != "numeric" or _finite_positive(option.get(key)):
-            return []
+        unclear = "capacity_unclear" if storage else "measurement_unclear"
         label = option["variation_label"]
         captured_text = option.get("capacity_text" if storage else "measurement_text") or label
+        option_amounts = advertised_amounts(label, profile) | advertised_amounts(captured_text, profile)
+        title_amounts = advertised_amounts(listing["title"], profile) if storage else set()
+        supplied = _positive_decimal(option.get(key))
+        if (
+            option.get(unclear)
+            or len(option_amounts) != 1
+            or (storage and len(title_amounts) == 1 and option_amounts != title_amounts)
+            or (option.get(key) is not None and supplied not in option_amounts)
+        ):
+            return [{"option_id": option["option_id"], unclear: True, key: None}]
+        if supplied is not None:
+            return []
         result = ai.request(ClaimAssessment, claim_prompt(profile), {
-            "title": listing.get("title", ""),
+            "title": listing["title"],
             "variation_label": label,
             "measurement_text": captured_text,
         })
-        unit = self._units.get(result.unit.casefold())
+        unit = self._units.get(result.unit.strip().casefold())
+        quantity = result.quantity
         if (
-            result.status != "ok" or result.quantity is None or result.quantity <= 0
-            or not math.isfinite(result.quantity) or unit is None
-            or not (_exact_quote(result.quote, label) or _exact_quote(result.quote, captured_text))
-            or unit.casefold() not in review_number_units(result.quote, result.quantity, profile=profile)
+            result.status != "ok" or quantity is None or quantity <= 0
+            or not math.isfinite(quantity) or unit is None
+            or not any(
+                unit.casefold() in quoted_number_units(text, result.quote, quantity, profile=profile)
+                for text in (label, captured_text)
+            )
         ):
             raise InvalidReaderOutput("The advertised claim lacks a checkable number or unit")
         factor = profile.units[unit].promise_factor
         base = profile.units[profile.promise_unit].promise_factor
         if factor is None or base is None:
             raise InvalidReaderOutput("The advertised unit has no promise conversion")
-        value = Decimal(str(result.quantity)) * factor / base
+        value = Decimal(str(quantity)) * factor / base
+        if value not in option_amounts:
+            raise InvalidReaderOutput("The advertised claim conflicts with the full option label")
         return [{"option_id": option["option_id"], key: str(value)}]
 
     def _read_review(
@@ -338,9 +397,15 @@ class Pipeline:
                 or (quantity is None and unit != "none")
             ):
                 raise InvalidReaderOutput("A finding did not match the category or captured review")
+            if complaint not in _MEASUREMENT_MISMATCHES and not categorical_quote_supported(
+                review["text"], quote, mismatch_type=complaint,
+            ):
+                raise InvalidReaderOutput("The quote does not report the selected categorical mismatch")
+            if profile.measurement_mode == "categorical":
+                quantity, unit = None, "none"
             if quantity is not None:
                 canonical_unit = self._units.get(unit)
-                written_units = review_number_units(quote, quantity, profile=profile)
+                written_units = quoted_number_units(review["text"], quote, quantity, profile=profile)
                 supported = canonical_unit is not None and canonical_unit.casefold() in written_units
                 fallback = profile.category == "storage" and "" in written_units
                 if (
@@ -390,68 +455,59 @@ class Pipeline:
                     findings.extend(self._read_review(listing["listing_id"], review, option, ai, cache))
                 except (InvalidReaderOutput, ValidationError):
                     ai.record_failure()
-        option_id = option["option_id"]
-
-        def calculate(challenges: list[dict]) -> dict:
-            flags = build_flags(
-                listing, self.kb_rows, findings, claims,
+        def calculate() -> dict:
+            return build_option_flag(
+                listing, option, self.kb_rows, findings, claims,
                 profile=self.profile, allow_draft=self.allow_draft, checks_complete=not ai.failed,
-                challenges={option_id: challenges},
             )
-            return next(flag for flag in flags if flag["option_id"] == option_id)
 
-        accepted = []
-        flag = calculate(accepted)
+        flag = calculate()
         rounds = 0
         if not ai.failed and (findings or flag["colour"] in {"RED", "YELLOW"}):
             clean = {finding["review_id"] for finding in findings if finding["complaint"] == "none"}
             checked_reviews = [
-                {"review_id": review["review_id"], "text": review["text"]}
-                for review in reviews if flag["colour"] == "GREEN" and review["review_id"] in clean
+                review for review in reviews if flag["colour"] == "GREEN" and review["review_id"] in clean
             ]
-            flag, rounds = self._challenge(flag, checked_reviews, ai, calculate, accepted)
+            flag, rounds = self._challenge(flag, checked_reviews, ai)
+            if ai.failed and flag["colour"] == "GREEN":
+                flag = calculate()
         flag["confidence"]["rounds"] = rounds
         flag["check_status"] = "not checked" if ai.failed else "checked"
         return flag
 
-    def _challenge(
-        self,
-        flag: dict,
-        checked_reviews: list[dict],
-        ai: _JobReader,
-        calculate: Callable[[list[dict]], dict],
-        accepted: list[dict],
-    ) -> tuple[dict, int]:
-        sources = _source_keys(flag, checked_reviews)
+    def _challenge(self, base_flag: dict, checked_reviews: list[dict], ai: _JobReader) -> tuple[dict, int]:
+        sources = _eligible_sources(base_flag, checked_reviews)
         if not sources:
-            return flag, 0
+            return base_flag, 0
+        accepted = []
         used = set()
+        flag = base_flag
         for round_number in range(1, 4):
             previous_score = flag["confidence"]["score"]
             try:
                 result = ai.request(ChallengeAssessment, challenge_prompt(self.profile), {
                     "flag": flag,
-                    "checked_reviews": checked_reviews,
-                    "eligible_sources": list(sources),
+                    "eligible_sources": sources,
                     "round": round_number,
-                    "used_sources": [item["source"] for item in accepted],
+                    "used_sources": sorted(used),
                 })
-                if any(item.source not in sources for item in result.challenges):
-                    raise InvalidReaderOutput("A confidence proposal cited unknown evidence")
+                if any(item.source not in sources or not item.reason.strip() for item in result.challenges):
+                    raise InvalidReaderOutput("A confidence proposal lacks valid support")
             except (InvalidReaderOutput, ValidationError):
                 ai.record_failure()
-                return calculate(accepted), round_number - 1
+                return flag, round_number - 1
             if ai.failed:
-                return calculate(accepted), round_number
+                return flag, round_number
             count_before = len(accepted)
             for proposal in result.challenges:
-                source = sources[proposal.source]
-                if source in used:
+                if proposal.source in used:
                     continue
                 challenge = proposal.model_dump(mode="json")
-                trial = calculate([*accepted, challenge])
+                trial = rescore_option_flag(
+                    base_flag, [*accepted, challenge], eligible_sources=sources, profile=self.profile,
+                )
                 if len(trial["confidence"]["adjustments"]) > len(flag["confidence"]["adjustments"]):
-                    used.add(source)
+                    used.add(proposal.source)
                     accepted.append(challenge)
                     flag = trial
             if len(accepted) == count_before or abs(flag["confidence"]["score"] - previous_score) < 5:

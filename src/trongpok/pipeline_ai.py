@@ -14,9 +14,9 @@ from .errors import InvalidReaderOutput
 from .models import ChallengeKind, ReadStatus
 from .profiles import CategoryProfile
 
-CLAIM_VERSION = "pipeline_claim.v1"
-REVIEW_VERSION = "pipeline_review.v1"
-CONFIDENCE_VERSION = "pipeline_confidence.v1"
+CLAIM_VERSION = "pipeline_claim.v2"
+REVIEW_VERSION = "pipeline_review.v2"
+CONFIDENCE_VERSION = "pipeline_confidence.v2"
 DEFAULT_MODEL = "gpt-6.2-sol"
 
 T = TypeVar("T", bound=BaseModel)
@@ -157,11 +157,15 @@ def claim_prompt(profile: CategoryProfile) -> str:
 
 
 def review_prompt(profile: CategoryProfile) -> str:
-    unit_guidance = (
-        "For a bare capacity number, use the unit none. Code checks the option unit."
-        if profile.category == "storage"
-        else "A usable measurement needs an explicit supported unit written in its quote."
-    )
+    if profile.measurement_mode == "categorical":
+        unit_guidance = (
+            "For categorical observations always use a null quantity and the unit none, "
+            "even when a model or size number appears in the quote."
+        )
+    elif profile.category == "storage":
+        unit_guidance = "For a bare capacity number, use the unit none. Code checks the option unit."
+    else:
+        unit_guidance = "A usable measurement needs an explicit supported unit written in its quote."
     return (
         "Extract distinct observations from the supplied buyer review. Each finding needs an exact "
         "contiguous quote from that review, and any extracted number must appear in the quote. "
@@ -178,8 +182,9 @@ def challenge_prompt(profile: CategoryProfile) -> str:
     return (
         "Challenge the confidence of the supplied review-priority flag. Consider a wrong option, "
         "a flash sale, a duplicate buyer or a category measurement pitfall. For each proposed "
-        "adjustment, copy one exact source from the supplied eligible sources and explain the "
-        "adjustment using that evidence. Recommend only changes of plus or minus 5 or 10 points. "
+        "adjustment, copy one exact typed ID from the supplied eligible sources and explain "
+        "the adjustment using that evidence. Do not return a quote or bare ID as a citation. "
+        "Recommend only changes of plus or minus 5 or 10 points. "
         "Return an empty list if there is no new evidence-based challenge. Code validates the "
         "recommendations and determines the final score and colour.\n"
         f"{_CAPTURE_GUIDANCE}\n{_profile_context(profile)}"
