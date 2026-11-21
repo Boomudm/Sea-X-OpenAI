@@ -1,6 +1,14 @@
 export type PipelineSignal = 'capacity' | 'unsupported' | 'price' | 'reports' | 'clear'
 export type PipelinePriority = 'red' | 'yellow' | 'green' | 'unknown'
 
+export interface PipelineShop {
+  id: string | null
+  name: string
+  url: string | null
+  badge: 'mall' | 'preferred' | 'none' | null
+  ships_from: string | null
+}
+
 export interface EvidenceSource {
   url?: string
   date?: string
@@ -27,6 +35,7 @@ export interface PipelineEvidence extends EvidenceSource {
 
 export interface PipelineCase {
   listing_id: string
+  shop?: PipelineShop | null
   option_id: string
   title: string | null
   variation_label: string | null
@@ -69,9 +78,22 @@ function score(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 100
 }
 
+function nullableString(value: unknown): value is string | null {
+  return value === null || typeof value === 'string'
+}
+
+function isShop(value: unknown): value is PipelineShop {
+  return record(value) && typeof value.name === 'string' && value.name.trim().length > 0 &&
+    ((value.id === null && value.url === null) ||
+      (typeof value.id === 'string' && /^\d+$/.test(value.id) && value.url === `https://shopee.co.th/shop/${value.id}`)) &&
+    nullableString(value.ships_from) &&
+    (value.badge === null || value.badge === 'mall' || value.badge === 'preferred' || value.badge === 'none')
+}
+
 function isPipelineCase(value: unknown): value is PipelineCase {
   return record(value) &&
     typeof value.listing_id === 'string' && value.listing_id.length > 0 &&
+    (value.shop == null || isShop(value.shop)) &&
     typeof value.option_id === 'string' && value.option_id.length > 0 &&
     (value.title === null || typeof value.title === 'string') &&
     (value.variation_label === null || typeof value.variation_label === 'string') &&

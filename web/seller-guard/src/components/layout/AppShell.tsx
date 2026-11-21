@@ -16,7 +16,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     navigate('/review?' + search)
   }
   return (
-    <div className="relative min-h-screen overflow-hidden bg-canvas">
+    <div className="review-shell relative min-h-screen overflow-hidden bg-canvas">
       <div aria-hidden="true" className="pointer-events-none fixed -right-24 top-20 z-0 h-72 w-96 rotate-[-18deg] rounded-full bg-[#FFE5D9]/60" />
       <div aria-hidden="true" className="pointer-events-none fixed -left-32 bottom-16 z-0 h-64 w-96 rotate-12 rounded-full bg-[#FFF0E9]/80" />
       <a href="#main-content" className="focus-ring fixed left-4 top-2 z-[100] -translate-y-20 rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-white focus:translate-y-0">Skip to content</a>

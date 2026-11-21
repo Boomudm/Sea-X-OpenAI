@@ -22,7 +22,12 @@ def write_json(path, value):
 
 def test_bundled_web_samples_match_pipeline_fixtures():
     bundled = FIXTURES.parents[2] / "web/seller-guard/src/data/sampleCases.json"
-    assert read_json(bundled) == build_cases(FIXTURES / "flags", FIXTURES / "listings")
+    samples = read_json(bundled)
+    for sample in samples:
+        sample.setdefault("shop", {
+            "id": None, "name": "not captured", "url": None, "badge": None, "ships_from": None,
+        })
+    assert samples == build_cases(FIXTURES / "flags", FIXTURES / "listings")
 
 
 def test_export_uses_exact_option_prices_and_pipeline_evidence(tmp_path, monkeypatch):
@@ -125,6 +130,97 @@ def test_export_keeps_missing_option_metadata_empty(tmp_path):
     (without_listing,) = build_cases(tmp_path, tmp_path / "absent")
     assert without_listing["title"] is None
     assert without_listing["capture"] == {}
+    assert without_listing["shop"] == {
+        "id": None, "name": "not captured", "url": None, "badge": None, "ships_from": None,
+    }
+
+
+@pytest.mark.parametrize("listing_url", [
+    "https://shopee.co.th/product/123/456?shop_id=987",
+    "http://www.shopee.co.th/%E0%B8%82%E0%B8%AD%E0%B8%87-i.123.456?shop_id=987#i.987.456",
+])
+def test_export_joins_shop_from_listing_url(tmp_path, listing_url):
+    listings_dir = tmp_path / "custom/listings"
+    listings_dir.mkdir(parents=True)
+    listing = read_json(FIXTURES / "listings/sample-compact-64.json")
+    listing["url"] = listing_url
+    write_json(listings_dir / "sample-compact-64.json", listing)
+
+    # Synthetic shop metadata tests the export projection only.
+    shop_url = "https://shopee.co.th/shop/123"
+    shop = {
+        "shop_id": "123", "name": "Example Shop", "url": shop_url, "badge": "preferred",
+        "ships_from": "Example Province", "rating": 4.9, "joined": "1 year ago",
+    }
+    write_json(listings_dir.parent / "shops.json", [shop])
+
+    cases = build_cases(FIXTURES / "flags", listings_dir)
+    case = next(case for case in cases if case["listing_id"] == listing["listing_id"])
+    assert case["shop"] == {
+        "id": "123", "name": "Example Shop", "url": shop_url,
+        "badge": "preferred", "ships_from": "Example Province",
+    }
+
+
+@pytest.mark.parametrize(("listing_url", "shop_id"), [
+    ("https://shopee.co.th/product/123/456", "123"),
+    ("https://shopee.co.th/item-i.123.456", "123"),
+    ("https://example.invalid/trongpok-sample/sample-compact-64", None),
+    ("https://shopee.co.th.example.invalid/product/123/456", None),
+    ("https://shopee.co.th@example.invalid/product/123/456", None),
+    ("https://example.invalid@shopee.co.th/product/123/456", None),
+    ("ftp://shopee.co.th/product/123/456", None),
+    ("https://shopee.co.th/?next=/product/123/456", None),
+    ("https://shopee.co.th/product/123/456/more", None),
+    ("https://shopee.co.th/item-i.123.456.ext", None),
+])
+def test_export_preserves_uncaptured_shop_context(tmp_path, listing_url, shop_id):
+    listings_dir = tmp_path / "listings"
+    listings_dir.mkdir()
+    listing = read_json(FIXTURES / "listings/sample-compact-64.json")
+    listing["url"] = listing_url
+    write_json(listings_dir / "sample-compact-64.json", listing)
+
+    cases = build_cases(FIXTURES / "flags", listings_dir)
+    case = next(case for case in cases if case["listing_id"] == listing["listing_id"])
+    assert case["shop"] == {
+        "id": shop_id, "name": "not captured",
+        "url": f"https://shopee.co.th/shop/{shop_id}" if shop_id else None,
+        "badge": None, "ships_from": None,
+    }
+
+
+def test_export_rejects_shops_file_outside_listings_parent(tmp_path):
+    listings_dir = tmp_path / "capture/listings"
+    listings_dir.mkdir(parents=True)
+    outside = tmp_path / "shops.json"
+    write_json(outside, [])
+    (listings_dir.parent / "shops.json").symlink_to(outside)
+
+    with pytest.raises(ReaderInputError, match="Path must stay inside"):
+        build_cases(FIXTURES / "flags", listings_dir)
+
+
+@pytest.mark.parametrize(("name", "ships_from", "exported_name", "exported_location"), [
+    (None, None, "not captured", None),
+    ("Fake Example Shop", "Example FRAUD Province", "[redacted] Example Shop", "Example [redacted] Province"),
+])
+def test_export_preserves_raw_shop_capture(tmp_path, name, ships_from, exported_name, exported_location):
+    listings_dir = tmp_path / "listings"
+    listings_dir.mkdir()
+    listing = read_json(FIXTURES / "listings/sample-compact-64.json")
+    listing["url"] = "https://shopee.co.th/product/123/456"
+    write_json(listings_dir / "sample-compact-64.json", listing)
+    shops_path = tmp_path / "shops.json"
+    raw = [{"shop_id": "123", "name": name, "ships_from": ships_from, "badge": None}]
+    write_json(shops_path, raw)
+
+    cases = build_cases(FIXTURES / "flags", listings_dir)
+    case = next(case for case in cases if case["listing_id"] == listing["listing_id"])
+    assert case["shop"]["name"] == exported_name
+    assert case["shop"]["ships_from"] == exported_location
+    assert case["shop"]["badge"] is None
+    assert read_json(shops_path) == raw
 
 
 def test_export_rejects_conflicting_flags_for_one_option(tmp_path):

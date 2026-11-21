@@ -309,9 +309,10 @@ function CaptureDetails({ item, showPrices = true }: Readonly<{ item: ReviewCase
       {!item.pipeline && <p>Collect evidence for this listing before assigning a review priority.</p>}
       <div className="flex flex-wrap gap-x-4 gap-y-1">
         <SourceLink label="Listing source" value={capture.listingUrl} />
-        {item.shopee?.shop && <SourceLink label={`Shop ${item.shopee.shop.id}`} value={item.shopee.shop.url} />}
+        <SourceLink label="Shop source" value={item.shopee?.shop?.url} />
         <SourceLink label="Official reference" value={capture.referenceUrl} />
       </div>
+      {item.pipeline?.shop?.ships_from && <p className="text-muted">Ships from · {publicText(item.pipeline.shop.ships_from)}</p>}
       {showPrices && <div className="flex flex-wrap gap-x-4 gap-y-1">
         <Money label="Was" amount={capture.previousPrice} /><Money label="Now" amount={capture.currentPrice} />
       </div>}
