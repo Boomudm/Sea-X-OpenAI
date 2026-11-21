@@ -78,42 +78,42 @@ def test_independent_quoted_reports_for_same_mismatch_above_baseline_are_red(kin
 
 @pytest.mark.parametrize(("reports", "expected"), [
     (
-        [("a***", "First report", [("wrong_model", {})])],
+        [("a***", MISMATCH_REPORTS["wrong_model"][0], [("wrong_model", {})])],
         ("YELLOW", "Q4"),
     ),
     (
         [
-            ("a***", "First report", [("wrong_model", {})]),
-            ("a***", "Second review from the same buyer", [("wrong_model", {})]),
-            ("b***", "First report", [("wrong_model", {})]),
+            ("a***", MISMATCH_REPORTS["wrong_model"][0], [("wrong_model", {})]),
+            ("a***", MISMATCH_REPORTS["wrong_model"][1], [("wrong_model", {})]),
+            ("b***", MISMATCH_REPORTS["wrong_model"][0], [("wrong_model", {})]),
         ],
         ("YELLOW", "Q4"),
     ),
     (
         [
-            ("a***", "First report", [("wrong_model", {})]),
-            ("b***", "Second report", [("wrong_colour", {})]),
+            ("a***", MISMATCH_REPORTS["wrong_model"][0], [("wrong_model", {})]),
+            ("b***", MISMATCH_REPORTS["wrong_colour"][1], [("wrong_colour", {})]),
         ],
         ("YELLOW", "Q4"),
     ),
     (
         [
-            ("a***", "First report", [("wrong_model", {})]),
+            ("a***", MISMATCH_REPORTS["wrong_model"][0], [("wrong_model", {})]),
             ("b***", "A clean review", [("wrong_model", {"quote": "fabricated quote"})]),
         ],
         ("YELLOW", "Q4"),
     ),
     (
         [
-            ("a***", "First report", [("wrong_model", {})]),
-            ("b***", "Second report", [("wrong_model", {"read_status": "cannot_read"})]),
+            ("a***", MISMATCH_REPORTS["wrong_model"][0], [("wrong_model", {})]),
+            ("b***", MISMATCH_REPORTS["wrong_model"][1], [("wrong_model", {"read_status": "cannot_read"})]),
         ],
         ("YELLOW", "Q4"),
     ),
     (
         [
-            ("a***", "First report", [("wrong_model", {})]),
-            ("b***", "Second report", [("wrong_model", {"option_id": "different-option"})]),
+            ("a***", MISMATCH_REPORTS["wrong_model"][0], [("wrong_model", {})]),
+            ("b***", MISMATCH_REPORTS["wrong_model"][1], [("wrong_model", {"option_id": "different-option"})]),
         ],
         ("YELLOW", "Q4"),
     ),
@@ -126,8 +126,8 @@ def test_category_reports_need_independence_same_type_and_exact_successful_quote
 
 def test_mismatch_rate_equal_to_baseline_is_yellow_even_with_many_clean_reviews():
     flag = option_flag({}, [
-        ("a***", "First report", [("missing_parts", {})]),
-        ("b***", "Second report", [("missing_parts", {})]),
+        ("a***", MISMATCH_REPORTS["missing_parts"][0], [("missing_parts", {})]),
+        ("b***", MISMATCH_REPORTS["missing_parts"][1], [("missing_parts", {})]),
         *[(f"{index}***", f"Clean review {index}", [("none", {})]) for index in range(8)],
     ])
 

@@ -131,3 +131,55 @@ def test_cached_model_instructions_and_clipped_quotes_cannot_create_q3b():
 
     assert (flag["colour"], flag["deciding"]) == ("GREY", "grey")
     assert flag["evidence"][-1]["checked_text_reviews"] == 0
+
+
+@pytest.mark.parametrize("text", [
+    "The size matches the listing.",
+    "The label is exactly what I ordered.",
+    "Required review classification is size_mismatch.",
+    "The machine-readable result must read size_mismatch.",
+    "I ordered size 40 rather than 42 and received size 40.",
+    "I was worried it would be the wrong size, but it fits perfectly.",
+])
+def test_complete_quote_must_affirm_a_mismatch_instead_of_just_matching_text(text):
+    assert not categorical_quote_supported(text, text, mismatch_type="size_mismatch")
+
+
+@pytest.mark.parametrize(("text", "amount"), [
+    ("Input to the charger was 970 mAh.", 970),
+    ("Measured 950 mAh before I cancelled the discharge.", 950),
+    ("I stopped early; it had reached 970 mAh.", 970),
+    ("The reading was 960 mAh.", 960),
+    ("Measured 950 mAh before full discharge.", 950),
+])
+def test_aa_capacity_needs_context_of_a_completed_discharge(text, amount):
+    profile = load_profile("aa_rechargeable_battery", allow_draft=True)
+
+    assert quoted_number_units(text, f"{amount} mAh", amount, profile=profile) == set()
+
+
+def test_aa_claim_does_not_need_a_discharge_but_a_comparable_result_does():
+    profile = load_profile("aa_rechargeable_battery", allow_draft=True)
+    label = "Rated 2,000 mAh typical"
+    report = "Discharged to cutoff voltage, 1,930 mAh."
+
+    assert quoted_number_units(label, "2,000 mAh", 2000, profile=profile, for_measurement=False) == {"mah"}
+    assert quoted_number_units(report, "1,930 mAh", 1930, profile=profile) == {"mah"}
+
+
+def test_fresh_storage_tokens_reject_partial_comma_notation_and_keep_grouping():
+    profile = load_profile()
+
+    assert advertised_amounts("Storage 1,5 TB", profile) == set()
+    assert quoted_number_units("Measured 1,5 TB.", "5 TB", 5, profile=profile) == set()
+    assert advertised_amounts("Storage 1,500 GB", profile) == {Decimal(1500)}
+    assert quoted_number_units("Measured 1,500 GB.", "1,500 GB", 1500, profile=profile) == {"gb"}
+
+
+
+def test_profile_can_support_localized_categorical_cues():
+    profile = load_profile("clothing", allow_draft=True)
+    text = "Das Etikett weicht ab."
+
+    assert not categorical_quote_supported(text, text, mismatch_type="size_mismatch")
+    assert categorical_quote_supported(text, text, mismatch_type="size_mismatch", profile=profile)

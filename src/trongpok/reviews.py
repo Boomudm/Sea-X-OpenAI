@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from decimal import Decimal, InvalidOperation
 from functools import cache
 
-from .profiles import CategoryProfile, UnitConversion, load_profile
+from .profiles import CategoryProfile, Translations, UnitConversion, load_profile
 
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
 _QUANTITY = r"(?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)(?:\.[0-9]+)?"
@@ -35,6 +35,49 @@ _NEGATED_MISMATCH = re.compile(
     rf"[^.!?\n]{{0,60}}\b{_MISMATCH_WORD}\b",
     re.IGNORECASE,
 )
+_AFFIRMED_MATCH = re.compile(
+    r"\b(?:matches (?:the listing|my order)|exactly what I ordered|same as (?:listed|ordered)"
+    r"|nothing (?:was|is) missing|all (?:the )?parts (?:were|are) included|fits perfectly"
+    r"|entspricht (?:der bestellung|dem angebot)|wie bestellt geliefert)\b",
+    re.IGNORECASE,
+)
+_HYPOTHETICAL_MISMATCH = re.compile(
+    r"\b(?:if|unless|was worried|worried that|afraid that|assumed that|reviews said"
+    r"|reviews say|other buyers say)\b",
+    re.IGNORECASE,
+)
+_ORDERED = re.compile(
+    r"\b(?:order\w*|option|bought|picked|requested|selected|bestellt\w*|bestellung|gekauft|gewählt)\b",
+    re.IGNORECASE,
+)
+_DELIVERED = re.compile(
+    r"\b(?:receiv\w*|arriv\w*|sent|contain\w*|deliver\w*|geliefert\w*|erhalten|bekommen|enthielt)\b",
+    re.IGNORECASE,
+)
+_CONTRAST_TOKENS = {
+    "size_mismatch": re.compile(
+        r"\b(?:XXXS|XXS|XS|S|M|L|XL|XXL|XXXL|small|medium|large|[2-6][0-9])\b", re.IGNORECASE,
+    ),
+    "wrong_colour": re.compile(
+        r"\b(?:black|blue|brown|grey|gray|green|orange|pink|purple|red|white|yellow"
+        r"|blau|braun|gelb|grau|grün|rot|schwarz|weiß)\b",
+        re.IGNORECASE,
+    ),
+    "wrong_model": re.compile(r"\b(?:Mini|Max|Pro|Plus|Ultra|[A-Z]{2,}-?[0-9]+[A-Z0-9]*)\b"),
+}
+_MISSING_COMPONENT = re.compile(
+    r"\b(?:no|without|missing)\s+(?:the |a |an )?"
+    r"(?:bracket|screw|manual|cable|charger|adapter|part|piece|component|accessory|accessories)\w*\b",
+    re.IGNORECASE,
+)
+_DEFAULT_MISMATCH_CUES = {
+    "size_mismatch": ("wrong size", "different size", "smaller than advertised", "larger than advertised"),
+    "wrong_model": ("wrong model", "different model", "wrong version", "different version"),
+    "wrong_colour": ("wrong colour", "different colour", "wrong color", "different color"),
+    "missing_parts": ("parts missing", "part is missing", "was missing", "were missing", "not included"),
+    "not_genuine_claim": ("not genuine", "not authentic", "not issued by", "not their product"),
+    "wrong_item": ("wrong item", "different item", "not the item i ordered", "wrong product"),
+}
 _OTHER_CAPACITY_BEFORE = re.compile(
     r"(?:\b(?:ordered|bought|promised|advertised|listed|rated|free space|os reports|"
     r"properties shows)\b|สั่ง(?:ซื้อ)?|โฆษณา|ระบุ|พื้นที่ว่าง)"
@@ -131,12 +174,13 @@ def _number_pattern(
     return re.compile(pattern + (rf"(?:{suffix})?" if optional else suffix), re.IGNORECASE)
 
 
-def _review_pattern(profile: CategoryProfile) -> re.Pattern[str]:
+def _review_pattern(profile: CategoryProfile, *, strict: bool = False) -> re.Pattern[str]:
     units = tuple(
         token for name, definition in profile.units.items() for token in (name, *definition.all_aliases)
     )
     return _number_pattern(
-        units, optional=True, separators=_separators(profile), legacy=profile.category == "storage",
+        units, optional=True, separators=_separators(profile),
+        legacy=profile.category == "storage" and not strict,
     )
 
 
@@ -157,7 +201,7 @@ def advertised_amounts(text: str, profile: CategoryProfile) -> set[Decimal]:
     assert promise_factor is not None
     amounts = set()
     normalized = text.translate(_THAI_DIGITS)
-    for mention in _review_pattern(profile).finditer(normalized):
+    for mention in _review_pattern(profile, strict=True).finditer(normalized):
         quantity, unit = mention.groups()
         if unit is None or _OTHER_CAPACITY_AFTER.match(normalized[mention.end():]):
             continue
@@ -169,7 +213,7 @@ def advertised_amounts(text: str, profile: CategoryProfile) -> set[Decimal]:
 
 
 def quoted_number_units(
-    text: str, quote: str, quantity: object, *, profile: CategoryProfile,
+    text: str, quote: str, quantity: object, *, profile: CategoryProfile, for_measurement: bool = True,
 ) -> set[str]:
     """Find original number-plus-unit tokens wholly inside an exact evidence quote."""
     selected = _decimal(quantity, profile=profile)
@@ -179,7 +223,7 @@ def quoted_number_units(
     units = set()
     next_span = iter(spans)
     span = next(next_span)
-    for mention in _review_pattern(profile).finditer(text.translate(_THAI_DIGITS)):
+    for mention in _review_pattern(profile, strict=True).finditer(text.translate(_THAI_DIGITS)):
         while span[1] < mention.end():
             span = next(next_span, None)
             if span is None:
@@ -188,23 +232,63 @@ def quoted_number_units(
         if (
             span[0] <= mention.start()
             and _decimal(number, profile=profile) == selected
-            and not _measurement_excluded(mention, profile)
+            and (not for_measurement or _measurement_context_supported(mention, profile))
             and not (unit and _OTHER_CAPACITY_AFTER.match(mention.string[mention.end():]))
         ):
             units.add(_unit_key(unit, profile))
     return units
 
 
-def categorical_quote_supported(text: str, quote: str, *, mismatch_type: str) -> bool:
-    """Require the quoted assertion in context and reject moderation instructions."""
-    references_code = re.compile(
-        rf"\b(?:set|mark|tag|classify|return|output|emit|use|respond with)\b"
-        rf"[^\n.!?]{{0,50}}\b{re.escape(mismatch_type)}\b",
-        re.IGNORECASE,
-    )
-    if _MODEL_INSTRUCTION.search(text) or references_code.search(text):
+def _contrasting_values(quote: str, tokens: re.Pattern[str]) -> bool:
+    order = _ORDERED.search(quote)
+    delivery = _DELIVERED.search(quote)
+    if delivery is None:
         return False
-    if _NEGATED_MISMATCH.search(quote) or quote.rstrip().endswith(("?", "？")):
+    contrast = re.search(r"\binstead of\b", quote, flags=re.IGNORECASE)
+    if contrast:
+        actual = tokens.findall(quote[:contrast.start()])
+        expected = tokens.findall(quote[contrast.end():])
+    elif order is None:
+        return False
+    elif order.start() < delivery.start():
+        expected = tokens.findall(quote[order.end():delivery.start()])
+        if not expected:
+            expected = tokens.findall(quote[:order.start()])[-1:]
+        actual = tokens.findall(quote[delivery.end():])
+    else:
+        expected = tokens.findall(quote[order.end():])
+        actual = tokens.findall(quote[delivery.end():order.start()])
+        if not actual:
+            actual = tokens.findall(quote[:delivery.start()])[-1:]
+    return bool(expected and actual and expected[0].casefold() != actual[0].casefold())
+
+
+def _categorical_assertion(quote: str, mismatch_type: str, profile: CategoryProfile | None) -> bool:
+    candidate = quote.casefold()
+    configured = profile.mismatch_cues.get(mismatch_type, {}) if profile is not None else {}
+    cues = (*_DEFAULT_MISMATCH_CUES.get(mismatch_type, ()), *(
+        cue for phrases in configured.values() for cue in phrases
+    ))
+    if any(cue.casefold() in candidate for cue in cues):
+        return True
+    if mismatch_type == "missing_parts":
+        return bool(_MISSING_COMPONENT.search(quote))
+    tokens = _CONTRAST_TOKENS.get(mismatch_type)
+    return tokens is not None and _contrasting_values(quote, tokens)
+
+
+def categorical_quote_supported(
+    text: str, quote: str, *, mismatch_type: str, profile: CategoryProfile | None = None,
+) -> bool:
+    """Require recognizable affirmative evidence in a complete copied statement."""
+    folded = text.casefold()
+    if _MODEL_INSTRUCTION.search(text) or ("_" in mismatch_type and mismatch_type.casefold() in folded):
+        return False
+    if (
+        quote.rstrip().endswith(("?", "？")) or _NEGATED_MISMATCH.search(quote)
+        or _AFFIRMED_MATCH.search(quote) or _HYPOTHETICAL_MISMATCH.search(quote)
+        or not _categorical_assertion(quote, mismatch_type, profile)
+    ):
         return False
     for start, end in _quote_spans(text, quote):
         before = text[:start].rstrip(" \t\r")
@@ -267,26 +351,38 @@ def measured_bytes(quantity: object, unit: object, capacity_text: str) -> Decima
     return _measured_value(quantity, unit, capacity_text, _storage_profile())
 
 
-def _measurement_excluded(mention: re.Match[str], profile: CategoryProfile) -> bool:
-    if not profile.measurement_exclusions:
-        return False
-    # Limit context to phrases near the reading within its original clause.
-    preceding = _CONTEXT_BREAK.split(mention.string[max(0, mention.start() - 180):mention.start()])[-1].casefold()
-    following = _CONTEXT_BREAK.split(mention.string[mention.end():mention.end() + 180], maxsplit=1)[0].casefold()
-    for phrases in profile.measurement_exclusions.values():
-        for phrase in phrases:
-            marker = phrase.casefold()
-            before = preceding.rfind(marker)
-            if before >= 0:
-                tail = preceding[before + len(marker):]
-                if not any(unit for _, unit in _review_pattern(profile).findall(tail)):
+def _measurement_context_supported(mention: re.Match[str], profile: CategoryProfile) -> bool:
+    if not profile.measurement_exclusions and not profile.completed_measurement_cues:
+        return True
+    # Keep the phrase attached to its original reading. A separate partial
+    # reading in the same review does not invalidate a completed measurement.
+    window_before = mention.string[max(0, mention.start() - 180):mention.start()]
+    window_after = mention.string[mention.end():mention.end() + 180]
+    preceding = _CONTEXT_BREAK.split(window_before)[-1].casefold()
+    following = _CONTEXT_BREAK.split(window_after, maxsplit=1)[0].casefold()
+    pattern = _review_pattern(profile, strict=True)
+
+    def nearby(cues: Translations, before: str, after: str) -> bool:
+        for phrases in cues.values():
+            for phrase in phrases:
+                marker = phrase.casefold()
+                _, delimiter, tail = before.rpartition(marker)
+                if delimiter and not any(unit for _, unit in pattern.findall(tail)):
                     return True
-            after = following.find(marker)
-            if after >= 0 and not any(
-                unit for _, unit in _review_pattern(profile).findall(following[:after])
-            ):
-                return True
-    return False
+                head, delimiter, _ = after.partition(marker)
+                if delimiter and not any(unit for _, unit in pattern.findall(head)):
+                    return True
+        return False
+
+    if nearby(profile.measurement_exclusions, preceding, following):
+        return False
+    if not profile.completed_measurement_cues:
+        return True
+    # A comma can separate a completion phrase from its result, but other
+    # conjunctions and sentence boundaries keep separate tests apart.
+    earlier = _CONTEXT_BREAK.split(window_before.rstrip(" ,，"))[-1].casefold()
+    later = _CONTEXT_BREAK.split(window_after.lstrip(" ,，"), maxsplit=1)[0].casefold()
+    return nearby(profile.completed_measurement_cues, earlier, later)
 
 
 def _non_measurement(
@@ -296,7 +392,7 @@ def _non_measurement(
     number, unit = mention.groups()
     before = mention.string[previous_end:mention.start()]
     after = mention.string[mention.end():]
-    if _measurement_excluded(mention, profile):
+    if not _measurement_context_supported(mention, profile):
         return True
     if _OTHER_CAPACITY_AFTER.match(after) or (unit is None and _ITEM_COUNT_AFTER.match(after)):
         return True
@@ -455,7 +551,7 @@ def _finding_evidence(
     else:
         review_text = review.get("text", "")
         supported_quote = (
-            categorical_quote_supported(review_text, quote, mismatch_type=mismatch_type)
+            categorical_quote_supported(review_text, quote, mismatch_type=mismatch_type, profile=profile)
             if mismatch_type else bool(quote.strip()) and quote in review_text
         )
         if not supported_quote:
@@ -663,7 +759,7 @@ def _checked_text_review(
             return False
         mismatch_type = _mismatch_type(finding, profile)
         if mismatch_type:
-            return categorical_quote_supported(text, quote, mismatch_type=mismatch_type)
+            return categorical_quote_supported(text, quote, mismatch_type=mismatch_type, profile=profile)
         quantity = finding.get("quantity")
         if _role(finding) in profile.measured_roles and quantity is not None:
             unit = _unit_key(finding.get("unit"), profile)

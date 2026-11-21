@@ -103,6 +103,8 @@ class CategoryProfile(BaseModel):
     languages: tuple[LanguageTag, ...] = Field(default=("th", "en"), min_length=1)
     prompt_traps_by_language: Translations = Field(default_factory=dict)
     measurement_exclusions: Translations = Field(default_factory=dict)
+    completed_measurement_cues: Translations = Field(default_factory=dict)
+    mismatch_cues: dict[Identifier, Translations] = Field(default_factory=dict)
     marketplace_fields: MarketplaceFields = Field(default_factory=MarketplaceFields)
     official_spec_urls: tuple[NonEmptyText, ...] = ()
     approved_by: NonEmptyText
@@ -120,6 +122,7 @@ class CategoryProfile(BaseModel):
         elif (
             self.promise_unit is not None or self.units or self.measured_roles
             or self.maximum_ratio is not None or self.measurement_exclusions
+            or self.completed_measurement_cues
         ):
             raise ValueError("Categorical profiles cannot declare numeric measurement rules")
 
@@ -131,10 +134,15 @@ class CategoryProfile(BaseModel):
         ):
             raise ValueError("maximum_ratio requires unambiguous measurement factors")
 
+        if not set(self.mismatch_cues).issubset(self.mismatch_types):
+            raise ValueError("Mismatch cues must belong to a configured mismatch type")
+
         languages = {language.casefold() for language in self.languages}
         localized = (
             *self.prompt_traps_by_language,
             *self.measurement_exclusions,
+            *self.completed_measurement_cues,
+            *(tag for cues in self.mismatch_cues.values() for tag in cues),
             *(tag for unit in self.units.values() for tag in unit.aliases_by_language),
         )
         if any(language.casefold() not in languages for language in localized):

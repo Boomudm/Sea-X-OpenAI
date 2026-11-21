@@ -34,9 +34,24 @@
   "measurement_exclusions": {
     "en": [
       "charger input", "charge input", "charging input", "input capacity", "charging capacity",
-      "charge accepted", "charge capacity", "while charging", "during charging"
+      "charge accepted", "charge capacity", "while charging", "during charging", "input to the charger",
+      "cancelled the discharge", "canceled the discharge", "did not finish", "stopped early",
+      "before cutoff", "before cut-off", "incomplete discharge", "before full discharge",
+      "before the discharge completed", "not a full discharge", "did not discharge fully"
     ],
-    "zh": ["充电输入", "充电容量", "充入容量", "充电时"]
+    "zh": ["充电输入", "充电容量", "充入容量", "充电时", "放电未完成", "提前停止"]
+  },
+  "completed_measurement_cues": {
+    "en": [
+      "full discharge", "completed discharge", "completed a discharge", "discharged to cutoff",
+      "discharged to cut-off", "discharged until cutoff", "discharge reached cutoff", "finished the discharge"
+    ],
+    "zh": ["完整放电", "放电完成", "放电至截止电压", "达到截止电压"]
+  },
+  "mismatch_cues": {
+    "missing_parts": {"zh": ["零件缺失", "少了零件"]},
+    "wrong_model": {"zh": ["型号不符", "型号发错"]},
+    "not_genuine_claim": {"zh": ["品牌确认不是正品"]}
   },
   "approved_by": "pending human review"
 }
