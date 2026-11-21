@@ -10,7 +10,7 @@ flowchart TD
     Ref --> Numeric[Q3a checks measured values against the configured bounds]
     Numeric --> Category[Q3b checks recurring reports of the same mismatch type]
     Category --> RedCheck{Any RED rule fired?}
-    RedCheck -->|Yes| Red[RED with priority Q3a > Q3b > Q2 > Q1]
+    RedCheck -->|Yes| Red["RED with priority Q3a > Q3b > Q2 > Q1"]
     RedCheck -->|No| YellowCheck{Q4 needs a human check?}
     YellowCheck -->|Yes| Yellow[YELLOW]
     YellowCheck -->|No| GreenCheck{Q5 has at least 10 matched text reviews and all were checked?}
@@ -31,7 +31,7 @@ Review text is untrusted input. The reader extracts structured evidence and the 
 
 1. Create `profiles/<category>.json` with a matching category ID and a version. Use `clothing.json` for categorical evidence or `cable_length.json` for measured evidence. Record currency, price-per-unit basis where applicable, locale, languages, localized unit aliases and prompt traps, and marketplace field names. The analyzer and pipeline map those fields into the standard capture shape, as shown in the clothing sample.
 2. Set the measured roles and numeric bounds, or list the categorical mismatch types and their baseline. For measurements, define unit factors on one common basis and state the test conditions that make values comparable. The cable profile treats measurements below 95% or above 105% of the advertised length as outside tolerance. The battery sample uses a 2,000 mAh typical promise and a 95% lower bound, which gives the stated 1,900 mAh minimum. A person reviews the minimum-to-typical ratio and discharge conditions for the cell specification covered by the profile.
-3. Add labelled synthetic **Sample data** for expected normal and mismatch cases. Use the exact Variation and quotes in the saved findings. Numeric options supply `promise_value` in the profile's promised unit and `measurement_text`.
+3. Add labelled synthetic **Sample data** for expected normal and mismatch cases. Use the exact Variation and quotes in the saved findings. Numeric options supply `promise_value` in the profile's promised unit and `measurement_text`. Measured quotes for new categories include an explicit supported unit or alias.
 4. Have a person verify the official evidence, units, test conditions, thresholds, and interpretation for each locale. Give profile changes a new version. The tool rejects a profile marked `pending human review` by default. `--allow-draft` explicitly opts into a draft for a trial and leaves its approval status intact.
 
 To ask the Responses API to draft from official specifications, set `OFFICIAL_SPEC_URL` to a public HTTPS manufacturer page and run the following from the repository root. You can pass more official URLs after the first.
@@ -40,7 +40,7 @@ To ask the Responses API to draft from official specifications, set `OFFICIAL_SP
 uv run --locked python profiles/draft.py new_category "$OFFICIAL_SPEC_URL"
 ```
 
-The command saves `profiles/new_category.json` as `pending human review` and preserves an existing profile at that path. Hosted retrieval and structured output support drafting. A person still verifies source ownership, relevance and the proposed thresholds.
+The command saves `profiles/new_category.json` as `pending human review` and preserves an existing profile at that path. Hosted search filters to the supplied domains. The command saves the validated draft only when the API reports consulting every supplied URL. A person still verifies source ownership, relevance and the proposed thresholds.
 
 ## Run the samples
 
@@ -76,7 +76,7 @@ uv run --locked trongpok-pipeline --watch data/listings --state-db .worldwide-pi
 1. Load each listing and identify the option job by listing ID, option ID, evidence hash, profile version and prompt version. Replaying the same job reuses its saved result. SQLite stores job state and the latest flag for each option.
 2. Read the reviews with profile-aware structured output and reuse cached reads by review ID and prompt version. Keep option matching, quote validation and colour assignment in code.
 3. Ask for up to three confidence rounds. Apply only valid challenges with cited evidence and keep the combined adjustment within ±20 points. Stop on a change below five points or a round with no new cited source.
-4. Save the flag and publish it to the reviewer queue. Quota errors, exhausted budgets, invalid AI output and other AI failures put the job in **not checked**. Transient errors use bounded retries with backoff.
+4. Save the flag and publish it to the reviewer queue. A per-job budget limits API use. Quota errors, exhausted budgets, invalid AI output and other AI failures put the job in **not checked**. Transient errors use bounded retries with backoff.
 
 The queue provides review priorities. A reviewer inspects the evidence and makes the decision for each flag.
 
