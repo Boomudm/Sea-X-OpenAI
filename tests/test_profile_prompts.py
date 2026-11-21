@@ -27,7 +27,7 @@ def test_power_bank_prompts_explain_what_counts_as_a_measurement():
         assert "Advertised values use mAh." in prompt
         assert "Measurement roles: test result." in prompt
         assert "USB-tester discharge" in prompt
-        assert "60–70%" in prompt
+        assert "59–65%" in prompt
         assert "Comparing Wh with mAh requires a known voltage basis." in prompt
         assert "GB vs GiB" not in prompt
     assert "supported unit. If a complaint has no usable measurement" in review

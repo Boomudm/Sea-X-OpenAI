@@ -8,7 +8,7 @@ The power bank profile is marked **pending human review**. These three listings 
 
 | Sample | Expected result |
 |---|---|
-| Two independent buyers measure below 60% of the advertised 20,000 mAh | RED Q3 |
+| Two independent buyers measure below 50% of the advertised 20,000 mAh | RED Q3 |
 | The tester reads about 65% and 10 matched text reviews are checked | GREEN Q5 |
 | One buyer reports a shortfall without a measurement | YELLOW Q4 |
 

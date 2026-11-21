@@ -63,7 +63,7 @@ def test_unmeasured_complaint_goes_to_a_person(power_bank):
 
 @pytest.mark.parametrize(
     ("reading", "expected"),
-    [(11_999, ("YELLOW", "Q4")), (12_000, ("GREEN", "Q5"))],
+    [(9_999, ("YELLOW", "Q4")), (10_000, ("GREEN", "Q5")), (11_800, ("GREEN", "Q5"))],
 )
 def test_tolerance_is_a_strict_lower_bound(power_bank, reading, expected):
     listing, findings = load_sample("sample-power-bank-normal")
