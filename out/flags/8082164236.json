@@ -1,0 +1,84 @@
+[
+  {
+    "listing_id": "8082164236",
+    "option_id": "8082164236-option-2tb",
+    "colour": "YELLOW",
+    "deciding": "Q4",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity",
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "8082164236-r02",
+        "buyer_masked": "a*****s",
+        "date": "2022-02-17T10:19:00+07:00",
+        "quote": "ความจุ 2TB จุจิงๆได้ 20GB ข้อมูลก็หายอีก",
+        "quantity": 20.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 21474836480.0,
+        "ratio": 0.01073741824,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "8082164236-r01",
+        "buyer_masked": "n*****k",
+        "date": "2023-09-07T12:01:00+07:00",
+        "quote": "ขึ้นว่า 1.90 TB แต่จริง ๆ 10 GB กว่า ๆ",
+        "quantity": null,
+        "unit": "none",
+        "role": "delivered_capacity",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 2,
+        "checked_text_reviews": 2
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 75,
+      "base": 75,
+      "adjustments": [
+        {
+          "points": 15,
+          "reason": "2 or more separate buyers"
+        },
+        {
+          "points": 10,
+          "reason": "Deciding buyer evidence quotes a clear number"
+        },
+        {
+          "points": 10,
+          "reason": "Deciding reviews match the option exactly"
+        },
+        {
+          "points": -10,
+          "reason": "Market range is thin or the KB row is missing"
+        }
+      ],
+      "missing_evidence": [
+        "Find an approved reference for this brand, product line and type",
+        "Look for an independent measured report for this variation",
+        "Verify the reported capacity against the original review or completed test"
+      ],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]

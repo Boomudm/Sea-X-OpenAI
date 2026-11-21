@@ -22,3 +22,5 @@ Labeler ______ · Frozen at (Bangkok, ISO 8601) ______
 | [47255645924](https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/47255645924.json) | `128gb` | `สีเงินเมทัลลิก-128G` | 1 |  |  |
 | [50570965257](https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/50570965257.json) | `512GB` | `512GB` | 0 |  |  |
 | [50908347169](https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/50908347169.json) | `SDCZ73-64GB` | `64GB` | 0 |  |  |
+| [22165813567](https://github.com/Boomudm/Sea-X-OpenAI/raw/d784dc32bb5e27386d62f25d33b17f4f02402065/data/listings/22165813567.json) | `SDCZ74_128G_G46` | `SDCZ74_128G_G46` | 22 |  |  |
+| [8082164236](https://github.com/Boomudm/Sea-X-OpenAI/raw/d784dc32bb5e27386d62f25d33b17f4f02402065/data/listings/8082164236.json) | `8082164236-option-2tb` | `2TB` | 2 |  |  |
