@@ -154,9 +154,14 @@ def _build_flag(listing, option, claim, reference_source, findings, as_of, chall
     if not references.matched:
         missing.append("Find an approved reference for this brand, product line and type")
     elif promise is not None:
-        if references.market:
-            market = references.market.flag_evidence(promise, option)
-            for question, reason in _price_reasons(market, references.market.currency).items():
+        price_reference = references.market
+        if (
+            price_reference
+            and price_reference.currency == profile.currency
+            and profile.price_per_unit in (None, price_reference.unit)
+        ):
+            market = price_reference.flag_evidence(promise, option)
+            for question, reason in _price_reasons(market, price_reference.currency).items():
                 add(question, reason, [market])
         else:
             missing.append(f"Capture at least 3 comparable official Mall offers for this {attribute}")

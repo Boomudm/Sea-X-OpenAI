@@ -2,6 +2,8 @@
   "category": "storage",
   "attribute": "capacity",
   "promise_unit": "GB",
+  "currency": "THB",
+  "price_per_unit": "GB",
   "units": {
     "GiB": {"measurement_factors": [1073741824]},
     "TiB": {"measurement_factors": [1099511627776]},
