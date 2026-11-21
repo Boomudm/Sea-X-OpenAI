@@ -40,7 +40,7 @@ To ask the Responses API to draft from official specifications, set `OFFICIAL_SP
 uv run --locked python profiles/draft.py new_category "$OFFICIAL_SPEC_URL"
 ```
 
-The command saves `profiles/new_category.json` as `pending human review` and preserves an existing profile at that path. Hosted search filters to the supplied domains. The command saves the validated draft only when the API reports consulting every supplied URL. A person still verifies source ownership, relevance and the proposed thresholds.
+The command saves `profiles/new_category.json` as `pending human review` and preserves an existing profile at that path. Hosted search filters to the supplied domains. The command saves the validated draft only when the API reports a completed open of every exact supplied URL. A person still verifies source ownership, relevance and the proposed thresholds.
 
 ## Run the samples
 
@@ -73,7 +73,7 @@ The following watch command checks for new and changed listing JSON files. `--me
 uv run --locked trongpok-pipeline --watch data/listings --state-db .worldwide-pipeline.sqlite3
 ```
 
-1. Load each listing and identify the option job by listing ID, option ID, evidence hash, profile version and prompt version. Replaying the same job reuses its saved result. SQLite stores job state and the latest flag for each option.
+1. Load each listing and identify the option job by listing ID, option ID, evidence hash, profile version and prompt version. Replaying the same job reuses its saved result. SQLite stores job state and the latest flag for each option in the selected profile. Use the same profile and approval options with `--queue`.
 2. Read the reviews with profile-aware structured output and reuse cached reads by review ID and prompt version. Keep option matching, quote validation and colour assignment in code.
 3. Ask for up to three confidence rounds. Apply only valid challenges with cited evidence and keep the combined adjustment within ±20 points. The queue shows the source of each accepted adjustment. Stop on a change below five points or a round with no new cited source.
 4. Save the flag and publish it to the reviewer queue. A per-job budget limits API use. Quota errors, exhausted budgets, invalid AI output and other AI failures put the job in **not checked**. Transient errors use bounded retries with backoff.

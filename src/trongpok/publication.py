@@ -2,6 +2,7 @@
 
 import hashlib
 import re
+from datetime import datetime
 
 _RESTRICTED_WORD = re.compile(r"\b(?:fake|fraud)\w*", re.IGNORECASE)
 _MASKED_BUYER = re.compile(r"[\w]?\*{2,}[\w]?|buyer-[0-9a-f]{12}\*{3}")
@@ -28,6 +29,11 @@ def publish_flag(flag: dict) -> dict:
         if isinstance(value, list):
             return [sanitize(item, key) for item in value]
         if isinstance(value, str):
+            if key == "date":
+                try:
+                    datetime.fromisoformat(value)
+                except ValueError:
+                    return None
             if key == "buyer_masked":
                 return masked_buyer(value)
             if key in _DISPLAY_TEXT:
