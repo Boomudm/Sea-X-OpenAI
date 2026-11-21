@@ -198,8 +198,9 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
     promise_key = "promise_gb" if storage else "promise_value"
     text_key = "capacity_text" if storage else "measurement_text"
     unclear_key = "capacity_unclear" if storage else "measurement_unclear"
-    promise = _number(claim.get(promise_key, option.get(promise_key)))
-    unclear = claim.get(unclear_key, False) or promise is None or promise <= 0
+    numeric = profile.measurement_mode == "numeric"
+    promise = _number(claim.get(promise_key, option.get(promise_key))) if numeric else None
+    unclear = claim.get(unclear_key, False) or (numeric and (promise is None or promise <= 0))
     if not storage:
         unclear = unclear or option.get(unclear_key, False)
     kb = None
@@ -208,6 +209,12 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
         kb = _find_kb(claim, rows) if has_claim_identity else _captured_kb(listing, rows)
     attribute = profile.attribute
     tolerance = format((profile.tolerance * 100).normalize(), "f")
+    bounds = f"below {tolerance}%"
+    if profile.maximum_ratio is not None:
+        upper = format((profile.maximum_ratio * 100).normalize(), "f")
+        bounds = f"outside {tolerance}%–{upper}%"
+    baseline = profile.baseline_mismatch_rate
+    questions = QUESTION_ORDER if storage or baseline is None else ("Q1", "Q2", "Q3", "Q3b", "Q4", "Q5")
     reasons = {}
     evidence = {}
     missing = []
@@ -247,24 +254,35 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
             }])
             missing.append("Check the manufacturer's dated capacity list for this line")
 
-    shortfalls, unverified, matched_count, checked_count, uncertain = review_evidence(
+    outside_tolerance, unverified, mismatches, matched_count, checked_count, uncertain = review_evidence(
         listing, option, promise, findings, profile=profile,
     )
-    if len(shortfalls) >= 2:
-        add("Q3", f"Buyers measured below {tolerance}% of the advertised {attribute}", shortfalls)
-    elif shortfalls:
-        add("Q4", f"One buyer measured below {tolerance}% of the advertised {attribute}", shortfalls)
+    if len(outside_tolerance) >= 2:
+        add("Q3", f"Buyers measured {bounds} of the advertised {attribute}", outside_tolerance)
+    elif outside_tolerance:
+        add("Q4", f"One buyer measured {bounds} of the advertised {attribute}", outside_tolerance)
         missing.append("Look for an independent measured report for this variation")
-    unmeasured = [item for item in unverified if not item.get("mismatch_type")]
-    if unmeasured:
-        add("Q4", f"{attribute.capitalize()} complaint needs a usable measurement", unmeasured)
+    if unverified:
+        add("Q4", f"{attribute.capitalize()} complaint needs a usable measurement", unverified)
         missing.append(f"Verify the reported {attribute} against the original review or completed test")
-    categorical = [item for item in unverified if item.get("mismatch_type")]
-    if categorical:
-        add("Q4", "Reported mismatch needs a manual check", categorical)
+    manual_mismatches = []
+    for mismatch_type, reports in mismatches.items():
+        confirmed = [item for item in reports if (item.get("buyer_masked") or "").strip()]
+        count = len(confirmed)
+        if baseline is not None and count >= 2 and count > baseline * matched_count:
+            baseline_percent = format((baseline * 100).normalize(), "f")
+            add("Q3b", (
+                f"{count} of {matched_count} matched reviews reported {mismatch_type.replace('_', ' ')}"
+                f" from separate buyers, above the {baseline_percent}% baseline"
+            ), confirmed)
+            manual_mismatches.extend(item for item in reports if item not in confirmed)
+        else:
+            manual_mismatches.extend(reports)
+    if manual_mismatches:
+        add("Q4", "Reported mismatch needs a manual check", manual_mismatches)
         missing.append("Verify the reported mismatch against the original review and advertised option")
 
-    deciding = next((question for question in ("Q3", "Q2", "Q1", "Q4") if question in reasons), None)
+    deciding = next((question for question in ("Q3", "Q3b", "Q2", "Q1", "Q4") if question in reasons), None)
     count_evidence = {
         "source": "review_count",
         "matched_text_reviews": matched_count,
@@ -282,10 +300,10 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
                 add("grey", "Matched text reviews are still unchecked", [count_evidence])
                 missing.append(f"Read {matched_count - checked_count} more matched text reviews")
 
-    colours = {"Q1": "RED", "Q2": "RED", "Q3": "RED", "Q4": "YELLOW",
+    colours = {"Q1": "RED", "Q2": "RED", "Q3": "RED", "Q3b": "RED", "Q4": "YELLOW",
                "Q5": "GREEN", "grey": "GREY"}
     all_evidence = []
-    for question in (deciding, *(item for item in QUESTION_ORDER if item != deciding)):
+    for question in (deciding, *(item for item in questions if item != deciding)):
         for item in evidence.get(question, []):
             if item not in all_evidence:
                 all_evidence.append(item)
@@ -293,7 +311,7 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
         all_evidence.append(count_evidence)
     path = [
         f"{question}: {'decided' if question == deciding else 'triggered' if question in reasons else 'clear'}"
-        for question in QUESTION_ORDER
+        for question in questions
     ]
     if deciding == "grey":
         path.append("grey: decided")
@@ -305,7 +323,7 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
         "path": path,
         "reasons": [
             *reasons[deciding],
-            *(reason for question in QUESTION_ORDER if question != deciding
+            *(reason for question in questions if question != deciding
               for reason in reasons.get(question, [])),
         ],
         "evidence": all_evidence,

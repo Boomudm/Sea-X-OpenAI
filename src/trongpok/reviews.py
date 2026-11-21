@@ -80,7 +80,7 @@ def _number_pattern(units: tuple[str, ...], *, optional: bool) -> re.Pattern[str
 
 def _review_pattern(profile: CategoryProfile) -> re.Pattern[str]:
     units = tuple(
-        token for name, definition in profile.units.items() for token in (name, *definition.aliases)
+        token for name, definition in profile.units.items() for token in (name, *definition.all_aliases)
     )
     return _number_pattern(units, optional=True)
 
@@ -88,7 +88,7 @@ def _review_pattern(profile: CategoryProfile) -> re.Pattern[str]:
 def _unit_key(unit: object, profile: CategoryProfile) -> str:
     key = str(unit or "").strip().casefold()
     for name, definition in profile.units.items():
-        if key == name.casefold() or any(key == alias.casefold() for alias in definition.aliases):
+        if key == name.casefold() or any(key == alias.casefold() for alias in definition.all_aliases):
             return name.casefold()
     return key
 
@@ -253,39 +253,53 @@ def _role(finding: dict) -> str:
     }.get(label, label)
 
 
+def _mismatch_type(finding: dict, profile: CategoryProfile) -> str | None:
+    if profile.category == "storage":
+        return None
+    kind = finding.get("mismatch_type") or finding.get("complaint")
+    if isinstance(kind, str) and kind in profile.mismatch_types and kind not in {
+        "capacity_short", "capacity_no_number", "none", "other",
+    }:
+        return kind
+    return None
+
+
+def _outside_tolerance(number: Decimal, promise: Decimal, profile: CategoryProfile) -> bool:
+    return number < promise * profile.tolerance or (
+        profile.maximum_ratio is not None and number > promise * profile.maximum_ratio
+    )
+
+
 def _finding_evidence(
     finding: dict, review: dict, measurement_text: str, promised: Decimal | None,
-    profile: CategoryProfile,
+    profile: CategoryProfile, *, mismatch_type: str | None = None,
 ) -> tuple[dict, Decimal | None, bool, bool] | None:
     """Verify the finding and identify unresolvable text contradictions."""
+    storage = profile.category == "storage"
+    if not storage and finding.get("read_status") != "ok":
+        return None
     image_ref = finding.get("image_ref")
     quote = finding.get("quote") or ""
     if image_ref:
-        if image_ref not in review.get("images", ()):
+        if mismatch_type or image_ref not in review.get("images", ()):
             return None
     elif not quote.strip() or quote not in review.get("text", ""):
         return None
 
     role = _role(finding)
-    storage = profile.category == "storage"
     complaint_kind = finding.get("complaint")
     reported = complaint_kind in profile.mismatch_types
-    categorical_mismatch = (
-        not storage and reported and complaint_kind not in {
-            "capacity_short", "capacity_no_number", "none", "other",
-        }
-    )
-    complaint = categorical_mismatch or (
+    complaint = bool(mismatch_type) or (
         reported and (
             complaint_kind == "capacity_no_number" or (
                 complaint_kind == "capacity_short" and role not in {"free_space", "promise", "speed"}
             )
         )
     )
-    quantity = None if categorical_mismatch else _decimal(finding.get("quantity"))
+    quantity = None if mismatch_type else _decimal(finding.get("quantity"))
     image_type = _label(finding.get("image_type"))
     number = None
-    measurable = role in profile.measured_roles and not categorical_mismatch
+    measurable = role in profile.measured_roles and not mismatch_type
     if finding.get("read_status", "ok") == "ok" and measurable:
         if image_ref:
             supported = storage and role == "test_result" and image_type in _COMPLETED_IMAGE_TYPES
@@ -296,7 +310,7 @@ def _finding_evidence(
             complaint = complaint or (
                 number is not None
                 and promised is not None
-                and number < promised * profile.tolerance
+                and _outside_tolerance(number, promised, profile)
             )
 
     measured_text = not image_ref and measurable
@@ -327,8 +341,8 @@ def _finding_evidence(
         "image_ref": image_ref,
         "image_type": finding.get("image_type"),
     }
-    if categorical_mismatch:
-        evidence["mismatch_type"] = complaint_kind
+    if mismatch_type:
+        evidence["mismatch_type"] = mismatch_type
     return evidence, number, complaint, ambiguous
 
 
@@ -365,7 +379,7 @@ def _review_signal(
     number, evidence = measurements[0]
     if len({value for value, _ in measurements}) > 1 or not promised:
         return {**evidence, "quantity": None, "unit": "none", "bytes": None, "ratio": None}, False
-    if number < profile.tolerance * promised:
+    if _outside_tolerance(number, promised, profile):
         return evidence, bool((review.get("buyer_masked") or "").strip())
     return next((complaint for complaint in complaints if complaint["ratio"] is None), None), False
 
@@ -373,9 +387,10 @@ def _review_signal(
 def review_evidence(
     listing: dict, option: dict, promise_gb: object, findings: Iterable[dict],
     *, profile: CategoryProfile | None = None,
-) -> tuple[list[dict], list[dict], int, int, bool]:
+) -> tuple[list[dict], list[dict], dict[str, list[dict]], int, int, bool]:
     """Return review signals for a promise given in the active profile's promise unit."""
     profile = profile or _storage_profile()
+    storage = profile.category == "storage"
     variation = option.get("variation_label")
     unique_variation = bool(variation) and sum(
         candidate.get("variation_label") == variation
@@ -388,53 +403,113 @@ def review_evidence(
         if unique_variation and review.get("variation_label") == variation
     }
     text_count = sum(bool(review.get("text", "").strip()) for review in matched.values())
+    option_id = option["option_id"]
     by_review = defaultdict(list)
     uncertain = not unique_variation
     for finding in findings:
         review_id = finding.get("review_id")
         if review_id in matched:
             by_review[review_id].append(finding)
-        elif finding.get("option_id") == option["option_id"]:
+            if not storage and finding.get("option_id") != option_id:
+                uncertain = True
+        elif finding.get("option_id") == option_id:
             uncertain = True
 
     checked_count = sum(
-        bool(review.get("text", "").strip()) and any(
-            finding.get("read_status") == "ok"
-            and not finding.get("image_ref")
-            and (finding.get("quote") or finding.get("complaint") == "none")
-            and (finding.get("quote") or "") in review["text"]
-            for finding in by_review[review_id]
-        )
+        _checked_text_review(review, by_review[review_id], profile, option_id)
         for review_id, review in matched.items()
     )
 
     promise = _decimal(promise_gb)
-    promised = promise * profile.units[profile.promise_unit].promise_factor if promise else None
-    text_key = "capacity_text" if profile.category == "storage" else "measurement_text"
+    promised = promise * profile.units[profile.promise_unit].promise_factor if (
+        promise and profile.promise_unit is not None
+    ) else None
+    text_key = "capacity_text" if storage else "measurement_text"
     measurement_text = option.get(text_key) or variation
     measured = []
     unverified = []
+    mismatches = defaultdict(list)
     for review_id, review in matched.items():
-        evidence, shortfall = _review_signal(
-            review, by_review[review_id], measurement_text, promised, profile,
+        review_text = review.get("text", "").strip()
+        measurement_findings = []
+        for finding in by_review[review_id]:
+            if not storage and finding.get("option_id") != option_id:
+                continue
+            mismatch_type = _mismatch_type(finding, profile)
+            if mismatch_type is None:
+                measurement_findings.append(finding)
+                continue
+            result = _finding_evidence(
+                finding, review, measurement_text, promised, profile, mismatch_type=mismatch_type,
+            )
+            if result is not None:
+                evidence, _, _, _ = result
+                mismatches[mismatch_type].append((evidence, review_text))
+        evidence, outside_tolerance = _review_signal(
+            review, measurement_findings, measurement_text, promised, profile,
         )
         if evidence is not None:
-            text = review.get("text", "").strip()
-            (measured if shortfall else unverified).append((evidence, text))
+            (measured if outside_tolerance else unverified).append((evidence, review_text))
 
+    # Numeric signals share a deduplication pool. Categorical reports count
+    # independently for each mismatch, even when the same buyer reports two kinds.
     seen_buyers: set[str] = set()
     seen_texts: set[str] = set()
+    measured = _independent(measured, seen_buyers, seen_texts)
+    unverified = _independent(unverified, seen_buyers, seen_texts)
+    categorical = {
+        kind: _independent(sorted(signals, key=_without_buyer), set(), set())
+        for kind, signals in mismatches.items()
+    }
+    return measured, unverified, categorical, text_count, checked_count, uncertain
 
-    def independent(signals: list[tuple[dict, str]]) -> list[dict]:
-        result = []
-        for evidence, text in signals:
-            buyer = (evidence.get("buyer_masked") or "").strip()
-            if buyer in seen_buyers or (text and text in seen_texts):
-                continue
-            seen_buyers.add(buyer)
-            if text:
-                seen_texts.add(text)
-            result.append(evidence)
-        return result
 
-    return independent(measured), independent(unverified), text_count, checked_count, uncertain
+def _checked_text_review(
+    review: dict, findings: list[dict], profile: CategoryProfile, option_id: str,
+) -> bool:
+    text = review.get("text", "")
+    if not text.strip():
+        return False
+
+    def checked(finding: dict) -> bool:
+        quote = finding.get("quote") or ""
+        return (
+            finding.get("read_status") == "ok"
+            and (quote or finding.get("complaint") == "none")
+            and quote in text
+        )
+
+    def valid_type(finding: dict) -> bool:
+        complaint = finding.get("mismatch_type") or finding.get("complaint")
+        return complaint == "none" or (
+            complaint in profile.mismatch_types and bool((finding.get("quote") or "").strip())
+        )
+
+    text_findings = [finding for finding in findings if not finding.get("image_ref")]
+    if profile.category == "storage":
+        return any(map(checked, text_findings))
+    return bool(text_findings) and all(
+        checked(finding)
+        and finding.get("option_id") == option_id
+        and valid_type(finding)
+        for finding in findings
+    )
+
+
+def _without_buyer(signal: tuple[dict, str]) -> bool:
+    return not (signal[0].get("buyer_masked") or "").strip()
+
+
+def _independent(
+    signals: list[tuple[dict, str]], seen_buyers: set[str], seen_texts: set[str],
+) -> list[dict]:
+    result = []
+    for evidence, text in signals:
+        buyer = (evidence.get("buyer_masked") or "").strip()
+        if buyer in seen_buyers or (text and text in seen_texts):
+            continue
+        seen_buyers.add(buyer)
+        if text:
+            seen_texts.add(text)
+        result.append(evidence)
+    return result
