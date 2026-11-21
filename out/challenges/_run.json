@@ -82,5 +82,38 @@
         }
       ]
     }
-  }
+  },
+  "additional_runs": [
+    {
+      "started_at": "2026-11-21T08:05:13Z",
+      "finished_at": "2026-11-21T08:05:29Z",
+      "raw": {
+        "22165813567__SDCZ74_128G_G46": {
+          "challenges": []
+        },
+        "8082164236__8082164236-option-2tb": {
+          "challenges": [
+            {
+              "kind": "gb_vs_gib",
+              "points": -5,
+              "reason": "The evidence converts 20 GB using the GiB multiplier, inflating the delivered-capacity ratio from 1.00% to 1.07% while leaving it well below the 85% threshold.",
+              "source": "8082164236-r02"
+            },
+            {
+              "kind": "other",
+              "points": 10,
+              "reason": "The buyer reports that the 2 TB drive held only 20 GB and that data was lost.",
+              "source": "ความจุ 2TB จุจิงๆได้ 20GB ข้อมูลก็หายอีก"
+            },
+            {
+              "kind": "other",
+              "points": 5,
+              "reason": "A second buyer on the 2 TB option reports only a little over 10 GB of usable capacity despite a 1.90 TB display, providing approximate corroboration.",
+              "source": "ขึ้นว่า 1.90 TB แต่จริง ๆ 10 GB กว่า ๆ"
+            }
+          ]
+        }
+      }
+    }
+  ]
 }

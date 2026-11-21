@@ -23,5 +23,15 @@
     "listing_id": "47255645924",
     "option_id": "128gb",
     "buyers_report_shortfall": true
+  },
+  {
+    "listing_id": "22165813567",
+    "option_id": "SDCZ74_128G_G46",
+    "buyers_report_shortfall": false
+  },
+  {
+    "listing_id": "8082164236",
+    "option_id": "8082164236-option-2tb",
+    "buyers_report_shortfall": true
   }
 ]

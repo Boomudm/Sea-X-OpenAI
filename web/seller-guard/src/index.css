@@ -22,6 +22,47 @@ img { display: block; max-width: 100%; }
 .review-modal::backdrop { background: rgb(33 26 24 / 42%); }
 body:has(.review-modal[open]) { overflow: hidden; }
 
+@media screen and (min-width: 64rem) and (min-height: 48rem) {
+  .review-shell:has(.review-queue-grouped) {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+  }
+  .review-shell:has(.review-queue-grouped) > main { flex: 1; min-height: 0; }
+  .review-shell:has(.review-queue-grouped) > :is(header, footer) { flex: none; }
+  .review-queue-grouped {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-block: 1.25rem;
+  }
+  .review-queue-grouped > a { align-self: flex-start; }
+  .review-queue-grouped > :not(.review-queue-panel),
+  .review-queue-grouped .review-queue-panel > :not(.review-queue-scroll) { flex-shrink: 0; }
+  .review-queue-grouped .review-queue-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    margin-top: 1rem;
+  }
+  .review-queue-grouped .review-queue-panel > :first-child { padding-block: 1rem; }
+  .review-queue-grouped .review-queue-panel > :last-child { padding-block: 0.5rem; }
+  .review-queue-grouped .review-queue-scroll { min-height: 0; overflow: auto; scroll-padding-top: 3rem; }
+  .review-queue-grouped thead { position: sticky; top: 0; z-index: 1; }
+}
+
+.review-queue-grouped table { overflow-wrap: anywhere; }
+.review-queue-grouped tr > :is(th, td):nth-child(2) { min-width: 6rem; overflow-wrap: normal; }
+
+@media (width < 64rem) {
+  .review-queue-grouped table { min-width: 0; }
+  .review-queue-grouped tr > :is(th, td):nth-child(n+3):nth-child(-n+5) { display: none; }
+  .review-queue-grouped tr > :is(th, td) { padding-inline: 0.5rem; }
+  .review-queue-grouped tr > :is(th, td):first-child { padding-inline-start: 1rem; }
+  .review-queue-grouped tr > :is(th, td):last-child { padding-inline-end: 1rem; }
+  .review-queue-grouped td button[aria-haspopup="dialog"] { min-height: 2.75rem; }
+}
+
 @layer components {
   .heading-1 { @apply text-4xl font-semibold tracking-tight text-ink md:text-5xl; text-wrap: balance; }
   .heading-2 { @apply text-4xl font-semibold tracking-tight text-ink md:text-5xl; text-wrap: balance; }

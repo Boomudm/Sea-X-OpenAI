@@ -1,0 +1,7 @@
+# Independent source check: 22165813567
+
+Visible Chrome, 21 November 2026 at approximately 14:48 ICT: https://shopee.co.th/product/43238610/22165813567, comments filter showing 59, pages 1–10. Checked all 22 staged positions: p1 rows 3/4; p2 2/3/5; p3 3/6; p4 2/4/5/6; p5 1/2/3/4/6; p6 1; p7 2/6; p8 3; p10 2/4. All visible review wording, dates/times, exact `SDCZ74_128G_G46` Variation, row positions and masked-name endpoints agree. Structured field labels and line breaks use normalized whitespace; this is not a byte-for-byte whitespace check. Page 9 row 2 is 128 GB with no visible text and is correctly outside these text rows.
+
+Page 4 row 6 has no visible buyer name. Page 5 rows 2 and 4 produce the same `k*****t` mask, one visibly masked and one locally masked from a visible name; their independence is unresolved. Page 7 row 5's capacity complaint is explicitly `SDCZ74_064G_G46`, not the 128 GB option; it is rightly excluded. The 116 reading is page 7 row 2 and belongs to 128 GB. No separate complaint tags were visible in checked rows. Individual star counts were not all visually checked; five-star values remain unverified in this pass.
+
+No source review IDs visibly exposed; staged IDs identify filter page and row and can change with ordering. Review/listing images are omitted in staged JSON; no buyer media opened or saved during this check. This is source QA, not a blind label or colour determination.

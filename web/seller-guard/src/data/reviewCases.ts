@@ -76,12 +76,16 @@ function pipelineCases(cases: PipelineCase[], decisions: Decision[], source: Cas
     const decision = decisions.find((item) => item.sellerId === id && item.listingId === record.listing_id)
     if (!listingPositions.has(record.listing_id)) listingPositions.set(record.listing_id, listingPositions.size + 1)
     const sampleShop = 'Sample shop ' + String(listingPositions.get(record.listing_id)).padStart(2, '0')
-    const shopee = source === 'captured' ? shopeeListing(record.capture.listing_url) : undefined
+    const listing = source === 'captured' ? shopeeListing(record.capture.listing_url) : undefined
+    const shop = record.shop
+    const shopee = listing && shop?.id && shop.url
+      ? { ...listing, shop: { id: shop.id, url: shop.url } }
+      : listing
     return {
       id, sellerId: id, listingId: record.listing_id,
       caseLabel: publicText(record.listing_id),
       shopId: shopee?.shop?.id,
-      sellerName: source === 'sample' ? sampleShop : undefined,
+      sellerName: source === 'sample' ? sampleShop : shop ? publicText(shop.name) : undefined,
       title: publicText(record.title ?? ('Listing ' + record.listing_id)),
       variant: publicText(record.variation_label ?? record.option_id),
       priority: record.priority,

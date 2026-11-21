@@ -1,0 +1,34 @@
+{
+  "source": "https://shopee.co.th/product/43238610/22165813567",
+  "captured_at": "2026-11-21T14:45:36+07:00",
+  "filter": "ความคิดเห็น (59), Shopee default order, pages 1–10",
+  "shopee_product_rating_count_heading": 451,
+  "shopee_product_comment_filter_count": 59,
+  "pages_reviewed": 10,
+  "product_filtered_rows_reviewed": 59,
+  "exact_variation": "SDCZ74_128G_G46",
+  "matched_visible_text_rows": 22,
+  "source_position_format": "review_id is <listing_id>-comment-p<1-based page>-<1-based row>; source review IDs not exposed in visible UI",
+  "buyer_identity_notes": "Page 4 row 6 has no visible buyer name and is blank. Page 5 rows 2 and 4 both mask as k*****t; one was originally unmasked on the page, so this may be a mask collision, not evidence of the same person. Do not assume independence.",
+  "option_price": {
+    "regular_thb": 1590,
+    "item_discount_thb": 340,
+    "now_before_coupon_thb": 1250,
+    "shop_coupon_thb": 5,
+    "after_coupon_thb": 1245
+  },
+  "normal_reading": {
+    "source_position": "comment-p7-2",
+    "text": "ประสิทธิภาพ: ได้แล้วครับ\nดี เหลือ 116"
+  },
+  "other_variation_note": {
+    "variation": "SDCZ74_064G_G46",
+    "source_position": "comment-p7-5",
+    "text": "ความคุ้มค่า: ดี\nประสิทธิภาพ: ตามราคา\nความจุไม่เต็มอต่ก็โอเค",
+    "note": "Capacity complaint belongs only to 64 GB; not included in 128 GB fixture."
+  },
+  "media": "Listing and review media omitted pending privacy review; empty arrays do not assert no media exists.",
+  "text_fidelity": "Copied visible rendered review text with structured buyer attribute labels and line breaks; browser innerText normalizes some UI whitespace. No separate complaint tags were visible.",
+  "offline_review_input": "out/findings/22165813567.json contains manually normalized readings of all 22 source-checked text rows. Replay instructions are in data/listings/8082164236/provenance.md.",
+  "limitations": "Independent source checks cover wording, exact Variation, review positions and dates. See source-check.md and stars-evidence.md for scope, star counts and masking caveats. No buyer media were screened. Q1 and Q2 require separately approved KB data."
+}

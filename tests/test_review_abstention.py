@@ -13,10 +13,13 @@ from trongpok.validation import normalize_review_draft
 FIXTURE = Path(__file__).parent / "fixtures" / "listing.json"
 
 
-def listing_with_reviews(*texts):
+def listing_with_reviews(*texts, capacity_text="64 GB", promise_gb=64):
     raw = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    raw["options"][0].update(
+        variation_label=capacity_text, capacity_text=capacity_text, promise_gb=promise_gb,
+    )
     raw["reviews"] = [
-        {**review, "text": text}
+        {**review, "variation_label": capacity_text, "text": text}
         for review, text in zip(raw["reviews"][:len(texts)], texts, strict=True)
     ]
     return Listing.model_validate(raw)
@@ -86,6 +89,11 @@ def assert_unmeasured_flag(flag, quotes):
             "วัดได้แค่ ๒๙ GB",
             id="thai-digits",
         ),
+        pytest.param(
+            "ขึ้นว่า 64 GB แต่จุจิงๆได้ 29 GB แต่วัดอีกครั้งได้ 58 GB",
+            "จุจิงๆได้ 29 GB",
+            id="displayed-capacity-with-two-disagreeing-delivered-readings",
+        ),
     ],
 )
 def test_conflicting_capacity_becomes_unmeasured_complaint(text, quote):
@@ -100,6 +108,50 @@ def test_conflicting_capacity_becomes_unmeasured_complaint(text, quote):
     assert finding.unit == "none"
     assert finding.quantity is finding.bytes is finding.ratio is None
     assert_unmeasured_flag(build_single_flag(listing, [finding]), [quote])
+
+
+@pytest.mark.parametrize("read_path", ["reader-draft", "saved-finding"])
+@pytest.mark.parametrize(
+    ("text", "quote", "quantity"),
+    [
+        # 8082164236-r01 reports a little over 10 GB. The test draft uses the
+        # written number and retains the hedge in its quote.
+        pytest.param(
+            "ความคุ้มค่า :  ของปลอม ของปลอมครับ ขึ้นว่า 1.90 TB แต่จริง ๆ 10 GB กว่า ๆ "
+            "อารมณ์เสียเลย ตอนแรกนึกว่าโดนไวรัส เสียเงินค่าซื้อ Avast ไปอีก 600 กว่าบาท "
+            "สรุป ไม่มีไวรัส แต่เป็นของปลอม -*-",
+            "แต่จริง ๆ 10 GB กว่า ๆ",
+            10,
+            id="os-display-before-approximate-delivery",
+        ),
+        pytest.param(
+            "คุณภาพแย่มากๆ ความจุ 2TB จุจิงๆได้ 20GB ข้อมูลก็หายอีก",
+            "จุจิงๆได้ 20GB ข้อมูลก็หายอีก",
+            20,
+            id="promise-before-delivered-capacity",
+        ),
+    ],
+)
+def test_antecedent_capacity_does_not_suppress_delivered_reading(text, quote, quantity, read_path):
+    listing = listing_with_reviews(text, capacity_text="2TB", promise_gb=2000)
+    [review] = listing.reviews
+    [option] = listing.options
+    draft = draft_for(listing, 0, quote, quantity)
+
+    if read_path == "reader-draft":
+        finding = normalize_review_draft(review, option, draft)
+        assert finding.complaint == "capacity_short"
+    else:
+        finding = Finding(
+            **draft.model_dump(), bytes=quantity * 2**30, ratio=quantity * 2**30 / 2e12,
+            image_ref=None, image_type=None, read_status="ok",
+        )
+
+    flag = build_single_flag(listing, [finding])
+    assert (flag["colour"], flag["deciding"], flag["verdict"]) == ("YELLOW", "Q4", "unsure")
+    [evidence] = [item for item in flag["evidence"] if item["source"] == "review"]
+    assert (evidence["quote"], evidence["quantity"], evidence["unit"]) == (quote, quantity, "GB")
+    assert 0 < evidence["ratio"] < 0.85
 
 
 def test_promised_capacity_and_one_measured_capacity_per_buyer_make_q3_red():
