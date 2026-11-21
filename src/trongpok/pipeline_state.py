@@ -28,11 +28,18 @@ class PipelineState:
                     had_ai_error INTEGER NOT NULL DEFAULT 0,
                     result TEXT
                 );
-                CREATE TABLE IF NOT EXISTS pipeline_queue (
+                CREATE TABLE IF NOT EXISTS pipeline_active_options (
+                    profile_scope TEXT NOT NULL,
                     listing_id TEXT NOT NULL,
                     option_id TEXT NOT NULL,
                     job_key TEXT NOT NULL REFERENCES pipeline_jobs(job_key),
-                    PRIMARY KEY (listing_id, option_id)
+                    PRIMARY KEY (profile_scope, listing_id, option_id)
+                );
+                CREATE TABLE IF NOT EXISTS pipeline_capture_revisions (
+                    profile_scope TEXT NOT NULL,
+                    listing_id TEXT NOT NULL,
+                    captured_at TEXT NOT NULL,
+                    PRIMARY KEY (profile_scope, listing_id)
                 );
             """)
 
@@ -41,19 +48,61 @@ class PipelineState:
         with closing(sqlite3.connect(self.path, timeout=10)) as connection, connection:
             yield connection
 
-    def admit(self, listing_id: str, option_keys: Mapping[str, str]) -> None:
-        """Switch the listing's active option set to this capture in one transaction."""
+    def admit(
+        self,
+        scope: str,
+        listing_id: str,
+        option_keys: Mapping[str, str],
+        *,
+        revision: str | None = None,
+        from_message: bool = False,
+    ) -> bool:
+        """Admit a capture and keep the newest normalized revision for message ordering."""
+        keys = (scope, listing_id)
         with self._connect() as connection:
             connection.execute("BEGIN IMMEDIATE")
-            connection.execute("DELETE FROM pipeline_queue WHERE listing_id = ?", (listing_id,))
+            saved = connection.execute(
+                """SELECT captured_at FROM pipeline_capture_revisions
+                   WHERE profile_scope = ? AND listing_id = ?""",
+                keys,
+            ).fetchone()
+            newest = saved[0] if saved is not None else None
+            if from_message and newest is not None and (revision is None or revision < newest):
+                return False
+            if revision is not None and (newest is None or revision > newest):
+                connection.execute(
+                    """INSERT INTO pipeline_capture_revisions (profile_scope, listing_id, captured_at)
+                       VALUES (?, ?, ?)
+                       ON CONFLICT(profile_scope, listing_id) DO UPDATE SET captured_at = excluded.captured_at""",
+                    (*keys, revision),
+                )
+
+            active = dict(connection.execute(
+                """SELECT option_id, job_key FROM pipeline_active_options
+                   WHERE profile_scope = ? AND listing_id = ?""",
+                keys,
+            ))
+            changed = [(option, key) for option, key in option_keys.items() if active.get(option) != key]
+            removed = active.keys() - option_keys.keys()
+            if not changed and not removed:
+                return True
+
             connection.executemany(
                 "INSERT INTO pipeline_jobs (job_key) VALUES (?) ON CONFLICT DO NOTHING",
-                ((key,) for key in option_keys.values()),
+                ((key,) for _, key in changed),
             )
             connection.executemany(
-                "INSERT INTO pipeline_queue (listing_id, option_id, job_key) VALUES (?, ?, ?)",
-                ((listing_id, option_id, key) for option_id, key in option_keys.items()),
+                """INSERT INTO pipeline_active_options (profile_scope, listing_id, option_id, job_key)
+                   VALUES (?, ?, ?, ?)
+                   ON CONFLICT(profile_scope, listing_id, option_id) DO UPDATE SET job_key = excluded.job_key""",
+                ((*keys, option, key) for option, key in changed),
             )
+            connection.executemany(
+                """DELETE FROM pipeline_active_options
+                   WHERE profile_scope = ? AND listing_id = ? AND option_id = ?""",
+                ((*keys, option) for option in removed),
+            )
+            return True
 
     def claim(self, job_key: str, owner: str) -> bool | None:
         now = time.time()
@@ -112,12 +161,13 @@ class PipelineState:
             if cursor.rowcount != 1:
                 raise LostJobLease(job_key)
 
-    def results(self, listing_id: str | None = None) -> list[dict]:
+    def results(self, scope: str, listing_id: str | None = None) -> list[dict]:
         with self._connect() as connection:
             rows = connection.execute(
-                """SELECT jobs.result FROM pipeline_queue AS queue
+                """SELECT jobs.result FROM pipeline_active_options AS queue
                    JOIN pipeline_jobs AS jobs ON jobs.job_key = queue.job_key
-                   WHERE jobs.result IS NOT NULL AND (? IS NULL OR queue.listing_id = ?)""",
-                (listing_id, listing_id),
+                   WHERE queue.profile_scope = ? AND jobs.result IS NOT NULL
+                   AND (? IS NULL OR queue.listing_id = ?)""",
+                (scope, listing_id, listing_id),
             ).fetchall()
         return [json.loads(row[0]) for row in rows]
