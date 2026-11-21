@@ -42,7 +42,7 @@
   "measurement_exclusions": {
     "en": [
       "package was", "package measured", "package width", "width of the package", "package dimensions",
-      "packaging dimensions", "box dimensions", "parcel dimensions", "connector width"
+      "packaging dimensions", "box was", "box measured", "box dimensions", "parcel dimensions", "connector width"
     ],
     "ja": ["梱包サイズ", "梱包の幅", "コネクタの幅"]
   },
