@@ -87,6 +87,7 @@ export function ReviewQueuePage() {
   const [feed, setFeed] = useState<CaptureFeed>({ state: 'loading' })
   const [loadAttempt, setLoadAttempt] = useState(0)
   const trigger = useRef<HTMLButtonElement | null>(null)
+  const restoreFocus = useRef(false)
   const nextButton = useRef<HTMLButtonElement>(null)
   const tableTitle = useRef<HTMLHeadingElement>(null)
   const source = activeSource(params.get('source'), feed.state)
@@ -133,6 +134,14 @@ export function ReviewQueuePage() {
   }, [loadAttempt])
   useEffect(() => { setPage(0) }, [pathname, source, priority, signal, band])
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  useEffect(() => {
+    if (selected || !restoreFocus.current) return
+    restoreFocus.current = false
+    if (trigger.current?.isConnected && !trigger.current.disabled) trigger.current.focus()
+    else if (nextButton.current && !nextButton.current.disabled) nextButton.current.focus()
+    else tableTitle.current?.focus()
+    trigger.current = null
+  }, [selected])
 
   function updateParams(changes: Record<string, string | null>) {
     setParams((previous) => {
@@ -151,13 +160,8 @@ export function ReviewQueuePage() {
   }
 
   function closeCase() {
+    restoreFocus.current = true
     updateParams({ case: null })
-    requestAnimationFrame(() => {
-      if (trigger.current?.isConnected && !trigger.current.disabled) trigger.current.focus()
-      else if (nextButton.current && !nextButton.current.disabled) nextButton.current.focus()
-      else tableTitle.current?.focus()
-      trigger.current = null
-    })
   }
 
   function saveCase(submission: ReviewSubmission) {

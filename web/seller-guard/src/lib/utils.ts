@@ -5,6 +5,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function keyedItems<T>(items: readonly T[], identify: (item: T) => string = (item) => JSON.stringify(item)) {
+  const occurrences = new Map<string, number>()
+  return items.map((item) => {
+    const identity = identify(item)
+    const occurrence = (occurrences.get(identity) ?? 0) + 1
+    occurrences.set(identity, occurrence)
+    return { item, key: JSON.stringify([identity, occurrence]) }
+  })
+}
+
 export const formatDate = (value: string) =>
   new Intl.DateTimeFormat('en', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value))
 

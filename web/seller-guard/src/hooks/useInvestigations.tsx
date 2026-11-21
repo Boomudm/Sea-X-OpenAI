@@ -14,6 +14,10 @@ interface InvestigationContextValue {
 const InvestigationContext = createContext<InvestigationContextValue | null>(null)
 const STORAGE_KEY = 'shopee-ts-decisions-v1'
 const CASES_STORAGE_KEY = 'shopee-ts-submitted-cases-v1'
+const legacyOutcomes = new Map<string, DecisionType>([
+  ['Violation confirmed', 'Shortfall confirmed'],
+  ['No violation', 'Not confirmed'],
+])
 
 function readDecisions(): Decision[] {
   try {
@@ -22,8 +26,7 @@ function readDecisions(): Decision[] {
     if (!Array.isArray(stored)) return []
     return stored.map((decision) => ({
       ...decision,
-      type: decision.type === 'Violation confirmed' ? 'Shortfall confirmed'
-        : decision.type === 'No violation' ? 'Not confirmed' : decision.type,
+      type: legacyOutcomes.get(decision.type) ?? decision.type,
     }))
   } catch {
     return []

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { X } from 'lucide-react'
 import { publicText, type EvidenceSource, type PipelineCase, type PipelineEvidence } from '../../data/pipelineCases'
 import { caseVerdict, priorities, type ReviewCase } from '../../data/reviewCases'
+import { keyedItems } from '../../lib/utils'
 import type { DecisionType } from '../../types'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
@@ -64,10 +65,12 @@ export function ReviewCaseModal({ item, onClose, onSave }: Readonly<{
       ref={dialog}
       aria-labelledby="case-review-title"
       onCancel={(event) => { event.preventDefault(); close() }}
-      onClick={(event) => { if (event.target === event.currentTarget) close() }}
-      className="review-modal m-auto w-[calc(100%-2rem)] max-w-3xl overflow-hidden rounded-2xl border border-line bg-white text-ink shadow-float"
+      className="review-modal fixed inset-0 m-0 h-full !max-h-none w-full max-w-none overflow-hidden border-0 bg-transparent p-0 open:grid open:place-items-center"
     >
-      <form className="review-modal-form flex flex-col" onSubmit={save}>
+      <button type="button" aria-label="Close case from backdrop" tabIndex={-1}
+        className="absolute inset-0 cursor-default bg-transparent"
+        onMouseDown={(event) => event.preventDefault()} onClick={close} />
+      <form className="review-modal-form relative flex w-[calc(100%-2rem)] max-w-3xl flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink shadow-float" onSubmit={save}>
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-line p-4 sm:p-6">
           <div>
             <p className="text-sm font-semibold tracking-wide text-muted">Case {item.caseLabel}</p>
@@ -132,14 +135,14 @@ function PipelineDetails({ item, report }: Readonly<{ item: ReviewCase; report: 
         <summary className="focus-ring cursor-pointer rounded font-semibold">Why {report.confidence}% confidence?</summary>
         <p className="mt-2 text-sm text-muted">The rules start at 50 points. These adjustments were recorded for this option.</p>
         {report.adjustments.length > 0 && <ul className="mt-2 space-y-2 text-sm">
-          {report.adjustments.map(({ points, reason }, index) =>
-            <li key={index}><strong className="tabular-nums">{points > 0 ? '+' : ''}{points}</strong> · {publicText(reason)}</li>)}
+          {keyedItems(report.adjustments).map(({ item: { points, reason }, key }) =>
+            <li key={key}><strong className="tabular-nums">{points > 0 ? '+' : ''}{points}</strong> · {publicText(reason)}</li>)}
         </ul>}
         <p className="mt-2 text-sm text-muted">Base after standard checks · {report.base}%</p>
         {report.missing_evidence.length > 0 && <>
           <h3 className="mt-3 font-semibold">Evidence still needed</h3>
           <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">
-            {report.missing_evidence.map((missing, index) => <li key={index}>{publicText(missing)}</li>)}
+            {keyedItems(report.missing_evidence).map(({ item: missing, key }) => <li key={key}>{publicText(missing)}</li>)}
           </ul>
         </>}
       </details>
@@ -211,7 +214,7 @@ function MarketRangeEvidence({ entry }: EvidenceProps) {
           <p>Range <strong>{thb.format(entry.low_thb)}–{thb.format(entry.high_thb)}</strong></p>}
       </div>
       {entry.date && <p className="text-muted">Captured {entry.date}</p>}
-      {entry.sources?.map((offer, index) => <SourceOffer key={index} offer={offer} />)}
+      {keyedItems(entry.sources ?? []).map(({ item: offer, key }) => <SourceOffer key={key} offer={offer} />)}
     </div>
   )
 }
@@ -224,7 +227,7 @@ function CapacityEvidence({ entry }: EvidenceProps) {
       {typeof entry.promise_gb === 'number' && <p>Advertised option · {entry.promise_gb} GB</p>}
       {entry.date && <p className="text-muted">Captured {entry.date}</p>}
       <SourceLink label="Brand reference" value={entry.url} />
-      {entry.sources?.map((offer, index) => <SourceOffer key={index} offer={offer} />)}
+      {keyedItems(entry.sources ?? []).map(({ item: offer, key }) => <SourceOffer key={key} offer={offer} />)}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import type { Decision, InvestigationStatus, Seller } from '../types'
+import type { Decision, DecisionType, InvestigationStatus, Seller } from '../types'
 import { publicText, type PipelineCase, type PipelinePriority, type PipelineSignal } from './pipelineCases'
 import sampleCases from './sampleCases.json'
 
@@ -143,14 +143,17 @@ export function caseVerdict(decision?: Decision) {
     : 'Unsure until decided'
 }
 
+const reviewerOutcomes = {
+  'Shortfall confirmed': { verdict: 'mismatch', decision: 'accepted' },
+  'Not confirmed': { verdict: 'no_mismatch', decision: 'dismissed' },
+  'Need more information': { verdict: 'unsure', decision: 'needs_more_information' },
+} as const satisfies Record<DecisionType, { verdict: string; decision: string }>
+
 export function exportableDecisions(cases: ReviewCase[]) {
   return cases.flatMap(({ pipeline, source, decision }) => {
     if (!pipeline || source !== 'captured' || !decision) return []
-    const outcome = decision.type === 'Shortfall confirmed'
-      ? { verdict: 'mismatch', decision: 'accepted' }
-      : decision.type === 'Not confirmed'
-        ? { verdict: 'no_mismatch', decision: 'dismissed' }
-        : { verdict: 'unsure', decision: 'needs_more_information' }
+    const outcome = reviewerOutcomes[decision.type]
+    if (!outcome) return []
     return [{
       listing_id: pipeline.listing_id,
       option_id: pipeline.option_id,

@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { PageHeader } from '../components/layout/PageHeader'
 import { Button } from '../components/ui/Button'
+import { keyedItems } from '../lib/utils'
 
 const reportTitle = '# Buyer-evidence evaluation'
 const protocolUrl = 'https://github.com/Boomudm/Sea-X-OpenAI/blob/prep/research/eval/protocol.md'
@@ -71,33 +72,41 @@ function ReportText({ text }: Readonly<{ text: string }>) {
   return parts
 }
 
+function ReportTable({ block }: Readonly<{ block: Extract<Block, { type: 'table' }> }>) {
+  const columns = keyedItems(block.headings, (heading) => heading)
+  return (
+    <section className="focus-ring overflow-x-auto rounded-lg border border-line" aria-label={block.headings[0] + ' results'}>
+      <table className="w-full border-collapse text-left text-sm tabular-nums [overflow-wrap:anywhere]">
+        <thead className="border-b border-line bg-[#fff9f5] text-muted">
+          <tr>{columns.map(({ item: heading, key }) => <th key={key} scope="col" className="px-3 py-2">{heading}</th>)}</tr>
+        </thead>
+        <tbody className="divide-y divide-line">
+          {keyedItems(block.rows).map(({ item: row, key }) => (
+            <tr key={key}>
+              <th scope="row" className="px-3 py-2 font-semibold">{row[0]}</th>
+              {keyedItems(row.slice(1), (cell) => cell).map(({ item: value, key: cellKey }) => (
+                <td key={cellKey} className="px-3 py-2">{value}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {block.rows.length === 0 && <p className="caption-5 px-3 py-2 text-muted">No matching results.</p>}
+    </section>
+  )
+}
+
 function EvaluationReport({ body }: Readonly<{ body: string }>) {
+  const blocks = keyedItems(parseReport(body), (block) =>
+    JSON.stringify([block.type, block.type === 'table' ? block.headings : block.text]))
   return (
     <article className="surface mt-6 space-y-4 p-4 sm:p-6" aria-label="Buyer evidence evaluation">
-      {parseReport(body).map((block, index) => {
-        if (block.type === 'heading') return <h2 key={index} className="heading-6 pt-2">{block.text}</h2>
+      {blocks.map(({ item: block, key }) => {
+        if (block.type === 'heading') return <h2 key={key} className="heading-6 pt-2">{block.text}</h2>
         if (block.type === 'paragraph') {
-          return <p key={index} className="body-3 max-w-prose text-muted"><ReportText text={block.text} /></p>
+          return <p key={key} className="body-3 max-w-prose text-muted"><ReportText text={block.text} /></p>
         }
-        return (
-          <section key={index} className="focus-ring overflow-x-auto rounded-lg border border-line"
-            tabIndex={0} aria-label={block.headings[0] + ' results'}>
-            <table className="w-full border-collapse text-left text-sm tabular-nums">
-              <thead className="border-b border-line bg-[#fff9f5] text-muted">
-                <tr>{block.headings.map((heading, column) => <th key={column} scope="col" className="px-3 py-2">{heading}</th>)}</tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {block.rows.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    <th scope="row" className="break-words px-3 py-2 font-semibold">{row[0]}</th>
-                    {row.slice(1).map((value, column) => <td key={column} className="break-words px-3 py-2">{value}</td>)}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {block.rows.length === 0 && <p className="caption-5 px-3 py-2 text-muted">No matching results.</p>}
-          </section>
-        )
+        return <ReportTable key={key} block={block} />
       })}
     </article>
   )
