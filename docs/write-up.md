@@ -110,6 +110,7 @@ Blind labels come from a teammate who didn't write the rules and read only the m
    - Overstated capacity can fall under the Consumer Protection Act's misleading-advertising rule (§22), which is one more reason a person, not the model, decides.
    - PDPA: masked review text can still be personal data, so strip identifiers before any LLM call, minimise retention and use a processor agreement.
 7. **Platform signals in production:** return reasons, courier parcel weight vs expected, test buys. Shopee may already have internal checks we can't see; this queue would plug into them.
+8. **Catalogue check on first entry.** When a new product enters the queue, AI picks one of the approved category profiles and suggests the matching reference row (brand, line, capacity), quoting the listing; code verifies the quote and that the row is approved. An unknown category or missing reference row becomes an AI draft from official spec or Mall pages for a person to approve, then the product is re-run. Until then it is still checked on buyer evidence (Q3–Q5); price and spec checks wait, and an unclear match is marked "not checked", never GREEN. Today a reviewer picks the category per run.
 
 **Prior art (we don't claim to be first):**
 - SOSFakeFlash collected buyers' H2testw/F3 results to publish alerts about fake-capacity sellers.
