@@ -1,0 +1,15 @@
+[project]
+name = "trongpok"
+version = "0.1.0"
+description = "Evidence-based review queue for storage listing options"
+requires-python = ">=3.12,<3.13"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+package = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

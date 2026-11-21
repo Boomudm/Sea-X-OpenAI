@@ -1,0 +1,58 @@
+[
+  {
+    "review_id": "fixture-review-1",
+    "option_id": "fixture-64",
+    "complaint": "capacity_short",
+    "quantity": 29,
+    "unit": "GB",
+    "role": "delivered_capacity",
+    "bytes": null,
+    "ratio": null,
+    "quote": "Only 29 GB on mine",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  },
+  {
+    "review_id": "fixture-review-2",
+    "option_id": "fixture-64",
+    "complaint": "capacity_short",
+    "quantity": 30.5,
+    "unit": "GB",
+    "role": "delivered_capacity",
+    "bytes": null,
+    "ratio": null,
+    "quote": "I received only 30.5 GB",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  },
+  {
+    "review_id": "fixture-review-3",
+    "option_id": "fixture-64",
+    "complaint": "capacity_short",
+    "quantity": 29,
+    "unit": "GB",
+    "role": "delivered_capacity",
+    "bytes": null,
+    "ratio": null,
+    "quote": "My drive holds just 29 GB",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  },
+  {
+    "review_id": "fixture-review-4",
+    "option_id": "fixture-64",
+    "complaint": "capacity_short",
+    "quantity": 30.5,
+    "unit": "GB",
+    "role": "delivered_capacity",
+    "bytes": null,
+    "ratio": null,
+    "quote": "Only 30.5 GB received",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  }
+]
