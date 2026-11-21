@@ -41,7 +41,7 @@ The design is agreed. Values marked **default** are confirmed by the team in 5 m
 5. **Add a test when the existing tests would not catch the bug you fixed.** The acceptance cases in §4.11 must keep passing.
 6. **Write summaries for a teammate who did not see the work:** what changed, what to check, what is still open. Short.
 7. **Secrets:** the API key lives in `./.env` as `OPENAI_API_KEY=...`. Confirm `.env` is in `.gitignore` before the first commit. Never print, log or commit keys.
-8. **Codex log (judges score "effective use of Codex"):** after each significant task, append one line to `docs/codex-log.md`: time · person · task · model/effort · result · how it was checked.
+8. **Codex log (judges score "effective use of Codex"):** for every task that changes code, tests, data or prompts (skip questions and reading), add one row to `docs/codex-log/<git user.name>.md` (create it from the template in `docs/codex-log/README.md` if missing): time (from `date`) · person · task · model/effort · result · how it was checked. Put the row in the same commit as the change and mention it in your "done" report. One file per person avoids merge conflicts between teammates.
 
 ---
 
@@ -77,7 +77,7 @@ Source: official event page https://luma.com/39zve8ph (read 20 Nov 2026) and the
    - *Problem framing:* a Shopee reviewer cannot read thousands of reviews per listing; capacity fraud on storage is common, measurable and option-specific.
    - *Build quality:* one complete path from a copied listing to a reviewer decision, working live.
    - *Depth of thinking:* domain rules (GB vs GiB, fake drives reporting a fake size, per-option reviews, the 2-price check) and an honest evaluation against simple baselines.
-   - *Effective use of Codex:* show `docs/codex-log.md` and one real Codex transcript. Codex does not have to run inside the product.
+   - *Effective use of Codex:* show `docs/codex-log/` and one real Codex transcript. Codex does not have to run inside the product.
 2. **Beat the baselines with numbers:** 1–2-star sort, Shopee's complaint tag, one ChatGPT prompt. Report wins, ties and losses with the sample size, honestly.
 3. **Narrow and complete beats big and broken.**
 4. **Full autonomy is not required.** The AI does many small, checkable decisions; a person makes the final call.

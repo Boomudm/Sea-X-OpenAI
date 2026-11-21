@@ -46,7 +46,7 @@ Codex already follows the working agreement in `AGENTS.md` (it reports what it c
 - For bigger jobs, say: **"Plan first and wait for my OK before changing files."** Read the plan, then say go.
 - For independent parts: "Use subagents as needed, then compare the results."
 - Two people should not ask Codex to edit the same file at the same time.
-- After each significant task, add one line to `docs/codex-log.md` (judges score "effective use of Codex").
+- Codex adds a row to `docs/codex-log/<your git user.name>.md` for every task that changes code, tests, data or prompts (judges score "effective use of Codex"). Check that it did; if not, ask: "Add the Codex log row for this task." Set your name once: `git config user.name "<name>"`.
 
 ## Git in five words (Codex runs the commands)
 
