@@ -34,6 +34,7 @@ from .pipeline_ai import (
     PipelineClient,
     PipelineResponsesClient,
     ReviewAssessment,
+    ReviewFinding,
     challenge_prompt,
     claim_prompt,
     review_prompt,
@@ -57,10 +58,8 @@ _ISO_DATE = re.compile(
     r"[0-9]{4}-[0-9]{2}-[0-9]{2}"
     r"(?:[T ][0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]{1,6})?)?(?:Z|[+-][0-9]{2}:[0-9]{2}))?"
 )
-_OPTION_FIELDS = (
-    "option_id", "variation_label", "capacity_text", "measurement_text",
-    "promise_gb", "promise_value", "capacity_unclear", "measurement_unclear", "was_thb", "now_thb",
-)
+_STORAGE_OPTION_FIELDS = ("capacity_text", "promise_gb", "capacity_unclear", "was_thb", "now_thb")
+_CATEGORICAL_OPTION_FIELDS = ("measurement_text", "measurement_unclear")
 _REVIEW_FIELDS = ("review_id", "variation_label", "buyer_masked", "date", "text")
 _MEASUREMENT_MISMATCHES = {"none", "other", "capacity_short", "capacity_no_number"}
 
@@ -139,7 +138,7 @@ def _capture_timestamp(value: object) -> str | None:
         raise ReaderInputError("Capture timestamps must contain valid ISO dates") from error
 
 
-def _validated_capture(listing: dict) -> dict:
+def _validated_capture(listing: dict, profile: CategoryProfile) -> dict:
     listing_filename(listing.get("listing_id"))
     for group, identifier in (("options", "option_id"), ("reviews", "review_id")):
         records = listing.get(group)
@@ -155,18 +154,26 @@ def _validated_capture(listing: dict) -> dict:
             if not isinstance(record.get("variation_label"), str):
                 raise ReaderInputError(f"Capture {group} entries must contain a variation label")
             seen.add(value)
+    storage = profile.category == "storage"
+    numeric = profile.measurement_mode == "numeric"
+    text_fields = ("title", "spec_text") if storage else (("title",) if numeric else ())
+    option_fields = _STORAGE_OPTION_FIELDS if storage else _CATEGORICAL_OPTION_FIELDS
+    if numeric and not storage:
+        option_fields += ("promise_value",)
     listing_context = {"listing_id": listing["listing_id"]}
-    for field in ("title", "spec_text"):
+    for field in text_fields:
         value = listing.get(field, "")
         if not isinstance(value, str):
             raise ReaderInputError("Captured listing title and specifications must be text")
         listing_context[field] = value
     options = []
     for option in listing["options"]:
-        for field in ("capacity_text", "measurement_text"):
-            if option.get(field) is not None and not isinstance(option[field], str):
-                raise ReaderInputError("Captured option measurement labels must be text")
-        options.append({field: option.get(field) for field in _OPTION_FIELDS})
+        text_field = option_fields[0]
+        if option.get(text_field) is not None and not isinstance(option[text_field], str):
+            raise ReaderInputError("Captured option measurement labels must be text")
+        options.append({
+            field: option.get(field) for field in ("option_id", "variation_label", *option_fields)
+        })
     reviews = []
     for review in listing["reviews"]:
         if not isinstance(review.get("text"), str):
@@ -232,7 +239,7 @@ class Pipeline:
         self.allow_draft = allow_draft
         self.client = client
         self.state = PipelineState(state_db)
-        self.kb_rows = tuple(kb_rows)
+        self.kb_rows = tuple(kb_rows) if self.profile.category == "storage" else ()
         self.decisions_db = decisions_db
         self.budget_microusd = budget_microusd
         self.max_retries = max_retries
@@ -256,7 +263,7 @@ class Pipeline:
             if not isinstance(records, list) or any(not isinstance(item, dict) for item in records):
                 raise ReaderInputError(f"Capture must contain a {group} object array")
         revision = _capture_timestamp(listing.get("captured_at"))
-        listing = _validated_capture(normalize_marketplace_fields(listing, self.profile))
+        listing = _validated_capture(normalize_marketplace_fields(listing, self.profile), self.profile)
         options = listing["options"]
         options_by_variation = defaultdict(list)
         reviews_by_variation = defaultdict(list)
@@ -265,14 +272,18 @@ class Pipeline:
         for review in listing["reviews"]:
             reviews_by_variation[review["variation_label"]].append(review)
         listing_id = listing["listing_id"]
-        listing_context = (listing["title"], listing["spec_text"])
         jobs = {}
         for option in options:
             label = option["variation_label"]
             option_id = option["option_id"]
             unambiguous = bool(label) and len(options_by_variation[label]) == 1
             reviews = reviews_by_variation[label] if unambiguous else []
-            evidence = _hash((listing_context, option, unambiguous, reviews, self._evidence_key))
+            listing_context = ()
+            if self.profile.category == "storage":
+                listing_context = (listing["title"], listing["spec_text"], self._evidence_key)
+            elif self.profile.measurement_mode == "numeric" and option["promise_value"] is None:
+                listing_context = (listing["title"],)
+            evidence = _hash((listing_context, option, unambiguous, reviews))
             key = _hash((
                 listing_id, option_id, evidence, self.profile.version, self._profile_key, PROMPT_VERSIONS,
             ))
@@ -283,8 +294,12 @@ class Pipeline:
         )
         if not admitted:
             return self._with_decisions(self.state.results(self._profile_key, listing_id))
+        runnable = self.state.runnable_keys(self._profile_key, listing_id)
+        pending = [job for job in jobs.values() if job[0] in runnable]
+        if not pending:
+            return self._with_decisions(self.state.results(self._profile_key, listing_id))
         with ReviewCache(self.state.path) as cache:
-            for key, option, reviews in jobs.values():
+            for key, option, reviews in pending:
                 owner = uuid4().hex
                 prior_error = self.state.claim(key, owner)
                 if prior_error is not None:
@@ -352,7 +367,9 @@ class Pipeline:
             result.status != "ok" or quantity is None or quantity <= 0
             or not math.isfinite(quantity) or unit is None
             or not any(
-                unit.casefold() in quoted_number_units(text, result.quote, quantity, profile=profile)
+                unit.casefold() in quoted_number_units(
+                    text, result.quote, quantity, profile=profile, for_measurement=False,
+                )
                 for text in (label, captured_text)
             )
         ):
@@ -366,10 +383,52 @@ class Pipeline:
             raise InvalidReaderOutput("The advertised claim conflicts with the full option label")
         return [{"option_id": option["option_id"], key: str(value)}]
 
+    def _verified_finding(self, observation: ReviewFinding, review: dict, option: dict) -> dict:
+        profile = self.profile
+        role = re.sub(r"[\s/-]+", "_", observation.role.strip().casefold())
+        complaint = observation.complaint
+        unit = observation.unit.strip().casefold()
+        quote = observation.quote
+        quantity = observation.quantity
+        if (
+            role not in profile.review_roles or complaint not in {*profile.mismatch_types, "none"}
+            or not _exact_quote(quote, review["text"])
+            or (quantity is None and unit != "none")
+        ):
+            raise InvalidReaderOutput("A finding did not match the category or captured review")
+        if complaint not in _MEASUREMENT_MISMATCHES and not categorical_quote_supported(
+            review["text"], quote, mismatch_type=complaint, profile=profile,
+        ):
+            raise InvalidReaderOutput("The quote does not report the selected categorical mismatch")
+        if profile.measurement_mode == "categorical":
+            quantity, unit = None, "none"
+        if quantity is not None:
+            canonical_unit = self._units.get(unit)
+            written_units = quoted_number_units(
+                review["text"], quote, quantity, profile=profile, for_measurement=role in profile.measured_roles,
+            )
+            supported = canonical_unit is not None and canonical_unit.casefold() in written_units
+            fallback = profile.category == "storage" and "" in written_units
+            if (
+                not math.isfinite(quantity) or quantity < 0
+                or not (supported or (fallback and unit == "none"))
+            ):
+                raise InvalidReaderOutput("The quoted measurement does not support the given number and unit")
+            unit = canonical_unit or "none"
+        return {
+            "review_id": review["review_id"],
+            "option_id": option["option_id"],
+            "role": role,
+            "complaint": complaint,
+            "unit": unit,
+            "quantity": quantity,
+            "quote": quote,
+            "read_status": "ok",
+        }
+
     def _read_review(
         self, listing_id: str, review: dict, option: dict, ai: _JobReader, cache: ReviewCache,
     ) -> list[dict]:
-        profile = self.profile
         payload = {
             "variation_label": option["variation_label"],
             "measurement_text": option.get("measurement_text", option.get("capacity_text")),
@@ -378,52 +437,22 @@ class Pipeline:
         version = f"{REVIEW_VERSION}:{_hash((self._profile_key, listing_id, option['option_id'], payload))}"
         cached = cache.get(review["review_id"], version)
         if cached is None:
-            assessment = ai.request(ReviewAssessment, review_prompt(profile), payload)
+            assessment = ai.request(ReviewAssessment, review_prompt(self.profile), payload)
         else:
             assessment = ReviewAssessment.model_validate(cached)
         if assessment.status != "ok":
             raise InvalidReaderOutput("The review assessment did not check the captured text")
 
         findings = []
+        complete = True
         for observation in assessment.findings:
-            role = re.sub(r"[\s/-]+", "_", observation.role.strip().casefold())
-            complaint = observation.complaint
-            unit = observation.unit.strip().casefold()
-            quote = observation.quote
-            quantity = observation.quantity
-            if (
-                role not in profile.review_roles or complaint not in {*profile.mismatch_types, "none"}
-                or not _exact_quote(quote, review["text"])
-                or (quantity is None and unit != "none")
-            ):
-                raise InvalidReaderOutput("A finding did not match the category or captured review")
-            if complaint not in _MEASUREMENT_MISMATCHES and not categorical_quote_supported(
-                review["text"], quote, mismatch_type=complaint,
-            ):
-                raise InvalidReaderOutput("The quote does not report the selected categorical mismatch")
-            if profile.measurement_mode == "categorical":
-                quantity, unit = None, "none"
-            if quantity is not None:
-                canonical_unit = self._units.get(unit)
-                written_units = quoted_number_units(review["text"], quote, quantity, profile=profile)
-                supported = canonical_unit is not None and canonical_unit.casefold() in written_units
-                fallback = profile.category == "storage" and "" in written_units
-                if (
-                    not math.isfinite(quantity) or quantity < 0
-                    or not (supported or (fallback and unit == "none"))
-                ):
-                    raise InvalidReaderOutput("The quoted measurement does not support the given number and unit")
-                unit = canonical_unit or "none"
-            findings.append({
-                "review_id": review["review_id"],
-                "option_id": option["option_id"],
-                "role": role,
-                "complaint": complaint,
-                "unit": unit,
-                "quantity": quantity,
-                "quote": quote,
-                "read_status": "ok",
-            })
+            try:
+                findings.append(self._verified_finding(observation, review, option))
+            except InvalidReaderOutput:
+                complete = False
+                ai.record_failure()
+        if not complete:
+            return findings
         if cached is None:
             cache.put(review["review_id"], version, assessment.model_dump(mode="json"))
         if not findings:

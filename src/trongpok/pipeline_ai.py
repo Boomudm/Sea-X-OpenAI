@@ -15,7 +15,7 @@ from .models import ChallengeKind, ReadStatus
 from .profiles import CategoryProfile
 
 CLAIM_VERSION = "pipeline_claim.v2"
-REVIEW_VERSION = "pipeline_review.v2"
+REVIEW_VERSION = "pipeline_review.v3"
 CONFIDENCE_VERSION = "pipeline_confidence.v2"
 DEFAULT_MODEL = "gpt-6.2-sol"
 

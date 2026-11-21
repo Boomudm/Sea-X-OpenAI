@@ -550,3 +550,99 @@ def test_rule_engine_runs_once_per_option_and_not_per_confidence_candidate(tmp_p
 
     assert [flag["colour"] for flag in flags] == ["RED", "GREY"]
     assert observed == [("opt-64", ("r0", "r1")), ("opt-128", ())]
+
+
+@pytest.mark.parametrize("invalid_first", [False, True])
+def test_partial_review_preserves_verified_negative_but_is_not_cached(tmp_path, invalid_first):
+    def partial(schema, payload):
+        assessment = classify(schema, payload)
+        if schema is ReviewAssessment and payload["review_text"] == "Got only 29 GB":
+            invalid = {
+                "role": "delivered_capacity", "complaint": "capacity_short", "quantity": 12,
+                "unit": "GB", "quote": "Unverified 12 GB observation",
+            }
+            assessment["findings"].insert(0 if invalid_first else 1, invalid)
+        return assessment
+
+    client = ScriptedClient(partial)
+    pipeline = Pipeline(tmp_path / "jobs.db", client=client)
+    listing = captured("Got only 29 GB", "Measured 30 GB")
+    [flag] = pipeline.process_listing(listing)
+    assert (flag["colour"], flag["deciding"], flag["check_status"]) == ("RED", "Q3", "not checked")
+    assert {item["quote"] for item in flag["evidence"] if item["source"] == "review"} == {
+        "Got only 29 GB", "Measured 30 GB",
+    }
+    assert len(client.calls) == 2
+
+    # A title change changes the storage job while the review request payload is unchanged.
+    [replayed] = pipeline.process_listing({**listing, "title": "Revised title, 64 GB drive"})
+    assert replayed["colour"] == "RED"
+    assert [call[2]["review_text"] for call in client.calls] == [
+        "Got only 29 GB", "Measured 30 GB", "Got only 29 GB",
+    ]
+
+
+@pytest.mark.parametrize("revision", [None, "2026-11-21", "2026-11-21T08:00:00Z"])
+def test_equally_dated_or_undated_duplicate_messages_do_not_reactivate_old_snapshot(tmp_path, revision):
+    clean = clean_capture()
+    if revision is not None:
+        clean["captured_at"] = revision
+    changed = deepcopy(clean)
+    changed["reviews"][0]["text"] = "Got only 29 GB"
+    changed["reviews"][1]["text"] = "Measured 30 GB"
+    client = ScriptedClient()
+    db = tmp_path / "jobs.db"
+    pipeline = Pipeline(db, client=client)
+    [green] = pipeline.process_message({"listing": clean})
+    [red] = pipeline.process_message({"listing": changed})
+    assert (green["colour"], red["colour"]) == ("GREEN", "RED")
+    attempts = len(client.calls)
+
+    reopened = Pipeline(db, client=client)
+    assert reopened.process_message({"listing": clean}) == [red]
+    assert reopened.queue() == [red]
+    assert reopened.process_listing(clean) == [green]
+    assert reopened.process_message({"listing": changed}) == [green]
+    assert len(client.calls) == attempts
+
+
+def test_unchanged_poll_never_claims_completed_jobs_or_opens_review_cache(tmp_path, monkeypatch):
+    listing = clean_capture()
+    pipeline = Pipeline(tmp_path / "jobs.db", client=ScriptedClient())
+    result = pipeline.process_listing(listing)
+
+    def unexpected(*_args, **_kwargs):
+        pytest.fail("A completed snapshot should not run worker-side writes")
+
+    monkeypatch.setattr(pipeline.state, "claim", unexpected)
+    monkeypatch.setattr(pipeline_module, "ReviewCache", unexpected)
+    assert pipeline.process_listing(listing) == result
+
+
+@pytest.mark.parametrize("category", ["clothing", "cable_length"])
+def test_nonreference_profiles_ignore_price_reference_and_unused_metadata_changes(tmp_path, category):
+    profile = load_profile(category, allow_draft=True)
+    client = ScriptedClient()
+    listing = {**clean_capture(), "title": "Sample data cable or clothing"}
+    option = listing["options"][0]
+    if category == "cable_length":
+        option.update(variation_label="1,000 mm", measurement_text="1,000 mm", promise_value=1000)
+        for review in listing["reviews"]:
+            review["variation_label"] = option["variation_label"]
+    first = Pipeline(
+        tmp_path / "jobs.db", client=client, profile=profile, allow_draft=True, kb_rows=[{"name": "KB row A"}],
+    )
+    [flag] = first.process_listing(listing)
+    assert (flag["colour"], flag["check_status"]) == ("GREEN", "checked")
+    attempts = len(client.calls)
+    option["now_thb"] = 12345
+    option["capacity_text"] = "irrelevant to this profile"
+    listing["title"] = "Sample data new unused title"
+    listing["description"] = "Changed metadata"
+    listing["spec_text"] = "Unused storage-style specifications"
+
+    changed = Pipeline(
+        tmp_path / "jobs.db", client=client, profile=profile, allow_draft=True, kb_rows=[{"name": "KB row B"}],
+    )
+    assert changed.process_listing(listing) == [flag]
+    assert len(client.calls) == attempts
