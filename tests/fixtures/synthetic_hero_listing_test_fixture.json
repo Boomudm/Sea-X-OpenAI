@@ -1,0 +1,76 @@
+{
+  "listing_id": "fixture-hero-64gb",
+  "url": "https://example.invalid/test-fixture-only",
+  "captured_at": "2026-11-21T10:00:00+07:00",
+  "title": "Synthetic test fixture USB storage 64 GB",
+  "spec_text": "TEST FIXTURE ONLY",
+  "description": "Synthetic acceptance-test data; not a real listing.",
+  "listing_images": [],
+  "options": [
+    {
+      "option_id": "fixture-option-64",
+      "variation_label": "64 GB",
+      "capacity_text": "64 GB",
+      "promise_gb": 64,
+      "was_thb": null,
+      "now_thb": 1
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "fixture-review-29-a",
+      "variation_label": "64 GB",
+      "option_id": "fixture-option-64",
+      "buyer_masked": "fixture-buyer-a",
+      "date": "2026-11-21",
+      "stars": 1,
+      "text": "Test fixture says only 29 GB was delivered.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "fixture-review-30-5-a",
+      "variation_label": "64 GB",
+      "option_id": "fixture-option-64",
+      "buyer_masked": "fixture-buyer-b",
+      "date": "2026-11-21",
+      "stars": 2,
+      "text": "Test fixture measured 30.5 GB after delivery.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "fixture-review-29-b",
+      "variation_label": "64 GB",
+      "option_id": "fixture-option-64",
+      "buyer_masked": "fixture-buyer-c",
+      "date": "2026-11-21",
+      "stars": 1,
+      "text": "Synthetic review: capacity is 29 GB.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "fixture-review-30-5-b",
+      "variation_label": "64 GB",
+      "option_id": "fixture-option-64",
+      "buyer_masked": "fixture-buyer-d",
+      "date": "2026-11-21",
+      "stars": 2,
+      "text": "Synthetic check found 30.5 GB usable capacity.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "fixture-review-58",
+      "variation_label": "64 GB",
+      "option_id": "fixture-option-64",
+      "buyer_masked": "fixture-buyer-e",
+      "date": "2026-11-21",
+      "stars": 5,
+      "text": "Synthetic normal display shows 58.",
+      "tags": [],
+      "images": []
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+[project]
+name = "trongpok"
+version = "0.1.0"
+description = "Checkable LLM readers for the Trongpok review queue"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "openai>=2.8.0,<3",
+    "pydantic>=2.9.0,<3",
+]
+
+[project.scripts]
+trongpok-read = "trongpok.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0,<9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/trongpok"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
