@@ -21,7 +21,7 @@ Follow the [evaluation protocol](eval/protocol.md) and use the [pitch notes](doc
 
 Bangkok time on 21 November 2026. Code freeze and submissions at **17:00**. Round One judging at **17:15**. Finalist presentations at **19:30**. [Official event agenda](https://luma.com/39zve8ph)
 
-Submission method, required materials, and demo/Q&A duration are pending confirmation from the organisers.
+Round 1 is a **6-minute demo and pitch plus 2 minutes of Q&A**. The final is **6 minutes plus 4 minutes of Q&A**. Submission method and required materials remain pending.
 
 Hackathon preparation in progress. Documents will be added after team review.
 

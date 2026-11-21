@@ -1,18 +1,32 @@
 # ตรงปก Queue demo rehearsal
 
-**Build-day milestones (Bangkok time)** · Evaluation 15:30 · Rehearsal 16:00 · Code freeze and hand-in 17:00. The official demo length and submission format are pending organiser confirmation in the [README](../README.md).
+**Confirmed format.** Round 1 has 6 minutes for demo and pitch, followed by 2 minutes of Q&A. The final has 6 minutes followed by 4 minutes of Q&A. Judges prioritize the working product. Rehearsal is 16:00 Bangkok time. [Hand-in notes](../README.md)
 
-## Run of show
+## Six-minute demo
 
-Lead with the captured listings. If the live reader is unavailable, use the manual-read handoff for this capture. The [fallback demo script](fallback-demo.md) shows the separate synthetic acceptance cases.
+Open **Captured data** and have the source evidence ready. Use the [offline fallback](fallback-demo.md) if the live reader or web preview is unavailable.
 
-1. **Open with the reviewer’s problem.** “A Shopee listing can sell several capacities under one rating. Reports of delivered capacity are buried in reviews for different options. ตรงปก Queue gives reviewers one priority colour per option, with the exact quotes, rule path and confidence.”
-2. **512 GB, Q1 RED.** Start with the hand-copied listing, then open its queue card. Show ฿3,948 was and ฿1,389 now against the ฿3,350–5,145 range from three official Mall offers captured 21 November. ฿1,389 is below half the low end (฿1,675), so this option goes to the front of the review queue on price evidence. [Captured listing][price] · [Approved KB][kb]
-3. **128 GB, Q4 YELLOW.** Show the exact Variation `สีเงินเมทัลลิก-128G`. One matched buyer says “ที่เก็บได้6gเองครับ” (could store only 6 GB). Point to the copied quote, its date and the rule path. A second independent measured report from the same Variation would satisfy Q3. [Captured listing and review][buyer]
-4. **64 GB, GREY after one matched review.** The text reports about 57 GB and Windows Properties displays 57.2 GB. The display is OS-reported capacity, and the reading clears the 85% cutoff. One matched review is below the ten-review minimum for GREEN. Then open the captured 2 TB option with zero matched text reviews. Its listing’s review belongs to 1 TB, so the 2 TB option stays GREY. [64 GB review][comparison] · [Windows screenshot][screenshot] · [2 TB capture][grey]
-5. **Close the review loop.** On the 128 GB card, show the initial “unsure” verdict, record a reviewer decision with a reason, then reopen the queue after restarting. “The colour tells the reviewer where to look first. The reviewer decides what the evidence supports.”
-6. **Separate sample mode.** If showing the four-buyer 64 GB Q3 RED, switch the queue to **Sample data**, display **Synthetic sample** on screen and introduce it aloud as a rule demonstration. Use the real capture for marketplace claims and the scored results for evaluation claims. [Sample documentation][sample]
-7. **Show the evaluation status and one real Codex transcript.** Read the scorecard once verified. Open `[build-day transcript link or excerpt pending]` beside the matching log entry. Point to what Codex produced, what the team decided and how the team verified the change. [Codex log](codex-log/)
+| Time | Show and say |
+|---|---|
+| 0:00–0:25 | One listing can sell several capacities under one rating. Buyers’ reports get buried across options. Show the queue that gives reviewers one priority per exact option. |
+| 0:25–1:25 | **Real 512 GB price RED.** Open the captured card. Show ฿3,948 was, ฿1,389 now, and the ฿3,350–5,145 range from three dated official Mall offers. Half the low end is ฿1,675, so this option gets Q1 review priority. Point to the sources and date. [Captured listing][price] · [Approved KB][kb] |
+| 1:25–2:20 | **Real 128 GB one-buyer YELLOW.** Point to exact Variation `สีเงินเมทัลลิก-128G` and the buyer’s “ที่เก็บได้6gเองครับ” (could store only 6 GB). One measured buyer sets Q4. Q3 RED requires at least two independent measured buyers of this same Variation. [Captured review][buyer] |
+| 2:20–3:00 | **Real 64 GB, normal reading.** Show the buyer’s approximately 57 GB report and Windows Properties at 57.2 GB. Explain binary display and the 85% cutoff. One matched review leaves this option GREY. [Captured review][comparison] · [Windows screenshot][screenshot] |
+| 3:00–3:30 | **GREY abstention.** Open the 2 TB option. Its listing’s only captured review is for 1 TB, leaving 2 TB with zero matched text reviews. [Captured options][grey] |
+| 3:30–4:15 | **Synthetic sample, buyer RED.** Switch to **Sample data** and keep the sample label visible. Say “This is a synthetic example for the buyer rule.” Open the 64 GB option with four sample measurements and show why Q3 fires. [Sample documentation][sample] |
+| 4:15–5:15 | **Human decision.** Return to Captured data. Show the 128 GB verdict as unsure, record the reviewer’s choice and reason, and reopen the saved decision. The priority tells the reviewer where to look first. The reviewer decides what the evidence supports. |
+| 5:15–6:00 | **Evaluation and Codex.** Show the scored results when available. Until then, say “Evaluation pending.” Open one [Codex log](codex-log/) entry with the matching transcript `[pending]`, and point to the actual contribution and check. |
+
+## Six judging criteria
+
+| Criterion | Evidence in the demo |
+|---|---|
+| Problem & solution fit | One listing-wide rating hides option-specific complaints. The queue matches exact Variations. |
+| Build quality | Open a real captured card, follow its report and evidence, then save and reopen a reviewer decision. |
+| Insight & originality | Show GB/GiB normalization, two independent measurements for Q3, and the two-price rule with a dated market range. |
+| Real-world value | Sort options by review priority and show the source evidence so the reviewer can decide. |
+| Alignment with build direction | Deep Domain AI models storage capacities and measurements. AI-native operations turn the captured evidence into a human review queue. |
+| Use of Codex | Show one transcript and log entry that connect a concrete build contribution to its check. |
 
 ## Rules to explain on screen
 
