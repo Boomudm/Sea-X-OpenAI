@@ -29,12 +29,28 @@
         {
           "points": -10,
           "reason": "Market range is thin or the KB row is missing"
+        },
+        {
+          "points": 5,
+          "reason": "The reviewer explicitly names the selected option as “sdcz74_128g_g46”, supporting the match to the flagged 128 GB variant."
+        },
+        {
+          "points": -5,
+          "reason": "Two matched reviews share the masked buyer ID “k*****t”, so the count of 22 reviews may overstate the number of independent buyers."
+        },
+        {
+          "points": -5,
+          "reason": "The reviewer reports that the drive worked normally but ran hotter than usual during use, a concrete concern omitted from the flag’s rationale."
+        },
+        {
+          "points": 5,
+          "reason": "The reviewer says “Real size” and reports successful use, supporting the advertised capacity as a firsthand observation without a numeric measurement."
         }
       ],
       "missing_evidence": [
         "Find an approved reference for this brand, product line and type"
       ],
-      "rounds": 0
+      "rounds": 1
     },
     "reviewer_decision": null
   }

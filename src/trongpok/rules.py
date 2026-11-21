@@ -118,7 +118,8 @@ def _challenge_sources(evidence):
     return sources
 
 
-def _confidence(deciding_evidence, all_evidence, market, thin, kb, uncertain, as_of, challenges, missing):
+def _confidence(deciding_evidence, all_evidence, market, thin, kb, uncertain, as_of, challenges, missing,
+                extra_sources=frozenset()):
     reviews = [item for item in deciding_evidence if item["source"] == "review"]
     factors = (
         (len({item["buyer_masked"] for item in reviews if item["buyer_masked"]}) >= 2,
@@ -142,17 +143,24 @@ def _confidence(deciding_evidence, all_evidence, market, thin, kb, uncertain, as
     ]
     base = max(0, min(100, 50 + sum(item["points"] for item in adjustments)))
     change = 0
-    sources = _challenge_sources(all_evidence)
+    sources = _challenge_sources(all_evidence) | set(extra_sources)
+    price_decided = any(item.get("source") == "market_range" for item in deciding_evidence)
     seen = set()
     for challenge in challenges:
         points = challenge.get("points")
         source = challenge.get("source")
         reason = challenge.get("reason")
+        kind = challenge.get("kind")
         if (
             not isinstance(points, int) or points not in (-10, -5, 5, 10)
             or not isinstance(source, str) or source not in sources
             or not isinstance(reason, str) or not reason.strip() or source in seen
             or not -20 <= change + points <= 20
+            # Code already reads every GB/TB number both ways (§4.4), so the AI
+            # cannot lower confidence on GB vs GiB grounds.
+            or (kind == "gb_vs_gib" and points < 0)
+            # Sale or promotion pricing only bears on a flag decided by price.
+            or (kind == "flash_sale" and not price_decided)
         ):
             continue
         change += points
@@ -165,6 +173,19 @@ def _confidence(deciding_evidence, all_evidence, market, thin, kb, uncertain, as
         "adjustments": adjustments,
         "missing_evidence": missing,
         "rounds": int(bool(challenges)),
+    }
+
+
+def _checked_review_ids(listing, option, findings):
+    """IDs of clean checked reviews of this option, which a GREEN challenge may cite."""
+    reviews = {
+        review["review_id"]: review for review in listing.get("reviews", ())
+        if review.get("variation_label") == option.get("variation_label")
+    }
+    return {
+        finding["review_id"] for finding in findings
+        if finding.get("review_id") in reviews and finding.get("complaint") == "none"
+        and finding.get("read_status") == "ok" and not finding.get("image_ref")
     }
 
 
@@ -272,6 +293,7 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges):
         "verdict": "unsure",
         "confidence": _confidence(
             evidence[deciding], all_evidence, market, thin, kb, uncertain, as_of, challenges, missing,
+            _checked_review_ids(listing, option, findings) if deciding == "Q5" else frozenset(),
         ),
         "reviewer_decision": None,
     }

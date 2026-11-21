@@ -1,3 +1,40 @@
 {
-  "SDCZ74_128G_G46": []
+  "SDCZ74_128G_G46": [
+    {
+      "points": -5,
+      "reason": "The review says “ดี เหลือ 116”, which leaves a capacity question because 128 GB is about 119.2 GiB and the review gives neither a unit nor a total capacity reading.",
+      "source": "22165813567-comment-p7-2",
+      "kind": "gb_vs_gib"
+    },
+    {
+      "points": 5,
+      "reason": "The reviewer explicitly names the selected option as “sdcz74_128g_g46”, supporting the match to the flagged 128 GB variant.",
+      "source": "22165813567-comment-p5-3",
+      "kind": "wrong_option"
+    },
+    {
+      "points": -5,
+      "reason": "The reviewer attributes the good value to a 6.6 promotion, so their price assessment offers limited support for the current ฿1,250 price.",
+      "source": "22165813567-comment-p4-2",
+      "kind": "flash_sale"
+    },
+    {
+      "points": -5,
+      "reason": "Two matched reviews share the masked buyer ID “k*****t”, so the count of 22 reviews may overstate the number of independent buyers.",
+      "source": "22165813567-comment-p5-4",
+      "kind": "duplicate_buyer"
+    },
+    {
+      "points": -5,
+      "reason": "The reviewer reports that the drive worked normally but ran hotter than usual during use, a concrete concern omitted from the flag’s rationale.",
+      "source": "22165813567-comment-p4-6",
+      "kind": "other"
+    },
+    {
+      "points": 5,
+      "reason": "The reviewer says “Real size” and reports successful use, supporting the advertised capacity as a firsthand observation without a numeric measurement.",
+      "source": "22165813567-comment-p7-6",
+      "kind": "other"
+    }
+  ]
 }
