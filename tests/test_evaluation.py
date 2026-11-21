@@ -18,6 +18,7 @@ def write_json(path, payload):
 
 @pytest.fixture
 def evaluation_inputs(tmp_path):
+    project = tmp_path / "project"
     listing = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
     listing_id = listing["listing_id"]
     base = listing["options"][0]
@@ -62,24 +63,24 @@ def evaluation_inputs(tmp_path):
                  image_type="completed H2testw/F3", quantity=29, unit="GB", read_status="ok")
     finding = dict(photo, option_id="fixture-option-64", complaint="capacity_short",
                    role="test result", bytes=31_138_512_896, ratio=0.4865, quote="29 GB")
-    write_json(tmp_path / "listings" / f"{listing_id}.json", listing)
-    write_json(tmp_path / "flags" / f"{listing_id}.json", flags)
-    write_json(tmp_path / "findings" / f"{listing_id}.json", [finding])
-    write_json(tmp_path / "chatgpt.json", baseline)
-    write_json(tmp_path / "labels.json", {
+    write_json(project / "listings" / f"{listing_id}.json", listing)
+    write_json(project / "flags" / f"{listing_id}.json", flags)
+    write_json(project / "findings" / f"{listing_id}.json", [finding])
+    write_json(project / "chatgpt.json", baseline)
+    write_json(project / "labels.json", {
         "labeled_by": "fixture annotator", "frozen_at": "2026-11-21T10:00:00+07:00",
         "options": labels,
         "photos": [dict(photo, listing_id=listing_id),
                    dict(photo, listing_id=listing_id, image_ref=missing_image)],
     })
-    return tmp_path
+    return project
 
 
-def run_evaluation(directory):
+def run_evaluation(directory, *, output="score.md"):
     return subprocess.run(
         [sys.executable, "-m", "trongpok.evaluation", "--labels", "labels.json",
          "--chatgpt", "chatgpt.json", "--listings-dir", "listings", "--flags-dir", "flags",
-         "--findings-dir", "findings", "--output", "score.md"],
+         "--findings-dir", "findings", "--output", output],
         cwd=directory, capture_output=True, text=True, check=False,
     )
 
@@ -123,4 +124,27 @@ def test_evaluation_rejects_unscorable_labels(evaluation_inputs, empty):
     assert result.returncode != 0
     message = "no blind-labeled options" if empty else "missing-option"
     assert message in result.stderr.lower()
+    assert not (evaluation_inputs / "score.md").exists()
+
+
+def test_evaluation_rejects_output_outside_project(evaluation_inputs, tmp_path):
+    sentinel = tmp_path / "sentinel.md"
+    sentinel.write_text("original content", encoding="utf-8")
+
+    result = run_evaluation(evaluation_inputs, output="../sentinel.md")
+
+    assert result.returncode == 1
+    assert "Path must stay inside" in result.stderr
+    assert sentinel.read_text(encoding="utf-8") == "original content"
+
+
+def test_evaluation_rejects_listing_symlink_outside_project(evaluation_inputs, tmp_path):
+    listing = evaluation_inputs / "listings" / "fixture-hero-64gb.json"
+    external_listing = listing.rename(tmp_path / listing.name)
+    listing.symlink_to(external_listing)
+
+    result = run_evaluation(evaluation_inputs)
+
+    assert result.returncode == 1
+    assert "Path must stay inside" in result.stderr
     assert not (evaluation_inputs / "score.md").exists()

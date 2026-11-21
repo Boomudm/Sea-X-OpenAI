@@ -4,13 +4,16 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, Field, StrictBool, TypeAdapter
 
+from .errors import ReaderError
 from .models import ImageType, Listing, ReadStatus, Review, Unit
+from .paths import listing_filename, within_directory
 
 LOW_STAR_PERCENT = 20
 CONFIDENCE_BANDS = [(0, 49), (50, 69), (70, 84), (85, 100)]
@@ -66,15 +69,35 @@ class Flag(BaseModel):
     confidence: Confidence
 
 
-def _read_json(path: Path):
-    return json.loads(path.read_text(encoding="utf-8"))
+@dataclass(frozen=True)
+class ScoredOption:
+    label: OptionLabel
+    flag: Flag
+    low_stars: int
+    matched_reviews: int
+    predictions: tuple[bool, bool, bool, bool, bool]
+
+    @property
+    def truth(self) -> bool:
+        return self.label.buyers_report_shortfall
+
+    @property
+    def primary_correct(self) -> bool:
+        return self.predictions[0] == self.truth
+
+    @property
+    def option_key(self) -> str:
+        listing_id, option_id = self.label.key
+        return f"{_cell(listing_id)} / {_cell(option_id)}"
+
+    @property
+    def blind_label(self) -> str:
+        return "Yes" if self.truth else "No"
 
 
-def _listing_file(directory: Path, listing_id: str) -> Path:
-    filename = f'{listing_id}.json'
-    if Path(filename).name != filename:
-        raise ValueError(f"Invalid listing ID {listing_id!r}")
-    return directory / filename
+def _read_json(path: str | Path, directory: Path):
+    checked_path = within_directory(path, directory)
+    return json.loads(checked_path.read_text(encoding="utf-8"))
 
 
 def _matched_reviews(listing: Listing, option_id: str) -> list[Review]:
@@ -90,48 +113,63 @@ def _matched_reviews(listing: Listing, option_id: str) -> list[Review]:
     return reviews
 
 
+def _validate_photo_label(label: PhotoLabel, listing: Listing | None) -> None:
+    key = label.listing_id, label.review_id, label.image_ref
+    if listing is None or not any(
+        review.review_id == label.review_id and label.image_ref in review.images
+        for review in listing.reviews
+    ):
+        raise ValueError(f"Photo label has no captured buyer image for {key}")
+    if label.read_status == "ok" and label.image_type is None:
+        raise ValueError(f"Readable photo label requires a type for {key}")
+    if label.quantity is not None and label.unit in (None, "none"):
+        raise ValueError(f"Photo label with a number requires a unit for {key}")
+
+
+def _load_photo_findings(directory: Path, listing_id: str) -> list[dict]:
+    try:
+        raw = _read_json(listing_filename(listing_id), directory)
+    except FileNotFoundError:
+        return []
+    return TypeAdapter(list[dict]).validate_python(raw)
+
+
+def _photo_matches(reading: PhotoReading, label: PhotoLabel) -> bool:
+    if reading.read_status != label.read_status:
+        return False
+    if label.read_status == "cannot_read":
+        return True
+    return (
+        reading.image_type == label.image_type
+        and reading.quantity == label.quantity
+        and (label.quantity is None or reading.unit == label.unit)
+    )
+
+
 def _photo_summary(
-    labels: list[PhotoLabel], listings: dict[str, Listing], findings_dir: Path
+    labels: list[PhotoLabel], listings: dict[str, Listing], findings_dir: Path,
 ) -> tuple[int, int]:
-    seen = set()
-    findings_by_listing = {}
+    keys = [(label.listing_id, label.review_id, label.image_ref) for label in labels]
+    if len(set(keys)) != len(keys):
+        raise ValueError("Duplicate photo label.")
+    # Check every human label against the captured images before loading model outputs.
+    for label in labels:
+        _validate_photo_label(label, listings.get(label.listing_id))
+    findings = {
+        listing_id: _load_photo_findings(findings_dir, listing_id)
+        for listing_id in dict.fromkeys(label.listing_id for label in labels)
+    }
     correct = missing = 0
     for label in labels:
-        key = label.listing_id, label.review_id, label.image_ref
-        if key in seen:
-            raise ValueError(f"Duplicate photo label for {key}")
-        seen.add(key)
-        listing = listings.get(label.listing_id)
-        if listing is None or not any(
-            review.review_id == label.review_id and label.image_ref in review.images
-            for review in listing.reviews
-        ):
-            raise ValueError(f"Photo label has no captured buyer image for {key}")
-        if label.read_status == "ok" and label.image_type is None:
-            raise ValueError(f"Readable photo label requires a type for {key}")
-        if label.quantity is not None and label.unit in (None, "none"):
-            raise ValueError(f"Photo label with a number requires a unit for {key}")
-        if label.listing_id not in findings_by_listing:
-            path = _listing_file(findings_dir, label.listing_id)
-            findings_by_listing[label.listing_id] = _read_json(path) if path.is_file() else []
         candidates = [
             PhotoReading.model_validate(item)
-            for item in findings_by_listing[label.listing_id]
+            for item in findings[label.listing_id]
             if item.get("review_id") == label.review_id and item.get("image_ref") == label.image_ref
         ]
-        if not candidates:
+        if candidates:
+            correct += all(_photo_matches(item, label) for item in candidates)
+        else:
             missing += 1
-            continue
-        correct += all(
-            item.read_status == label.read_status and (
-                label.read_status == "cannot_read" or (
-                    item.image_type == label.image_type
-                    and item.quantity == label.quantity
-                    and (label.quantity is None or item.unit == label.unit)
-                )
-            )
-            for item in candidates
-        )
     return correct, missing
 
 
@@ -139,10 +177,7 @@ def _cell(text: str) -> str:
     return text.replace("|", r"\|").replace("\n", " ").replace("\r", " ")
 
 
-def evaluate(
-    labels: Labels, chatgpt: list[OptionLabel], listings_dir: Path,
-    flags_dir: Path, findings_dir: Path,
-) -> str:
+def _validate_labels(labels: Labels) -> None:
     if not labels.options:
         raise ValueError("No blind-labeled options. Freeze real labels before scoring.")
     if not labels.labeled_by or not labels.labeled_by.strip() or not labels.frozen_at:
@@ -151,79 +186,85 @@ def evaluate(
         raise ValueError("Use a timezone-aware freeze time.")
     if len({label.key for label in labels.options}) != len(labels.options):
         raise ValueError("Duplicate option in blind labels.")
-    chatgpt_by_option = {result.key: result.buyers_report_shortfall for result in chatgpt}
-    if len(chatgpt_by_option) != len(chatgpt):
-        raise ValueError("Duplicate option in ChatGPT predictions.")
 
-    listings = {}
-    flags = {}
-    outcomes = {method: Counter() for method in METHODS}
+
+def _score_option(
+    label: OptionLabel, listing: Listing, flags: list[Flag],
+    chatgpt_by_option: dict[tuple[str, str], bool],
+) -> ScoredOption:
+    listing_id, option_id = label.key
+    reviews = _matched_reviews(listing, option_id)
+    matches = [flag for flag in flags if (flag.listing_id, flag.option_id) == label.key]
+    if len(matches) != 1:
+        raise ValueError(f"Expected one flag for {listing_id}/{option_id}")
+    flag = matches[0]
+    if flag.colour != COLOUR_BY_RULE[flag.deciding]:
+        raise ValueError(f"Flag colour and deciding rule disagree for {listing_id}/{option_id}")
+    if label.key not in chatgpt_by_option:
+        raise ValueError(f"Missing ChatGPT prediction for {listing_id}/{option_id}")
+
+    low_stars = sum(review.stars <= 2 for review in reviews)
+    q3_red = flag.deciding == "Q3"
+    predictions = (
+        q3_red, q3_red or flag.colour == "YELLOW",
+        low_stars * 100 >= LOW_STAR_PERCENT * len(reviews),
+        any(review.tags for review in reviews), chatgpt_by_option[label.key],
+    )
+    return ScoredOption(label, flag, low_stars, len(reviews), predictions)
+
+
+def _compare(primary_correct: bool, baseline_correct: bool) -> str:
+    if primary_correct == baseline_correct:
+        return "Tie"
+    return "Win" if primary_correct else "Loss"
+
+
+def _option_comparisons(options: list[ScoredOption]) -> tuple[list[str], list[str]]:
     comparisons = {method: Counter() for method in METHODS[2:]}
-    confidence = {band: Counter() for band in CONFIDENCE_BANDS}
-    other_reds = []
     option_rows = []
-    for label in labels.options:
-        listing_id, option_id = label.key
-        if listing_id not in listings:
-            listing = Listing.model_validate(_read_json(_listing_file(listings_dir, listing_id)))
-            if listing.listing_id != listing_id:
-                raise ValueError(f"Captured listing ID differs from filename for {listing_id}")
-            listings[listing_id] = listing
-            flags[listing_id] = TypeAdapter(list[Flag]).validate_python(
-                _read_json(_listing_file(flags_dir, listing_id))
-            )
-        reviews = _matched_reviews(listings[listing_id], option_id)
-        matches = [
-            flag for flag in flags[listing_id]
-            if flag.listing_id == listing_id and flag.option_id == option_id
-        ]
-        if len(matches) != 1:
-            raise ValueError(f"Expected one flag for {listing_id}/{option_id}")
-        flag = matches[0]
-        if flag.colour != COLOUR_BY_RULE[flag.deciding]:
-            raise ValueError(f"Flag colour and deciding rule disagree for {listing_id}/{option_id}")
-        if label.key not in chatgpt_by_option:
-            raise ValueError(f"Missing ChatGPT prediction for {listing_id}/{option_id}")
-
-        low_stars = sum(review.stars <= 2 for review in reviews)
-        q3_red = flag.deciding == "Q3"
-        predictions = [
-            q3_red, q3_red or flag.colour == "YELLOW",
-            low_stars * 100 >= LOW_STAR_PERCENT * len(reviews),
-            any(review.tags for review in reviews), chatgpt_by_option[label.key],
-        ]
-        truth = label.buyers_report_shortfall
-        for method, prediction in zip(METHODS, predictions, strict=True):
-            outcomes[method][truth, prediction] += 1
-        primary_correct = q3_red == truth
+    for option in options:
         per_baseline = []
-        for method, prediction in zip(METHODS[2:], predictions[2:], strict=True):
-            baseline_correct = prediction == truth
-            comparison = "Tie" if primary_correct == baseline_correct else (
-                "Win" if primary_correct else "Loss"
-            )
+        for method, prediction in zip(METHODS[2:], option.predictions[2:], strict=True):
+            comparison = _compare(option.primary_correct, prediction == option.truth)
             comparisons[method][comparison] += 1
             per_baseline.append(comparison)
-
-        option_key = f"{_cell(listing_id)} / {_cell(option_id)}"
-        blind_label = "Yes" if truth else "No"
+        flag = option.flag
         option_rows.append(
-            f"| {option_key} | {blind_label} | {flag.colour} ({flag.deciding}) | "
-            f"{low_stars}/{len(reviews)} | {' | '.join(per_baseline)} |"
+            f"| {option.option_key} | {option.blind_label} | {flag.colour} ({flag.deciding}) | "
+            f"{option.low_stars}/{option.matched_reviews} | {' | '.join(per_baseline)} |"
         )
+    totals = [
+        f"| {method} | {counts['Win']} | {counts['Tie']} | {counts['Loss']} |"
+        for method, counts in comparisons.items()
+    ]
+    return option_rows, totals
+
+
+def _render_report(
+    labels: Labels, options: list[ScoredOption], listing_count: int, photo: tuple[int, int],
+) -> str:
+    outcomes = {
+        method: Counter((option.truth, option.predictions[index]) for option in options)
+        for index, method in enumerate(METHODS)
+    }
+    confidence = {band: Counter() for band in CONFIDENCE_BANDS}
+    other_reds = []
+    option_rows, comparison_rows = _option_comparisons(options)
+    for option in options:
+        flag = option.flag
         if flag.deciding in {"Q1", "Q2"}:
-            other_reds.append((flag.deciding, option_key, blind_label))
+            other_reds.append((flag.deciding, option.option_key, option.blind_label))
         else:
             score = flag.confidence.score
             band = next(band for band in CONFIDENCE_BANDS if band[0] <= score <= band[1])
-            confidence[band][primary_correct] += 1
+            confidence[band][option.primary_correct] += 1
 
-    photo_correct, photo_missing = _photo_summary(labels.photos, listings, findings_dir)
-    size = len(labels.options)
+    photo_correct, photo_missing = photo
+    size = len(options)
     lines = [
         "# Buyer-evidence evaluation",
         "",
-        f"**Sample:** {size} options across {len(listings)} listings. "
+        f"**Sample:** {size} options across {listing_count} listings. "
         f"Blind labels frozen by {_cell(labels.labeled_by)} at {labels.frozen_at.isoformat()}.",
         "",
         "## Buyer shortfall detection",
@@ -253,10 +294,7 @@ def evaluate(
         "",
         "| Baseline | Wins | Ties | Losses |",
         "|---|---:|---:|---:|",
-        *(
-            f"| {method} | {counts['Win']} | {counts['Tie']} | {counts['Loss']} |"
-            for method, counts in comparisons.items()
-        ),
+        *comparison_rows,
         "", "## Confidence by score band", "",
         "Correctness uses the Q3 RED buyer prediction. Q1/Q2 REDs are excluded here.",
         "",
@@ -280,6 +318,32 @@ def evaluate(
     return "\n".join(lines)
 
 
+def evaluate(
+    labels: Labels, chatgpt: list[OptionLabel], listings_dir: Path,
+    flags_dir: Path, findings_dir: Path,
+) -> str:
+    _validate_labels(labels)
+    chatgpt_by_option = {result.key: result.buyers_report_shortfall for result in chatgpt}
+    if len(chatgpt_by_option) != len(chatgpt):
+        raise ValueError("Duplicate option in ChatGPT predictions.")
+
+    listings = {}
+    flags = {}
+    for listing_id in dict.fromkeys(label.listing_id for label in labels.options):
+        filename = listing_filename(listing_id)
+        listing = Listing.model_validate(_read_json(filename, listings_dir))
+        if listing.listing_id != listing_id:
+            raise ValueError(f"Captured listing ID differs from filename for {listing_id}")
+        listings[listing_id] = listing
+        flags[listing_id] = TypeAdapter(list[Flag]).validate_python(_read_json(filename, flags_dir))
+    options = [
+        _score_option(label, listings[label.listing_id], flags[label.listing_id], chatgpt_by_option)
+        for label in labels.options
+    ]
+    photo = _photo_summary(labels.photos, listings, findings_dir)
+    return _render_report(labels, options, len(listings), photo)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--labels", type=Path, default=Path("eval/labels.json"))
@@ -289,16 +353,21 @@ def main() -> None:
     parser.add_argument("--findings-dir", type=Path, default=Path("out/findings"))
     parser.add_argument("--output", type=Path, default=Path("eval/results.md"))
     args = parser.parse_args()
+    root = Path.cwd()
     try:
-        labels = Labels.model_validate(_read_json(args.labels))
+        output = within_directory(args.output, root)
+        listings_dir = within_directory(args.listings_dir, root)
+        flags_dir = within_directory(args.flags_dir, root)
+        findings_dir = within_directory(args.findings_dir, root)
+        labels = Labels.model_validate(_read_json(args.labels, root))
         if not labels.options:
             raise ValueError("No blind-labeled options. Freeze real labels before scoring.")
-        chatgpt = TypeAdapter(list[OptionLabel]).validate_python(_read_json(args.chatgpt))
-        report = evaluate(labels, chatgpt, args.listings_dir, args.flags_dir, args.findings_dir)
-        args.output.write_text(report, encoding="utf-8")
-    except (OSError, ValueError) as error:
+        chatgpt = TypeAdapter(list[OptionLabel]).validate_python(_read_json(args.chatgpt, root))
+        report = evaluate(labels, chatgpt, listings_dir, flags_dir, findings_dir)
+        output.write_text(report, encoding="utf-8")
+    except (OSError, ValueError, ReaderError) as error:
         parser.exit(1, f"Evaluation stopped: {error}\n")
-    print(f"Wrote {args.output}")
+    print(f"Wrote {output}")
 
 
 if __name__ == "__main__":

@@ -26,4 +26,6 @@ After freezing the labels, use U2/U3 on every listing in the sample. Retain the 
 uv run python -m trongpok.evaluation
 ```
 
+Run from the project root. Custom paths must stay inside it. Listing, flag, and finding files must stay inside their respective data directories.
+
 The scorer writes `eval/results.md` after checking the sample has flags and a ChatGPT prediction for each labeled option. Check sample size, per-option comparisons and photo coverage before quoting results. Report any missing result or incomplete baseline as pending.
