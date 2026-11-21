@@ -16,6 +16,7 @@ The design is agreed. Values marked **default** are confirmed by the team in 5 m
 - **Never write "fake" or "fraud" in product output.** Flags are a review priority, not an accusation.
 - **Nothing was coded before the event** (our selection email: ideas only, no entry code or datasets). Only work done today is judged.
 - **UI work:** read `docs/ui-standard/01-agreement.md` and `docs/ui-standard/04-pre-show-gate.md` before UI work, if present.
+  The UI pack is reference, not scope: §7 (cut order) and §6 (milestones) override it. For today's Streamlit queue, apply only the `[MUST]` items in `04-pre-show-gate.md`.
 - Code, comments and identifiers in English. UI text may be Thai or English.
 
 ### 0.2 Decisions the team confirms at 10:00 (then frozen)
@@ -30,6 +31,7 @@ The design is agreed. Values marked **default** are confirmed by the team in 5 m
 | Stack | §6 | All |
 | Owners | One each: capture + KB · LLM readers · rules + queue UI · evaluation + pitch | — |
 | Hand-in format, demo length | Ask the organisers at 09:00; write the answer in `README.md` | Demo |
+| Open rule risks | Decide the three edge cases in issue #1 (eval label, rule order, 2-price check) | §4.2, §4.3, §4.5, §5 |
 
 ### 0.3 Working agreement for every task (team rules, partly from OpenAI's GPT-6.2 guidance)
 1. **Make reasonable, reversible assumptions and keep going.** State each assumption in one line. Stop and ask only for a scope change, a real blocker, a decision only the team can make, or anything destructive (deleting data, force-pushing, rewriting history).
