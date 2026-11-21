@@ -167,3 +167,42 @@ def test_package_dimensions_do_not_conflict_with_a_cable_measurement(tmp_path):
     flag = evaluate(tmp_path, "cable_length", "1 m", 1000, observations)
 
     assert (flag["colour"], flag["deciding"], flag["check_status"]) == ("RED", "Q3", "checked")
+
+
+@pytest.mark.parametrize("quotes", [
+    (
+        "The listing photo showed no charger. Delivery arrived on time.",
+        "I intentionally ordered this kit without a charger and received the kit I selected.",
+    ),
+    (
+        "ได้รับของแล้ว แต่ในหน้าร้านระบุไม่รวมสายชาร์จ",
+        "Delivery arrived on time. ที่หน้าร้านเขียนว่าไม่มีในชุด",
+    ),
+    (
+        "I received the kit I picked without a charger.",
+        "ผมสั่งรุ่นที่ไม่มีสายชาร์จในกล่อง ได้รับสินค้าตรงตามที่สั่ง",
+    ),
+    (
+        "I received my kit. The listing says the charger is not included.",
+        "The charger is sold separately. My order arrived quickly.",
+    ),
+])
+def test_offer_only_exclusions_do_not_trigger_missing_parts_red(tmp_path, quotes):
+    observations = {quote: ("other", "missing_parts", None, "none", quote) for quote in quotes}
+
+    flag = evaluate(tmp_path, "clothing", "Kit", None, observations)
+
+    assert flag["colour"] in {"GREY", "YELLOW"}
+
+
+@pytest.mark.parametrize("quotes", [
+    ("ได้รับของแล้วแต่ไม่มีสายชาร์จในกล่อง", "เปิดกล่องแล้วพบว่าไม่มีสายชาร์จในกล่องที่ได้รับ"),
+    ("ได้รับของแล้วแต่ไม่มี charger ในกล่อง", "I opened my kit and found no สายชาร์จ in my box."),
+    ("I received the kit but the charger was missing.", "There was no charging cable in my box."),
+])
+def test_two_buyers_reporting_missing_parts_in_received_packages_trigger_q3b(tmp_path, quotes):
+    observations = {quote: ("other", "missing_parts", None, "none", quote) for quote in quotes}
+
+    flag = evaluate(tmp_path, "clothing", "Kit", None, observations)
+
+    assert (flag["colour"], flag["deciding"], flag["check_status"]) == ("RED", "Q3b", "checked")

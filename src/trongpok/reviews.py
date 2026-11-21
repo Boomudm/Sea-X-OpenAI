@@ -31,10 +31,8 @@ _SPACED_DIGITS_BEFORE = re.compile(r"[0-9][ \u00a0\u202f]+$")
 _RANGE_JOINER = r"(?:[-‐‑‒–—−]|\bto\b)"
 _RANGE_AFTER = re.compile(rf"\s*{_RANGE_JOINER}\s*[0-9]", re.IGNORECASE)
 _RANGE_BEFORE = re.compile(rf"[0-9](?:\s*[^0-9\s,.;!?-]+)?\s*{_RANGE_JOINER}\s*$", re.IGNORECASE)
-_BETWEEN_BEFORE = re.compile(
-    r"\bbetween\s+[0-9][0-9,. \u00a0\u202f]*(?:\s*[a-z]+)?\s+and\s*$", re.IGNORECASE,
-)
 _BETWEEN_START = re.compile(r"\bbetween\s+$", re.IGNORECASE)
+_BETWEEN_NUMBER = re.compile(r"\bbetween\s+[0-9]", re.IGNORECASE)
 _AND_NUMBER = re.compile(r"\s+and\s+[0-9]", re.IGNORECASE)
 _COMPLETION_DENIAL_BEFORE = re.compile(
     r"\b(?:no|without|never|not|didn't|didn’t|doesn't|hasn't)\b[\w \t’']{0,35}$"
@@ -103,16 +101,33 @@ _CONTRAST_NORMALIZATION = {
     "extra small": "xs", "extra extra small": "xxs", "extra large": "xl", "extra extra large": "xxl",
 }
 _COMPONENT = (
-    r"(?:brackets?|screws?|manuals?|cables?|chargers?|adapters?|parts?|pieces?|components?"
+    r"(?:brackets?|screws?|manuals?|(?:charging )?cables?|chargers?|adapters?|parts?|pieces?|components?"
     r"|accessor(?:y|ies)|mounts?|batter(?:y|ies)|covers?|clips?)"
 )
+_THAI_COMPONENT = r"(?:สายชาร์จ|อะแดปเตอร์|หัวชาร์จ|สายไฟ|แบตเตอรี่|น็อต|อะไหล่)"
 _MISSING_COMPONENT = re.compile(
-    rf"\b(?:no|without|missing)\s+(?:the |a |an )?{_COMPONENT}\b"
+    rf"\b(?:no|without|missing)\s+(?:the |a |an )?(?:{_COMPONENT}|{_THAI_COMPONENT})\b"
     rf"|\b{_COMPONENT}\s+(?:(?:was|were|is|are)\s+)?(?:missing|not included)\b",
     re.IGNORECASE,
 )
 _OFFER_ONLY = re.compile(
-    r"\b(?:listing|photo|description|advertis\w*|pictured|promis\w*|order\w*|bought|selected)\b",
+    r"\b(?:listing|photo|description|advertis\w*|pictured|promis\w*|order\w*|bought|selected"
+    r"|wanted|picked|chose|requested|sold separately|optional extra)\b"
+    r"|หน้าร้าน|หน้าสินค้า|รูปสินค้า|รายละเอียดสินค้า|โฆษณา|ระบุ|ขายแยก|ซื้อแยก|ไม่รวม|ไม่มีในชุด"
+    r"|(?:สั่ง(?:ซื้อ)?|ซื้อ|เลือก)(?:แบบ|รุ่น|ชุด|ตัว)",
+    re.IGNORECASE,
+)
+_PARTS_CLAUSE = re.compile(r"(\b(?:and|but|although|while|whereas|however)\b|แต่|[,;])", re.IGNORECASE)
+_PARTS_RECEIPT = re.compile(
+    r"\b(?:receiv\w*|got|open(?:ed|ing)?|unbox(?:ed|ing)?|(?:arrived|came) with(?:out)?"
+    r"|(?:in|from) (?:(?:my|the|our) )?(?:box|package|parcel)|im (?:paket|karton))\b"
+    r"|ได้รับของ|ได้รับสินค้า|ได้รับ|เปิดกล่อง|แกะกล่อง|ในกล่อง"
+    r"|\bin (?:my|our) (?:kit|set)\b",
+    re.IGNORECASE,
+)
+_THAI_MISSING_COMPONENT = re.compile(
+    rf"(?:ไม่มี|ขาด|ไม่พบ|หาย)\s*(?:{_THAI_COMPONENT}|{_COMPONENT})"
+    rf"|{_THAI_COMPONENT}\s*(?:ขาด|หายไป)",
     re.IGNORECASE,
 )
 _DEFAULT_MISMATCH_CUES = {
@@ -241,6 +256,11 @@ def _statement_spans(text: str, *, split_concessions: bool = False) -> Iterable[
         yield start, len(text)
 
 
+
+def _between_endpoint(before: str) -> bool:
+    first, separator, tail = before.casefold().rpartition(" and")
+    return bool(separator and not tail.strip() and _BETWEEN_NUMBER.search(first))
+
 def _source_mentions(
     text: str, profile: CategoryProfile, *, strict: bool = False, for_measurement: bool = False,
 ) -> Iterable[re.Match[str]]:
@@ -254,7 +274,7 @@ def _source_mentions(
                 before = text[max(0, mention.start() - 64):mention.start()]
                 if (
                     _SPACED_DIGITS_BEFORE.search(before) or _RANGE_BEFORE.search(before)
-                    or _BETWEEN_BEFORE.search(before) or _RANGE_AFTER.match(text, mention.end())
+                    or _between_endpoint(before) or _RANGE_AFTER.match(text, mention.end())
                     or (_BETWEEN_START.search(before) and _AND_NUMBER.match(text, mention.end()))
                 ):
                     continue
@@ -362,18 +382,36 @@ def _contrasting_values(quote: str, tokens: re.Pattern[str]) -> bool:
     )
 
 
+def _received_part_missing(quote: str, cues: tuple[str, ...]) -> bool:
+    for start, end in _statement_spans(quote):
+        clauses = _PARTS_CLAUSE.split(quote[start:end])
+        previous_receipt = False
+        for connector, clause in zip(("", *clauses[1::2]), clauses[::2], strict=True):
+            if _OFFER_ONLY.search(clause):
+                previous_receipt = False
+                continue
+            receipt = bool(_PARTS_RECEIPT.search(clause))
+            linked_receipt = connector.casefold() in {"but", "แต่"} and previous_receipt
+            if (receipt or linked_receipt) and (
+                _MISSING_COMPONENT.search(clause)
+                or _THAI_MISSING_COMPONENT.search(clause)
+                or any(cue in clause.casefold() for cue in cues)
+            ):
+                return True
+            previous_receipt = receipt
+    return False
+
+
 def _categorical_assertion(quote: str, mismatch_type: str, profile: CategoryProfile | None) -> bool:
-    if mismatch_type == "missing_parts" and _OFFER_ONLY.search(quote) and not _DELIVERED.search(quote):
-        return False
     candidate = quote.casefold()
     configured = profile.mismatch_cues.get(mismatch_type, {}) if profile is not None else {}
     cues = (*_DEFAULT_MISMATCH_CUES.get(mismatch_type, ()), *(
-        cue for phrases in configured.values() for cue in phrases
+        cue.casefold() for phrases in configured.values() for cue in phrases
     ))
-    if any(cue.casefold() in candidate for cue in cues):
-        return True
     if mismatch_type == "missing_parts":
-        return bool(_MISSING_COMPONENT.search(quote))
+        return _received_part_missing(quote, cues)
+    if any(cue in candidate for cue in cues):
+        return True
     tokens = _CONTRAST_TOKENS.get(mismatch_type)
     return tokens is not None and _contrasting_values(quote, tokens)
 

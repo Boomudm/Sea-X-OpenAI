@@ -10,7 +10,7 @@ from trongpok.rules import build_flags
 MISMATCH_REPORTS = {
     "wrong_model": ("I ordered the Mini but received the Max.", "A Max arrived instead of the Mini."),
     "wrong_colour": ("The blue option arrived in red.", "My blue order contained a red item."),
-    "missing_parts": ("The mounting bracket was missing.", "There was no bracket in my box."),
+    "missing_parts": ("The mounting bracket was missing from my box.", "There was no bracket in my box."),
     "not_genuine_claim": (
         "The manufacturer told me the label was not issued by them.",
         "The brand service centre told me this unit was not their product.",
@@ -137,7 +137,7 @@ def test_mismatch_rate_equal_to_baseline_is_yellow_even_with_many_clean_reviews(
 
 def test_each_type_has_its_own_rate_and_a_review_can_report_two_types():
     flag = option_flag({}, [
-        ("a***", "Wrong colour and parts missing.", [("wrong_colour", {}), ("missing_parts", {})]),
+        ("a***", "Wrong colour and parts missing from my box.", [("wrong_colour", {}), ("missing_parts", {})]),
         ("b***", "Was sent a different colour.", [("wrong_colour", {})]),
     ])
 
