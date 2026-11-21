@@ -15,6 +15,9 @@ Open `http://localhost:5173/review` for the review table or use **Back to
 overview** for the donut and heatmap. The demo uses bundled SSD examples and
 keeps submitted links and decisions in the current browser.
 
+See the [Buyer Checker implementation context](docs/buyer-checker.md) for
+the buyer-facing flow and team tasks.
+
 ## Evaluation and hand-in
 
 Follow the [evaluation protocol](eval/protocol.md) and use the [pitch notes](docs/pitch.md) for rehearsal.
