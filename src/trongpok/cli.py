@@ -19,7 +19,9 @@ def main() -> None:
     args = parser.parse_args()
     try:
         output_root = within_directory(args.output_root, Path.cwd())
-        claims_path, findings_path = process_listing_file(args.listing, output_root=output_root)
+        claims_path, findings_path = process_listing_file(
+            args.listing, output_root=output_root, preserve_evidence=True,
+        )
     except ReaderError as error:
         parser.exit(1, f"{error}\n")
     print(f"wrote {claims_path}")

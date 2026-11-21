@@ -24,9 +24,9 @@ uv run trongpok-read data/listings/<listing_id>.json
 Outputs are written to `out/claims/<listing_id>.json` and
 `out/findings/<listing_id>.json`. If the model is unavailable, review findings already in
 the validated SQLite cache are still returned; missing uncached reviews fail explicitly.
-Text and image evidence for the same review are merged into one finding so one buyer is not
-double-counted. Local images must remain under `data/listings/`; other paths and unsupported
-file types are rejected before any upload.
+The CLI preserves text and photo findings separately. The rules count each buyer once.
+Local images must stay under `data/listings/`. The reader rejects other paths and
+unsupported file types before upload.
 
 Tests use only the clearly labelled synthetic files under `tests/fixtures/`. They are not
 real marketplace data.

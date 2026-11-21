@@ -15,7 +15,8 @@ _UNIT_BYTES = {
 }
 _QUANTITY = r"(?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)(?:\.[0-9]+)?"
 _REVIEW_NUMBER = re.compile(
-    rf"(?<![\d.\-−])({_QUANTITY})(?:\s*(GiB|TiB|MB|GB|TB|กิกะไบต์|เทราไบต์|เมกะไบต์|จีบี|ทีบี|เอ็มบี))?(?![0-9.])",
+    rf"(?<![\d.\-−])({_QUANTITY})(?![0-9]|\.[0-9])"
+    r"(?:\s*(GiB|TiB|MB|GB|TB|กิกะไบต์|เทราไบต์|เมกะไบต์|จีบี|ทีบี|เอ็มบี)(?![a-z]))?",
     re.IGNORECASE,
 )
 _OPTION_UNIT = re.compile(rf"{_QUANTITY}\s*(GiB|TiB|MB|GB|TB)(?![a-z])", re.IGNORECASE)
@@ -27,6 +28,19 @@ _THAI_UNITS = {
     "เมกะไบต์": "mb",
     "เอ็มบี": "mb",
 }
+_OTHER_CAPACITY_BEFORE = re.compile(
+    r"(?:\b(?:ordered|bought|promised|advertised|listed|rated|free space|os reports|"
+    r"properties shows)\b|สั่ง(?:ซื้อ)?|โฆษณา|ระบุ|พื้นที่ว่าง)"
+    r"[^,;.!?\n\d]{0,25}$",
+    re.IGNORECASE,
+)
+_MEASUREMENT_BEFORE = re.compile(
+    r"(?:\b(?:measured|verified|tested|actual|capacity is|corrupt after)\b|"
+    r"วัดได้|ทดสอบได้|ความจุจริง)[^,;.!?\n\d]{0,16}$",
+    re.IGNORECASE,
+)
+_OTHER_CAPACITY_AFTER = re.compile(r"^\s*(?:/\s*s\b|per second\b|free\b)", re.IGNORECASE)
+_ALTERNATIVE = re.compile(r"\s*(?:or|versus|vs\.?|หรือ(?:ว่า)?)\s*", re.IGNORECASE)
 _MEASURED_ROLES = {"delivered_capacity", "fails_after", "test_result"}
 _COMPLETED_IMAGE_TYPES = {
     "completed_h2testw",
@@ -75,12 +89,62 @@ def measured_bytes(quantity: object, unit: object, capacity_text: str) -> Decima
     return number * scale
 
 
+def review_number_units(text: str, quantity: object) -> set[str]:
+    """Return units attached to the selected number. A bare number has an empty unit."""
+    selected = _decimal(quantity)
+    if selected is None:
+        return set()
+    return {
+        _unit_key(unit)
+        for number, unit in _REVIEW_NUMBER.findall(text.translate(_THAI_DIGITS))
+        if _decimal(number) == selected
+    }
+
+
+def conflicting_review_measurements(
+    text: str, selected: Decimal | None, capacity_text: str
+) -> bool:
+    """Check the whole review for competing capacity readings missing from a short quote."""
+    normalized = text.translate(_THAI_DIGITS)
+    mentions = list(_REVIEW_NUMBER.finditer(normalized))
+    measurements = {selected} if selected is not None else set()
+    previous_end = 0
+    for index, mention in enumerate(mentions):
+        before = normalized[previous_end:mention.start()]
+        previous_end = mention.end()
+        after = normalized[previous_end:]
+        other_capacity = _OTHER_CAPACITY_BEFORE.search(before)
+        measured_context = _MEASUREMENT_BEFORE.search(before)
+        if (other_capacity and not measured_context) or _OTHER_CAPACITY_AFTER.match(after):
+            continue
+        quantity, unit = mention.groups()
+        if unit is None:
+            unit = _alternative_unit(mentions, index, before, after)
+            if unit is None and not measured_context:
+                continue
+        number = measured_bytes(quantity, unit, capacity_text)
+        if number is not None:
+            measurements.add(number)
+        if len(measurements) > 1:
+            return True
+    return False
+
+
+def _alternative_unit(mentions, index: int, before: str, after: str) -> str | None:
+    if index > 0 and _ALTERNATIVE.fullmatch(before):
+        return mentions[index - 1].group(2) or ""
+    if index + 1 < len(mentions):
+        gap = mentions[index + 1].start() - mentions[index].end()
+        if _ALTERNATIVE.fullmatch(after[:gap]):
+            return mentions[index + 1].group(2) or ""
+    return None
+
+
 def _quote_supports_number(quote: str, finding: dict, capacity_text: str) -> bool:
-    quantity = _decimal(finding.get("quantity"))
     unit = _capacity_unit(finding.get("unit"), capacity_text)
-    return quantity is not None and any(
-        _decimal(number) == quantity and _capacity_unit(written_unit, capacity_text) == unit
-        for number, written_unit in _REVIEW_NUMBER.findall(quote.translate(_THAI_DIGITS))
+    return any(
+        _capacity_unit(written_unit, capacity_text) == unit
+        for written_unit in review_number_units(quote, finding.get("quantity"))
     )
 
 
@@ -99,8 +163,8 @@ def _role(finding: dict) -> str:
 
 def _finding_evidence(
     finding: dict, review: dict, capacity_text: str, promised_bytes: Decimal | None
-) -> tuple[dict, Decimal | None, bool] | None:
-    """Return source-backed evidence, a verified number, and whether it is a complaint."""
+) -> tuple[dict, Decimal | None, bool, bool] | None:
+    """Verify the finding and identify unresolvable text contradictions."""
     image_ref = finding.get("image_ref")
     quote = finding.get("quote") or ""
     if image_ref:
@@ -130,6 +194,14 @@ def _finding_evidence(
                 and number < promised_bytes * Decimal("0.85")
             )
 
+    ambiguous = (
+        not image_ref and role in _MEASURED_ROLES
+        and conflicting_review_measurements(review["text"], number, capacity_text)
+    )
+    if ambiguous:
+        number = quantity = None
+        complaint = True
+
     evidence = {
         "source": "review",
         "review_id": review["review_id"],
@@ -137,14 +209,14 @@ def _finding_evidence(
         "date": review.get("date"),
         "quote": quote,
         "quantity": float(quantity) if quantity is not None else None,
-        "unit": finding.get("unit"),
+        "unit": "none" if ambiguous else finding.get("unit"),
         "role": role,
         "bytes": float(number) if number is not None else None,
         "ratio": float(number / promised_bytes) if number is not None and promised_bytes else None,
         "image_ref": image_ref,
         "image_type": finding.get("image_type"),
     }
-    return evidence, number, complaint
+    return evidence, number, complaint, ambiguous
 
 
 def _review_signal(
@@ -157,7 +229,9 @@ def _review_signal(
         result = _finding_evidence(finding, review, capacity_text, promised_bytes)
         if result is None:
             continue
-        evidence, number, complaint = result
+        evidence, number, complaint, ambiguous = result
+        if ambiguous:
+            return evidence, False
         if complaint:
             complaints.append(evidence)
         if number is None:
@@ -176,7 +250,7 @@ def _review_signal(
         return (complaints[0], False) if complaints else (None, False)
     number, evidence = measurements[0]
     if len({value for value, _ in measurements}) > 1 or not promised_bytes:
-        return {**evidence, "bytes": None, "ratio": None}, False
+        return {**evidence, "quantity": None, "unit": "none", "bytes": None, "ratio": None}, False
     if number < Decimal("0.85") * promised_bytes:
         return evidence, bool((review.get("buyer_masked") or "").strip())
     if any(complaint["bytes"] is None for complaint in complaints):
