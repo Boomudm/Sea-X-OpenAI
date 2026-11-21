@@ -1,0 +1,16 @@
+[
+  {
+    "review_id": "sample-power-bank-complaint-r01",
+    "option_id": "sample-20000",
+    "complaint": "capacity_no_number",
+    "quantity": null,
+    "unit": "none",
+    "role": "other",
+    "bytes": null,
+    "ratio": null,
+    "quote": "This power bank holds much less charge than advertised.",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "category": "clothing",
+  "version": "1",
+  "attribute": "size",
+  "measurement_mode": "categorical",
+  "baseline_mismatch_rate": "0.10",
+  "review_roles": ["other"],
+  "normal_display_text": "Fit can vary by garment cut. Compare the selected size with the received label and the buyer's account.",
+  "mismatch_types": ["size_mismatch", "wrong_model", "wrong_colour", "missing_parts", "not_genuine_claim", "none"],
+  "prompt_traps": [
+    "Prefer direct reports about what the buyer received. Size preferences or ordinary variation in fit require context."
+  ],
+  "currency": "EUR",
+  "locale": "de-DE",
+  "languages": ["de", "en"],
+  "prompt_traps_by_language": {
+    "de": ["Vergleiche die bestellte Größe mit der Größe auf dem erhaltenen Etikett."]
+  },
+  "mismatch_cues": {
+    "size_mismatch": {"de": ["falsche größe", "etikett weicht ab", "andere größe geliefert"]},
+    "wrong_colour": {"de": ["falsche farbe", "andere farbe geliefert"]},
+    "missing_parts": {"de": ["lieferumfang unvollständig", "teile fehlen"]}
+  },
+  "marketplace_fields": {
+    "variation": "variant",
+    "was_price": "list_price",
+    "now_price": "sale_price",
+    "buyer": "masked_alias",
+    "review_text": "review_body"
+  },
+  "approved_by": "pending human review"
+}

@@ -1,0 +1,36 @@
+{
+  "category": "storage",
+  "attribute": "capacity",
+  "promise_unit": "GB",
+  "currency": "THB",
+  "price_per_unit": "GB",
+  "units": {
+    "GiB": {"measurement_factors": [1073741824]},
+    "TiB": {"measurement_factors": [1099511627776]},
+    "MB": {"measurement_factors": [1000000], "aliases": ["เมกะไบต์", "เอ็มบี"]},
+    "GB": {
+      "measurement_factors": [1000000000, 1073741824],
+      "promise_factor": 1000000000,
+      "aliases": ["กิกะไบต์", "จีบี"]
+    },
+    "TB": {
+      "measurement_factors": [1000000000000, 1099511627776],
+      "promise_factor": 1000000000000,
+      "aliases": ["เทราไบต์", "ทีบี"]
+    }
+  },
+  "tolerance": "0.85",
+  "review_roles": [
+    "delivered_capacity", "fails_after", "os_reported", "test_result",
+    "promise", "free_space", "speed", "other"
+  ],
+  "measured_roles": ["delivered_capacity", "fails_after", "test_result"],
+  "normal_display_text": "A 64 GB drive typically shows about 57–59 GB in the operating system.",
+  "mismatch_types": ["capacity_short", "capacity_no_number", "wrong_item", "other", "none"],
+  "prompt_traps": [
+    "GB vs GiB",
+    "OS-reported capacity alone is not a measured result",
+    "Only a completed write-and-verify test measures delivered storage capacity"
+  ],
+  "approved_by": "Team storage rules (AGENTS.md)"
+}

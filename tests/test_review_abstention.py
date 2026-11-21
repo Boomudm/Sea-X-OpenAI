@@ -9,7 +9,6 @@ from trongpok.models import Finding, Listing, ReviewDraft
 from trongpok.rules import build_flags
 from trongpok.validation import normalize_review_draft
 
-
 FIXTURE = Path(__file__).parent / "fixtures" / "listing.json"
 
 

@@ -1,0 +1,28 @@
+{
+  "category": "power_bank",
+  "attribute": "capacity",
+  "promise_unit": "mAh",
+  "units": {
+    "mAh": {
+      "measurement_factors": [1],
+      "promise_factor": 1,
+      "aliases": ["mA·h", "มิลลิแอมป์ชั่วโมง"]
+    },
+    "Ah": {
+      "measurement_factors": [1000],
+      "promise_factor": 1000
+    }
+  },
+  "tolerance": 0.50,
+  "review_roles": ["test_result", "promise", "speed", "other"],
+  "measured_roles": ["test_result"],
+  "normal_display_text": "A genuine power bank delivers about 59–65% of the advertised cell mAh at the 5 V USB port (3.7 V cell, 80–85% conversion efficiency). The 50% cutoff leaves a safety margin below that normal range.",
+  "mismatch_types": ["capacity_short", "capacity_no_number", "wrong_item", "other", "none"],
+  "prompt_traps": [
+    "Only a completed USB-tester discharge at the power bank's output port measures delivered capacity.",
+    "A copied label or nominal internal-cell capacity is an advertised value.",
+    "Phone charge percentage, the number of charges and charging speed are not capacity measurements.",
+    "Comparing Wh with mAh requires a known voltage basis. Treat Wh as an unresolved unit for this profile."
+  ],
+  "approved_by": "pending human review"
+}

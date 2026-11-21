@@ -1,0 +1,30 @@
+[
+  {
+    "review_id": "sample-cable-length-r01",
+    "option_id": "sample-cable-length-option-1",
+    "complaint": "none",
+    "quantity": 1140,
+    "unit": "mm",
+    "role": "delivered_length",
+    "bytes": null,
+    "ratio": null,
+    "quote": "両端から両端まで測ったら1,140 ミリメートルありました。",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  },
+  {
+    "review_id": "sample-cable-length-r02",
+    "option_id": "sample-cable-length-option-1",
+    "complaint": "none",
+    "quantity": 112,
+    "unit": "cm",
+    "role": "delivered_length",
+    "bytes": null,
+    "ratio": null,
+    "quote": "I measured the straight cable from connector to connector at 112 cm.",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  }
+]

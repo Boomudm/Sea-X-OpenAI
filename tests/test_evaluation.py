@@ -5,7 +5,6 @@ from pathlib import Path
 
 import pytest
 
-
 FIXTURE_PATH = (
     Path(__file__).parent / "fixtures" / "synthetic_hero_listing_test_fixture.json"
 )
@@ -59,8 +58,8 @@ def evaluation_inputs(tmp_path):
     image_ref = "https://example.invalid/fixture-photo.png"
     missing_image = "https://example.invalid/missing-reading.png"
     reviews[0]["images"] = [image_ref, missing_image]
-    photo = dict(review_id=reviews[0]["review_id"], image_ref=image_ref,
-                 image_type="completed H2testw/F3", quantity=29, unit="GB", read_status="ok")
+    photo = {"review_id": reviews[0]["review_id"], "image_ref": image_ref,
+                 "image_type": "completed H2testw/F3", "quantity": 29, "unit": "GB", "read_status": "ok"}
     finding = dict(photo, option_id="fixture-option-64", complaint="capacity_short",
                    role="test result", bytes=31_138_512_896, ratio=0.4865, quote="29 GB")
     write_json(project / "listings" / f"{listing_id}.json", listing)

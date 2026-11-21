@@ -9,7 +9,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
-from pydantic import AwareDatetime, BaseModel, Field, StrictBool, TypeAdapter, model_validator
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    Field,
+    StrictBool,
+    TypeAdapter,
+    model_validator,
+)
 
 from .errors import ReaderError
 from .models import ImageType, Listing, ReadStatus, Review, Unit
@@ -292,8 +299,8 @@ def _render_report(
     lines = [
         "# Buyer-evidence evaluation",
         "",
-        f"**Sample:** {size} options across {listing_count} listings. "
-        f"Blind labels frozen by {_cell(labels.labeled_by)} at {labels.frozen_at.isoformat()}.",
+        (f"**Sample:** {size} options across {listing_count} listings. "
+        f"Blind labels frozen by {_cell(labels.labeled_by)} at {labels.frozen_at.isoformat()}."),
         "",
         "## Buyer shortfall detection",
         "",
@@ -307,8 +314,8 @@ def _render_report(
         )
     lines += [
         "", "## Price and brand REDs", "",
-        f"**Q1 price:** {sum(rule == 'Q1' for rule, _, _ in other_reds)}. "
-        f"**Q2 brand:** {sum(rule == 'Q2' for rule, _, _ in other_reds)}.",
+        (f"**Q1 price:** {sum(rule == 'Q1' for rule, _, _ in other_reds)}. "
+        f"**Q2 brand:** {sum(rule == 'Q2' for rule, _, _ in other_reds)}."),
         "",
         "| Deciding rule | Listing / option | Blind buyer label |",
         "|---|---|---|",

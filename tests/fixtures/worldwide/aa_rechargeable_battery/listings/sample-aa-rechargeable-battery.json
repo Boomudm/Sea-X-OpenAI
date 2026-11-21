@@ -1,0 +1,131 @@
+{
+  "listing_id": "sample-aa-rechargeable-battery",
+  "url": "https://example.invalid/sample-aa-rechargeable-battery",
+  "captured_at": "2026-11-21T10:00:00+07:00",
+  "title": "Sample data · AA rechargeable cell, 2,000 mAh typical",
+  "spec_text": "Discharge specification: 2,000 mAh typical, 1,900 mAh minimum, 400 mA discharge to 1.0 V",
+  "description": "Sample data. Synthetic listing and reviews for tests.",
+  "listing_images": [],
+  "options": [
+    {
+      "option_id": "sample-aa-rechargeable-battery-option-1",
+      "variation_label": "AA · 2,000 mAh typical",
+      "was_thb": null,
+      "now_thb": 13,
+      "measurement_text": "AA · 2,000 mAh typical",
+      "promise_value": 2000
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "sample-aa-rechargeable-battery-r01",
+      "variation_label": "AA · 2,000 mAh typical",
+      "option_id": null,
+      "buyer_masked": "b01***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "Measured 1,920 mAh in a full discharge at 400 mA to 1.0 V.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-aa-rechargeable-battery-r02",
+      "variation_label": "AA · 2,000 mAh typical",
+      "option_id": null,
+      "buyer_masked": "b02***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "The cells power my clock as expected.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-aa-rechargeable-battery-r03",
+      "variation_label": "AA · 2,000 mAh typical",
+      "option_id": null,
+      "buyer_masked": "b03***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "The pack arrived sealed.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-aa-rechargeable-battery-r04",
+      "variation_label": "AA · 2,000 mAh typical",
+      "option_id": null,
+      "buyer_masked": "b04***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "The battery fits my flashlight holder.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-aa-rechargeable-battery-r05",
+      "variation_label": "AA · 2,000 mAh typical",
+      "option_id": null,
+      "buyer_masked": "b05***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "The terminals are clean.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-aa-rechargeable-battery-r06",
+      "variation_label": "AA · 2,000 mAh typical",
+      "option_id": null,
+      "buyer_masked": "b06***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "The cells work in my wireless keyboard.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-aa-rechargeable-battery-r07",
+      "variation_label": "AA · 2,000 mAh typical",
+      "option_id": null,
+      "buyer_masked": "b07***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "The package contained the selected option.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-aa-rechargeable-battery-r08",
+      "variation_label": "AA · 2,000 mAh typical",
+      "option_id": null,
+      "buyer_masked": "b08***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "The batteries worked after charging.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-aa-rechargeable-battery-r09",
+      "variation_label": "AA · 2,000 mAh typical",
+      "option_id": null,
+      "buyer_masked": "b09***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "The labels match my order.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-aa-rechargeable-battery-r10",
+      "variation_label": "AA · 2,000 mAh typical",
+      "option_id": null,
+      "buyer_masked": "b10***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "The cells power my remote.",
+      "tags": [],
+      "images": []
+    }
+  ]
+}

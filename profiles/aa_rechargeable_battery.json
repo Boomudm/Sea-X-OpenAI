@@ -1,0 +1,59 @@
+{
+  "category": "aa_rechargeable_battery",
+  "version": "1",
+  "attribute": "discharge capacity",
+  "promise_unit": "mAh",
+  "units": {
+    "mAh": {
+      "measurement_factors": [1],
+      "promise_factor": 1,
+      "aliases_by_language": {"en": ["mA·h", "milliamp-hours"], "zh": ["毫安时"]}
+    },
+    "Ah": {
+      "measurement_factors": [1000],
+      "promise_factor": 1000,
+      "aliases_by_language": {"en": ["A·h", "amp-hours"], "zh": ["安时"]}
+    }
+  },
+  "tolerance": "0.95",
+  "review_roles": ["test_result", "promise", "other"],
+  "measured_roles": ["test_result"],
+  "normal_display_text": "This sample specifies 2,000 mAh typical and 1,900 mAh minimum. A comparable full discharge reaching 1,900 mAh meets that minimum.",
+  "mismatch_types": ["capacity_short", "capacity_no_number", "wrong_model", "missing_parts", "not_genuine_claim", "none"],
+  "prompt_traps": [
+    "Use the advertised typical value as the promise only for cell specifications with this profile's approved minimum-to-typical ratio.",
+    "Compare completed discharges at the stated test current and cutoff voltage. Charger input figures, charge percentages, and peak readings do not measure delivered capacity."
+  ],
+  "currency": "USD",
+  "price_per_unit": "mAh",
+  "locale": "en-US",
+  "languages": ["en", "zh"],
+  "prompt_traps_by_language": {
+    "zh": ["区分典型容量和最低容量，并核对完整放电的测试电流和截止电压。"]
+  },
+  "measurement_exclusions": {
+    "en": [
+      "charger input", "charge input", "charging input", "input capacity", "charging capacity",
+      "charge accepted", "charge capacity", "while charging", "during charging", "input to the charger",
+      "cancelled the discharge", "canceled the discharge", "did not finish", "stopped early",
+      "before cutoff", "before cut-off", "incomplete discharge", "before full discharge",
+      "before the discharge completed", "not a full discharge", "did not discharge fully",
+      "twice the rated current", "twice rated current", "above the rated cutoff", "below the rated cutoff",
+      "above the rated cut-off", "below the rated cut-off", "higher than the rated cutoff", "above rated cutoff"
+    ],
+    "zh": ["充电输入", "充电容量", "充入容量", "充电时", "放电未完成", "提前停止"]
+  },
+  "completed_measurement_cues": {
+    "en": [
+      "full discharge", "completed discharge", "completed a discharge", "discharged to cutoff",
+      "discharged to cut-off", "discharged until cutoff", "discharge reached cutoff", "finished the discharge"
+    ],
+    "zh": ["完整放电", "放电完成", "放电至截止电压", "达到截止电压"]
+  },
+  "mismatch_cues": {
+    "missing_parts": {"zh": ["零件缺失", "少了零件"]},
+    "wrong_model": {"zh": ["型号不符", "型号发错"]},
+    "not_genuine_claim": {"zh": ["品牌确认不是正品"]}
+  },
+  "approved_by": "pending human review"
+}

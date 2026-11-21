@@ -10,7 +10,6 @@ import pytest
 
 from trongpok.decisions import load_decision, save_decision
 
-
 FIXTURE_DIR = Path(__file__).parent / "fixtures"
 CAPTURE_DATE = "2026-11-21"
 
@@ -260,8 +259,8 @@ def test_10_review_decision_survives_a_new_process(tmp_path):
         [
             sys.executable,
             "-c",
-            "import json, sys; from trongpok.decisions import load_decision; "
-            "print(json.dumps(load_decision(sys.argv[1], 'listing-1', 'option-1')))",
+            ("import json, sys; from trongpok.decisions import load_decision; "
+            "print(json.dumps(load_decision(sys.argv[1], 'listing-1', 'option-1')))"),
             str(database),
         ],
         check=True,

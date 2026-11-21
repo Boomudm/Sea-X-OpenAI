@@ -1,0 +1,52 @@
+{
+  "listing_id": "sample-clothing",
+  "url": "https://example.invalid/sample-clothing",
+  "captured_at": "2026-11-21T10:00:00+07:00",
+  "title": "Sample data · T-Shirt, Größe M",
+  "spec_text": "Gewählte Größe: M",
+  "description": "Sample data. Synthetic listing and reviews for tests.",
+  "listing_images": [],
+  "options": [
+    {
+      "option_id": "sample-clothing-option-1",
+      "variant": "Größe M",
+      "list_price": null,
+      "sale_price": 13
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "sample-clothing-r01",
+      "variant": "Größe M",
+      "option_id": null,
+      "masked_alias": "b01***",
+      "date": "2026-11-20",
+      "stars": 2,
+      "review_body": "Ich bestellte M, aber auf dem Etikett des gelieferten Shirts steht XL.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-clothing-r02",
+      "variant": "Größe M",
+      "option_id": null,
+      "masked_alias": "b02***",
+      "date": "2026-11-20",
+      "stars": 2,
+      "review_body": "Meine Bestellung war Größe M. Das gelieferte Shirt hat ein Etikett mit Größe L.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-clothing-r03",
+      "variant": "Größe M",
+      "option_id": null,
+      "masked_alias": "b03***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "review_body": "Das Shirt in M passt mir gut.",
+      "tags": [],
+      "images": []
+    }
+  ]
+}

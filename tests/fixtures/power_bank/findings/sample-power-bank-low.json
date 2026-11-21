@@ -1,0 +1,30 @@
+[
+  {
+    "review_id": "sample-power-bank-low-r01",
+    "option_id": "sample-20000",
+    "complaint": "capacity_short",
+    "quantity": 4000,
+    "unit": "mAh",
+    "role": "test_result",
+    "bytes": null,
+    "ratio": null,
+    "quote": "My USB tester recorded 4,000 mAh at the output port after a full discharge.",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  },
+  {
+    "review_id": "sample-power-bank-low-r02",
+    "option_id": "sample-20000",
+    "complaint": "capacity_short",
+    "quantity": 5,
+    "unit": "Ah",
+    "role": "test_result",
+    "bytes": null,
+    "ratio": null,
+    "quote": "After a full discharge, my USB tester measured 5 Ah from the output port.",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  }
+]
