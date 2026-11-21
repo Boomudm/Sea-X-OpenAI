@@ -26,6 +26,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/trongpok"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"profiles" = "trongpok/profile_data"
+
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
