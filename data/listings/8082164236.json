@@ -1,0 +1,45 @@
+{
+  "listing_id": "8082164236",
+  "url": "https://shopee.co.th/product/347855549/8082164236",
+  "captured_at": "2026-11-21T13:43:00+07:00",
+  "title": "READY 2TB แฟลชไดรฟ์ความเร็วสูง 2Tb Usb 3.0 S3Oh Flash Drive แฟลชไดรฟ์",
+  "spec_text": "Capacity: 2TB; Memory Card Type: Compact Flash; Memory Card Speed Class: Class 10; Warranty: 12 months; Warranty Type: Manufacturer Warranty; Ships from: Bangkok",
+  "description": "Specifications:\nThe flash drive has USB 3.0 port, which supports high speeddata transmission.\nIt is plug and play and no external powered is required.\nAll current computer systems are compatible with it.\nMicro-USB and type-c connector is sent at random color.\nItem Name : Flash Drive\nCase Material: Metal\nMemory : 2TB\nWorking Temperature :0-45 Degree Celsius\nWorking Voltage: 5V\nInterface: USB 3.0\nFeatures: Data Storage, Data Transmission, Plug and Play\nSize: 46mm x 12mm x 4mm/1.81\" x 0.47\" x 0.16\"(Approx.)\nNotes:\nDue to the light and screen setting difference, the itemscolor may be slightly different from the pictures.\nPlease allow slight dimension difference due to differentmanual measurement.\nPackage Includes:\n1 x Flash Drive",
+  "listing_images": [
+    "data/listings/8082164236/images/listing-01.webp"
+  ],
+  "options": [
+    {
+      "option_id": "8082164236-option-2tb",
+      "variation_label": "2TB",
+      "capacity_text": "2TB",
+      "promise_gb": 2000,
+      "was_thb": null,
+      "now_thb": 259
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "8082164236-r01",
+      "variation_label": "2TB",
+      "option_id": null,
+      "buyer_masked": "n*****k",
+      "date": "2023-09-07T12:01:00+07:00",
+      "stars": 1,
+      "text": "ความคุ้มค่า :  ของปลอม ของปลอมครับ ขึ้นว่า 1.90 TB แต่จริง ๆ 10 GB กว่า ๆ อารมณ์เสียเลย ตอนแรกนึกว่าโดนไวรัส เสียเงินค่าซื้อ Avast ไปอีก 600 กว่าบาท สรุป ไม่มีไวรัส แต่เป็นของปลอม -*-",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "8082164236-r02",
+      "variation_label": "2TB",
+      "option_id": null,
+      "buyer_masked": "a*****s",
+      "date": "2022-02-17T10:19:00+07:00",
+      "stars": 1,
+      "text": "คุณภาพแย่มากๆ ความจุ 2TB จุจิงๆได้ 20GB ข้อมูลก็หายอีก",
+      "tags": [],
+      "images": []
+    }
+  ]
+}

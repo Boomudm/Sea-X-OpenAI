@@ -1,0 +1,5 @@
+# Star-count capture evidence
+
+During the visible Shopee comments-filter capture, each page's rendered review container was read with the browser's read-only DOM evaluator. The count of rendered `svg.icon-rating-solid` elements in each `.A7MThp` review container was recorded alongside its visible date, variation, text, and page/row position. All 22 staged `SDCZ74_128G_G46` text rows returned a count of 5. The rating was not inferred from review sentiment.
+
+The page-level extraction output preserved each individual count in the capture session; the staged records use those counts. Empty stars are rendered with `icon-rating` rather than `icon-rating-solid`, as observed in a separate three-star review on listing 23278398339. This check was DOM-based; I did not independently inspect a screenshot of every star in all 22 rows, and no screenshots of the individual star counts were saved. The independent source check verified review wording, dates, Variations and positions. Its visual pass covered only some individual star counts. See [the independent source check](source-check.md).

@@ -44,6 +44,14 @@ _OTHER_CAPACITY_AFTER = re.compile(
     r"^\s*(?:/\s*s\b|per second\b|free\b|available space\b)",
     re.IGNORECASE,
 )
+_THAI_DISPLAY_BEFORE = re.compile(r"ขึ้นว่า\s*$")
+_THAI_CAPACITY_LABEL_BEFORE = re.compile(r"ความจุ\s*[:：]?\s*$")
+_THAI_ACTUAL_AFTER = re.compile(
+    r"^\s*(?:แต่\s*(?:จุ\s*)?|จุ\s*)จร?ิง(?:\s*ๆ)?(?:\s*ได้)?\s*"
+)
+_THAI_TEST_BEFORE = re.compile(
+    r"(?:วัด|ทดสอบ|\b(?:h2testw|f3)\b)[^,;.!?\n\d]{0,16}$", re.IGNORECASE,
+)
 _ITEM_COUNT_AFTER = re.compile(r"^\s*(?:drives?|pieces?)\b", re.IGNORECASE)
 _RERUN_AFTER = re.compile(r"^\s*(?:on|in) (?:a |the )?(?:second run|rerun|retest)\b", re.IGNORECASE)
 _ALTERNATIVE = re.compile(r"\s*(?:or|versus|vs\.?|หรือ(?:ว่า)?)\s*", re.IGNORECASE)
@@ -95,15 +103,40 @@ def measured_bytes(quantity: object, unit: object, capacity_text: str) -> Decima
     return number * scale
 
 
-def _non_measurement(before: str, after: str, unit: str | None) -> bool:
-    return bool(
-        _OTHER_CAPACITY_AFTER.match(after)
-        or (unit is None and _ITEM_COUNT_AFTER.match(after))
-        or (_OTHER_CAPACITY_BEFORE.search(before) and not _MEASUREMENT_BEFORE.search(before))
-    )
+def _non_measurement(
+    mention: re.Match[str], previous_end: int, promised_bytes: Decimal | None,
+) -> bool:
+    number, unit = mention.groups()
+    before = mention.string[previous_end:mention.start()]
+    after = mention.string[mention.end():]
+    if _OTHER_CAPACITY_AFTER.match(after) or (unit is None and _ITEM_COUNT_AFTER.match(after)):
+        return True
+    if _MEASUREMENT_BEFORE.search(before):
+        return False
+    if _OTHER_CAPACITY_BEFORE.search(before):
+        return True
+
+    # A displayed or advertised capacity may be contrasted with what the drive actually holds.
+    actual = _THAI_ACTUAL_AFTER.match(after)
+    actual_number = _REVIEW_NUMBER.match(after, actual.end()) if actual else None
+    if not actual_number or not actual_number.group(2):
+        return False
+    # The preceding test name may itself contain a digit (H2testw or F3).
+    if _THAI_TEST_BEFORE.search(mention.string, 0, mention.start()):
+        return False
+    if _THAI_DISPLAY_BEFORE.search(before):
+        return True
+    if not promised_bytes or not _THAI_CAPACITY_LABEL_BEFORE.search(before):
+        return False
+    scale = {"gb": 10**9, "tb": 10**12}.get(_unit_key(unit))
+    quantity = _decimal(number)
+    return scale is not None and quantity is not None and quantity * scale == promised_bytes
 
 
-def review_number_units(text: str, quantity: object, *, measurements_only: bool = False) -> set[str]:
+def review_number_units(
+    text: str, quantity: object, *, measurements_only: bool = False,
+    promised_bytes: Decimal | None = None,
+) -> set[str]:
     """Return the selected number's units, with an empty unit for a bare number."""
     selected = _decimal(quantity)
     if selected is None:
@@ -113,18 +146,17 @@ def review_number_units(text: str, quantity: object, *, measurements_only: bool 
     units = set()
     for mention in _REVIEW_NUMBER.finditer(normalized):
         number, unit = mention.groups()
-        before = normalized[previous_end:mention.start()]
-        after = normalized[mention.end():]
-        previous_end = mention.end()
         if _decimal(number) == selected and (
-            not measurements_only or not _non_measurement(before, after, unit)
+            not measurements_only or not _non_measurement(mention, previous_end, promised_bytes)
         ):
             units.add(_unit_key(unit))
+        previous_end = mention.end()
     return units
 
 
 def conflicting_review_measurements(
-    text: str, selected: Decimal | None, capacity_text: str
+    text: str, selected: Decimal | None, capacity_text: str,
+    *, promised_bytes: Decimal | None = None,
 ) -> bool:
     """Check the whole review for competing capacity readings missing from a short quote."""
     normalized = text.translate(_THAI_DIGITS)
@@ -132,13 +164,14 @@ def conflicting_review_measurements(
     measurements = {selected} if selected is not None else set()
     previous_end = 0
     for index, mention in enumerate(mentions):
+        non_measurement = _non_measurement(mention, previous_end, promised_bytes)
         before = normalized[previous_end:mention.start()]
         previous_end = mention.end()
-        after = normalized[previous_end:]
-        quantity, unit = mention.groups()
-        if _non_measurement(before, after, unit):
+        if non_measurement:
             continue
+        quantity, unit = mention.groups()
         if unit is None:
+            after = normalized[previous_end:]
             unit = _alternative_unit(mentions, index, before, after)
             if unit is None and not (
                 _MEASUREMENT_BEFORE.search(before) or _RERUN_AFTER.match(after)
@@ -218,13 +251,13 @@ def _finding_evidence(
 
     measured_text = not image_ref and role in _MEASURED_ROLES
     excluded = measured_text and quantity is not None and not review_number_units(
-        review["text"], quantity, measurements_only=True,
+        review["text"], quantity, measurements_only=True, promised_bytes=promised_bytes,
     )
     if excluded:
         number = quantity = None
         complaint = False
     ambiguous = measured_text and conflicting_review_measurements(
-        review["text"], number, capacity_text,
+        review["text"], number, capacity_text, promised_bytes=promised_bytes,
     )
     if ambiguous:
         number = quantity = None

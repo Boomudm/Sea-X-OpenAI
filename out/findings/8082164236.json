@@ -1,0 +1,30 @@
+[
+  {
+    "review_id": "8082164236-r01",
+    "option_id": "8082164236-option-2tb",
+    "complaint": "capacity_no_number",
+    "quantity": null,
+    "unit": "none",
+    "role": "delivered capacity",
+    "bytes": null,
+    "ratio": null,
+    "quote": "ขึ้นว่า 1.90 TB แต่จริง ๆ 10 GB กว่า ๆ",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  },
+  {
+    "review_id": "8082164236-r02",
+    "option_id": "8082164236-option-2tb",
+    "complaint": "capacity_short",
+    "quantity": 20.0,
+    "unit": "GB",
+    "role": "delivered capacity",
+    "bytes": 21474836480,
+    "ratio": 0.01073741824,
+    "quote": "ความจุ 2TB จุจิงๆได้ 20GB ข้อมูลก็หายอีก",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  }
+]
