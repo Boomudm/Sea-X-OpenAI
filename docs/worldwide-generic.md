@@ -73,9 +73,9 @@ The following watch command checks for new and changed listing JSON files. `--me
 uv run --locked trongpok-pipeline --watch data/listings --state-db .worldwide-pipeline.sqlite3
 ```
 
-1. Load each listing and identify the option job by listing ID, option ID, evidence hash, profile version and prompt version. Replaying the same job reuses its saved result. SQLite stores job state and the latest flag for each option in the selected profile. Duplicate broker messages reuse the same snapshot, and explicit file replays remain available. Use the same profile and approval options with `--queue`.
+1. Load each listing and identify the option job by listing ID, option ID, evidence hash, profile version and prompt version. Replaying the same job reuses its saved result. SQLite stores job state and the latest flag for each option in the selected profile. Duplicate broker messages reuse the same snapshot. Directory scans select the newest dated capture for each listing before scheduling analysis. Explicit file replays remain available. Use the same profile and approval options with `--queue`.
 2. Read the reviews with profile-aware structured output and reuse cached reads by review ID and prompt version. Keep option matching, quote validation and colour assignment in code.
-3. Ask for up to three confidence rounds. Apply only valid challenges with cited evidence and keep the combined adjustment within ±20 points. The queue shows the source of each accepted adjustment. Stop on a change below five points or a round with no new cited source.
+3. Ask for up to three confidence rounds. Apply only valid challenges with cited evidence and keep the combined adjustment within ±20 points. The queue shows the source of each accepted adjustment and the flag's original analysis date. Stop on a change below five points or a round with no new cited source.
 4. Save the flag and publish it to the reviewer queue. A per-job budget limits API use. Quota errors, exhausted budgets, invalid AI output and other AI failures put the job in **not checked**. Transient errors use bounded retries with backoff.
 
 The queue provides review priorities. A reviewer inspects the evidence and makes the decision for each flag.
