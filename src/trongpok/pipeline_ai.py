@@ -76,10 +76,8 @@ class PipelineResponsesClient:
         *,
         project_root: str | Path = ".",
         sdk_client: OpenAI | None = None,
-        model: str = DEFAULT_MODEL,
     ) -> None:
         self.project_root = Path(project_root).resolve()
-        self.model = model
         self._client = (
             sdk_client.with_options(max_retries=0, timeout=30.0)
             if sdk_client is not None
@@ -102,7 +100,7 @@ class PipelineResponsesClient:
             )
 
         response = self._client.responses.create(
-            model=self.model,
+            model=DEFAULT_MODEL,
             reasoning={"effort": "medium"},
             input=[
                 {
