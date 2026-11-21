@@ -9,7 +9,7 @@ import { useToast } from '../components/ui/Toast'
 export function ReportsPage() {
   const { sellers, decisions } = useInvestigations()
   const { toast } = useToast()
-  const confirmed = decisions.filter((decision) => decision.type === 'Violation confirmed').length
+  const confirmed = decisions.filter((decision) => decision.type === 'Shortfall confirmed').length
   const download = () => {
     const rows = ['Seller,Shop ID,Risk score,Status', ...sellers.map((seller) => `"${seller.name}",${seller.shopId},${seller.riskScore},${seller.status}`)]
     const blob = new Blob([rows.join('\n')], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'investigation-report.csv'; anchor.click(); URL.revokeObjectURL(url); toast('Investigation CSV downloaded.')

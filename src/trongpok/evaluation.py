@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, Field, StrictBool, TypeAdapter
+from pydantic import AwareDatetime, BaseModel, Field, StrictBool, TypeAdapter, model_validator
 
 from .errors import ReaderError
 from .models import ImageType, Listing, ReadStatus, Review, Unit
@@ -55,6 +55,34 @@ class Labels(BaseModel, extra="forbid"):
     frozen_at: datetime | None
     options: list[OptionLabel]
     photos: list[PhotoLabel]
+
+
+class ReviewerDecision(BaseModel, extra="forbid"):
+    decision: Literal["accepted", "dismissed", "needs_more_information"]
+    reason: str
+    at: AwareDatetime
+
+
+class ReviewedOption(BaseModel, extra="forbid"):
+    listing_id: str = Field(min_length=1)
+    option_id: str = Field(min_length=1)
+    verdict: Literal["mismatch", "no_mismatch", "unsure"]
+    reviewer_decision: ReviewerDecision
+
+    @property
+    def key(self) -> tuple[str, str]:
+        return self.listing_id, self.option_id
+
+    @model_validator(mode="after")
+    def check_verdict(self) -> ReviewedOption:
+        expected = {
+            "accepted": "mismatch",
+            "dismissed": "no_mismatch",
+            "needs_more_information": "unsure",
+        }[self.reviewer_decision.decision]
+        if self.verdict != expected:
+            raise ValueError(f"Reviewer verdict and decision disagree for {self.key}.")
+        return self
 
 
 class Confidence(BaseModel):
@@ -318,6 +346,37 @@ def _render_report(
     return "\n".join(lines)
 
 
+def _render_reviewer_comparison(labels: Labels, decisions: list[ReviewedOption]) -> str:
+    by_option = {decision.key: decision.verdict for decision in decisions}
+    if len(by_option) != len(decisions):
+        raise ValueError("Duplicate option in reviewer decisions.")
+
+    outcomes = Counter(
+        (by_option.get(label.key), label.buyers_report_shortfall)
+        for label in labels.options
+    )
+    rows = (
+        ("Shortfall confirmed", "mismatch"),
+        ("Not confirmed", "no_mismatch"),
+        ("Need more information", "unsure"),
+        ("No decision exported", None),
+    )
+    outside_sample = len(by_option.keys() - {label.key for label in labels.options})
+    return "\n".join([
+        "",
+        "## Reviewer decisions",
+        "",
+        "Reviewer decisions are shown alongside the frozen buyer labels. The baseline scores above use the frozen labels.",
+        "",
+        "| Reviewer decision | Blind label: Yes | Blind label: No |",
+        "|---|---:|---:|",
+        *(f"| {name} | {outcomes[verdict, True]} | {outcomes[verdict, False]} |" for name, verdict in rows),
+        "",
+        f"Decisions outside the blind sample: {outside_sample}.",
+        "",
+    ])
+
+
 def evaluate(
     labels: Labels, chatgpt: list[OptionLabel], listings_dir: Path,
     flags_dir: Path, findings_dir: Path,
@@ -352,6 +411,10 @@ def main() -> None:
     parser.add_argument("--flags-dir", type=Path, default=Path("out/flags"))
     parser.add_argument("--findings-dir", type=Path, default=Path("out/findings"))
     parser.add_argument("--output", type=Path, default=Path("eval/results.md"))
+    parser.add_argument(
+        "--reviewer-decisions", type=Path,
+        help="Optional Seller Guard JSON export to compare with the frozen buyer labels.",
+    )
     args = parser.parse_args()
     root = Path.cwd()
     try:
@@ -364,6 +427,11 @@ def main() -> None:
             raise ValueError("No blind-labeled options. Freeze real labels before scoring.")
         chatgpt = TypeAdapter(list[OptionLabel]).validate_python(_read_json(args.chatgpt, root))
         report = evaluate(labels, chatgpt, listings_dir, flags_dir, findings_dir)
+        if args.reviewer_decisions is not None:
+            decisions = TypeAdapter(list[ReviewedOption]).validate_python(
+                _read_json(args.reviewer_decisions, root)
+            )
+            report += _render_reviewer_comparison(labels, decisions)
         output.write_text(report, encoding="utf-8")
     except (OSError, ValueError, ReaderError) as error:
         parser.exit(1, f"Evaluation stopped: {error}\n")

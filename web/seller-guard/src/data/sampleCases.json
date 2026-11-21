@@ -1,0 +1,342 @@
+[
+  {
+    "listing_id": "sample-compact-64",
+    "option_id": "64-gb",
+    "title": "Sample · Fixture Brand Compact",
+    "variation_label": "64 GB",
+    "priority": "red",
+    "confidence": 95,
+    "base": 95,
+    "adjustments": [
+      {
+        "points": 15,
+        "reason": "2 or more separate buyers"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q3",
+    "findings": [
+      "capacity"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-compact-64-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "Only 29 GB on mine.",
+        "quantity": 29.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 31138512896.0,
+        "ratio": 0.486539264,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-compact-64-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "I received only 30.5 GB.",
+        "quantity": 30.5,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 32749125632.0,
+        "ratio": 0.511705088,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-compact-64-review-3",
+        "buyer_masked": "Bu***03",
+        "date": "2026-11-18",
+        "quote": "My drive holds just 29 GB.",
+        "quantity": 29.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 31138512896.0,
+        "ratio": 0.486539264,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-compact-64-review-4",
+        "buyer_masked": "Bu***04",
+        "date": "2026-11-17",
+        "quote": "Files corrupt after 30 GB.",
+        "quantity": 30.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 32212254720.0,
+        "ratio": 0.50331648,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 4,
+        "checked_text_reviews": 4
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-compact-64",
+      "was_thb": 256,
+      "now_thb": 224,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-discount-1tb",
+    "option_id": "1-tb",
+    "title": "Sample · Fixture Brand Discount",
+    "variation_label": "1 TB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 2990,
+        "now_thb": 299,
+        "low_thb": 1800.0,
+        "high_thb": 2400.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-1",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 1800
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-2",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 2100
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-3",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 2400
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-discount-1tb",
+      "was_thb": 2990,
+      "now_thb": 299,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-reference-1tb",
+    "option_id": "1-tb-blue",
+    "title": "Sample · Fixture Brand Reference",
+    "variation_label": "1 TB · Blue",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 2000,
+        "now_thb": 1500,
+        "low_thb": 1800.0,
+        "high_thb": 2400.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-1",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 1800
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-2",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 2100
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-3",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 2400
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-reference-1tb",
+      "was_thb": 2000,
+      "now_thb": 1500,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-reference-1tb",
+    "option_id": "1-tb",
+    "title": "Sample · Fixture Brand Reference",
+    "variation_label": "1 TB · Black",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [
+      "Collect 10 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-reference-1tb",
+      "was_thb": 6000,
+      "now_thb": 2000,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "sample-standard-64",
+    "option_id": "64-gb",
+    "title": "Sample · Fixture Brand Standard",
+    "variation_label": "64 GB",
+    "priority": "green",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://example.invalid/trongpok-sample/sample-standard-64",
+      "was_thb": 256,
+      "now_thb": 224,
+      "photo_count": 0
+    }
+  }
+]

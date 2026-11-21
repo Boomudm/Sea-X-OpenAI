@@ -1,6 +1,6 @@
 export type InvestigationStatus = 'To review' | 'In progress' | 'Resolved'
 export type RiskLevel = 'Critical' | 'High' | 'Medium' | 'Low'
-export type DecisionType = 'Violation confirmed' | 'No violation' | 'Need more information'
+export type DecisionType = 'Shortfall confirmed' | 'Not confirmed' | 'Need more information'
 
 export interface AIFinding {
   label: string

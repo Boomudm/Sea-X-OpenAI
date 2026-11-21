@@ -18,7 +18,13 @@ const CASES_STORAGE_KEY = 'shopee-ts-submitted-cases-v1'
 function readDecisions(): Decision[] {
   try {
     const value = localStorage.getItem(STORAGE_KEY)
-    return value ? JSON.parse(value) : []
+    const stored = value ? JSON.parse(value) : []
+    if (!Array.isArray(stored)) return []
+    return stored.map((decision) => ({
+      ...decision,
+      type: decision.type === 'Violation confirmed' ? 'Shortfall confirmed'
+        : decision.type === 'No violation' ? 'Not confirmed' : decision.type,
+    }))
   } catch {
     return []
   }
@@ -53,9 +59,9 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
     const urls = [...new Set(input.listingUrls)].slice(0, 10)
     const listings = urls.map((listingUrl, index) => ({
       id: `LST-NEW-${stamp}-${index + 1}`,
-      title: 'SSD listing ' + (index + 1),
+      title: 'Listing link ' + (index + 1),
       sku: `CAP-${String(stamp).slice(-6)}-${index + 1}`,
-      category: 'Storage',
+      category: 'USB flash drives',
       listingUrl,
       referenceUrl: input.referenceUrls[index] ?? (input.referenceUrls.length === 1 ? input.referenceUrls[0] : undefined),
       price: index === 0 ? input.currentPrice ?? 0 : 0,
@@ -78,7 +84,7 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
       lastUpdated: now,
       createdAt: now,
       listingsCount: listings.length,
-      category: 'Storage',
+      category: 'USB flash drives',
       fulfillment: 'Unknown',
       previousInvestigations: 0,
       summary: 'Listing sources are saved and ready for evidence collection.',
@@ -104,7 +110,7 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
 
   const submitDecision = useCallback((sellerId: string, type: DecisionType, notes: string, flagDecisions?: Decision['flagDecisions'], listingId?: string) => {
     const decision: Decision = {
-      sellerId, type, notes: notes.trim(), reviewer: 'Alex Morgan', timestamp: new Date().toISOString(), flagDecisions, listingId,
+      sellerId, type, notes: notes.trim(), reviewer: 'Local reviewer', timestamp: new Date().toISOString(), flagDecisions, listingId,
     }
     setDecisions((current) => {
       const next = [decision, ...current.filter((item) => item.sellerId !== sellerId || item.listingId !== listingId)]

@@ -11,8 +11,8 @@ import { cn, formatDateTime } from '../lib/utils'
 import type { DecisionType } from '../types'
 
 const options: { type: DecisionType; title: string; description: string; icon: typeof ShieldX; tone: string }[] = [
-  { type: 'Violation confirmed', title: 'Violation confirmed', description: 'Evidence meets the policy threshold for enforcement.', icon: ShieldX, tone: 'text-red-700 bg-red-50' },
-  { type: 'No violation', title: 'No violation', description: 'Evidence does not support the suspected policy breach.', icon: CheckCircle2, tone: 'text-emerald-700 bg-emerald-50' },
+  { type: 'Shortfall confirmed', title: 'Shortfall confirmed', description: 'The reviewer found a delivered capacity shortfall.', icon: ShieldX, tone: 'text-red-700 bg-red-50' },
+  { type: 'Not confirmed', title: 'Not confirmed', description: 'The evidence does not confirm a delivered capacity shortfall.', icon: CheckCircle2, tone: 'text-emerald-700 bg-emerald-50' },
   { type: 'Need more information', title: 'Need more information', description: 'The record is incomplete and requires follow up.', icon: CircleHelp, tone: 'text-amber-700 bg-amber-50' },
 ]
 

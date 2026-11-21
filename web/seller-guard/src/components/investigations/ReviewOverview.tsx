@@ -123,7 +123,7 @@ export function ReviewOverview({ cases, priority, onSelect, toQueue }: OverviewP
           {palette.map((color) => <span className="size-3 rounded" style={{ backgroundColor: color }} key={color} aria-hidden="true" />)}
           <span>More cases</span>
         </div>
-        <p className="caption-5 mt-2 text-muted">Cases with multiple findings can appear in several cells.</p>
+        <p className="caption-5 mt-2 text-muted">Cases are grouped by the check that set their priority.</p>
       </section>
     </div>
   )
@@ -201,7 +201,7 @@ function PriorityDonut({ counts, selected, onSelect }: {
       />
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center" aria-hidden="true">
         <strong className="text-3xl font-bold leading-none tabular-nums tracking-tight">{scored}</strong>
-        <span className="mt-1 text-xs font-medium text-muted">scored cases</span>
+        <span className="mt-1 text-xs font-medium text-muted">scored {scored === 1 ? 'case' : 'cases'}</span>
       </div>
     </div>
   )

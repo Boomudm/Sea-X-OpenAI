@@ -2,8 +2,16 @@
 
 ## Seller Guard web demo
 
-The [Seller Guard web demo](web/seller-guard/) opens the overview at `/` and
-the reviewer workspace at `/review`.
+The [Seller Guard web demo](web/seller-guard/) opens the overview at `/`, the
+reviewer workspace at `/review`, and the U5 report at `/results`.
+
+After capturing listings and buyer evidence, generate and export the reports
+from the repository root.
+
+```sh
+uv run trongpok-analyze
+uv run python -m trongpok.export_web
+```
 
 ```sh
 cd web/seller-guard
@@ -12,8 +20,13 @@ npm run dev
 ```
 
 Open `http://localhost:5173/review` for the review table or use **Back to
-overview** for the donut and heatmap. The demo uses bundled SSD examples and
-keeps submitted links and decisions in the current browser.
+overview** for the donut and heatmap. The app defaults to **Captured data**
+when the exported report exists and includes a labelled **Sample data** mode.
+Submitted links and reviewer decisions are stored in the current browser.
+See [the web demo guide](web/seller-guard/README.md) for exporting decisions
+and viewing the evaluation report. The demo screenshots show
+[Captured data](docs/seller-guard-bridge/captured-data.jpg) and
+[Sample data](docs/seller-guard-bridge/sample-data.jpg).
 
 ## Evaluation and hand-in
 

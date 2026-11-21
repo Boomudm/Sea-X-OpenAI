@@ -8,9 +8,10 @@ import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { useToast } from '../components/ui/Toast'
 import {
-  buildReviewCases, confidenceBands, inConfidenceBand, priorities, signals,
-  type ConfidenceBand, type ReviewCase, type ReviewPriority, type ReviewSignal,
+  buildReviewCases, caseVerdict, confidenceBands, exportableDecisions, inConfidenceBand, priorities, signals,
+  type CaseSource, type ConfidenceBand, type ReviewCase, type ReviewPriority, type ReviewSignal,
 } from '../data/reviewCases'
+import { loadCapturedCases, publicText, type CaptureFeed } from '../data/pipelineCases'
 import { useInvestigations } from '../hooks/useInvestigations'
 
 const pageSize = 8
@@ -25,14 +26,14 @@ function knownKey<T extends Record<string, unknown>>(record: T, value: string | 
   return value !== null && Object.prototype.hasOwnProperty.call(record, value) ? value : null
 }
 
-function queueLink(priority: ReviewPriority | null, signal?: ReviewSignal, band?: ConfidenceBand) {
-  const search = new URLSearchParams()
+function queueLink(source: CaseSource, priority: ReviewPriority | null, signal?: ReviewSignal, band?: ConfidenceBand) {
+  const search = new URLSearchParams({ source })
   if (priority) search.set('priority', priority)
   if (signal && band) {
     search.set('signal', signal)
     search.set('band', band)
   }
-  return '/review' + (search.toString() ? '?' + search : '')
+  return '/review?' + search
 }
 
 export function ReviewQueuePage() {
@@ -43,10 +44,19 @@ export function ReviewQueuePage() {
   const [params, setParams] = useSearchParams()
   const [addCaseOpen, setAddCaseOpen] = useState(false)
   const [page, setPage] = useState(0)
+  const [feed, setFeed] = useState<CaptureFeed>({ state: 'loading' })
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const trigger = useRef<HTMLButtonElement | null>(null)
   const nextButton = useRef<HTMLButtonElement>(null)
   const tableTitle = useRef<HTMLHeadingElement>(null)
-  const allCases = useMemo(() => buildReviewCases(sellers, decisions), [sellers, decisions])
+  const requestedSource = params.get('source')
+  const source = requestedSource === 'sample' || requestedSource === 'captured'
+    ? requestedSource
+    : feed.state === 'missing' || feed.state === 'error' ? 'sample' : 'captured'
+  const loading = source === 'captured' && feed.state === 'loading'
+  const allCases = useMemo(() => buildReviewCases(
+    sellers, decisions, feed.state === 'available' ? feed.cases : [], source,
+  ), [sellers, decisions, feed, source])
   const readyCases = useMemo(() => allCases.filter((item) => item.status === 'To review'), [allCases])
   const priority = knownKey(priorities, params.get('priority'))
   const signal = knownKey(signals, params.get('signal'))
@@ -60,7 +70,8 @@ export function ReviewQueuePage() {
     if (status !== 'all' && item.status !== statuses[status]) return false
     if (priority && item.priority !== priority) return false
     if (group && !item.findings.some((result) => result.signal === group.signal && inConfidenceBand(result.confidence, group.band))) return false
-    return !queryText || [item.title, item.sellerName, item.shopId, item.id].some((value) => value?.toLowerCase().includes(queryText))
+    return !queryText || [item.title, item.sellerName, item.shopId, item.caseLabel, item.variant]
+      .some((value) => value?.toLowerCase().includes(queryText))
   })
   const lastPage = Math.max(0, Math.ceil(filtered.length / pageSize) - 1)
   const currentPage = Math.min(lastPage, page)
@@ -69,9 +80,21 @@ export function ReviewQueuePage() {
   const caseId = params.get('case')
   const selected = isQueue && caseId ? allCases.find((item) => item.id === caseId) : undefined
   const overviewPriority = priority === 'unknown' ? null : priority
-  const overviewLink = overviewPriority ? '/?priority=' + overviewPriority : '/'
+  const overviewParams = new URLSearchParams({ source })
+  if (overviewPriority) overviewParams.set('priority', overviewPriority)
+  const overviewLink = '/?' + overviewParams
+  const exportedDecisions = source === 'captured' ? exportableDecisions(allCases) : []
 
-  useEffect(() => { setPage(0) }, [pathname, priority, signal, band])
+  useEffect(() => {
+    const controller = new AbortController()
+    loadCapturedCases(controller.signal).then((result) => {
+      if (!controller.signal.aborted) setFeed(result)
+    }).catch(() => {
+      if (!controller.signal.aborted) setFeed({ state: 'error' })
+    })
+    return () => controller.abort()
+  }, [loadAttempt])
+  useEffect(() => { setPage(0) }, [pathname, source, priority, signal, band])
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
 
   function updateParams(changes: Record<string, string | null>) {
@@ -105,7 +128,7 @@ export function ReviewQueuePage() {
     const position = filtered.findIndex((item) => item.id === selected.id)
     const waiting = filtered.filter((item) => item.id !== selected.id && item.status === 'To review')
     const next = filtered.slice(position + 1).find((item) => item.status === 'To review') ?? waiting[0]
-    submitDecision(selected.sellerId, submission.outcome, submission.notes, submission.flags, selected.listingId)
+    submitDecision(selected.sellerId, submission.outcome, submission.notes, undefined, selected.listingId)
     toast(submission.outcome === 'Need more information' ? 'Evidence request recorded.' : 'Reviewer decision saved.')
     if (submission.next && next) {
       const remaining = status === 'all' ? filtered : filtered.filter((item) => item.id !== selected.id)
@@ -116,24 +139,62 @@ export function ReviewQueuePage() {
     }
   }
 
+  function downloadDecisions() {
+    const blob = new Blob([JSON.stringify(exportedDecisions, null, 2) + '\n'], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'reviewer-decisions.json'
+    link.click()
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
+
+  const sourceControls = (
+    <div className="mt-4 flex flex-wrap items-center gap-3">
+      <div className="flex gap-1 rounded-lg border border-line bg-white p-1" role="group" aria-label="Case source">
+        {(['captured', 'sample'] as const).map((kind) => (
+          <Button key={kind} type="button" size="sm" variant={source === kind ? 'secondary' : 'ghost'}
+            aria-pressed={source === kind}
+            onClick={() => updateParams({ source: kind, priority: null, signal: null, band: null, case: null, q: null, status: null })}>
+            {kind === 'captured' ? 'Captured data' : 'Sample data'}
+          </Button>
+        ))}
+      </div>
+      {source === 'sample' && <p className="rounded-lg border border-line bg-peach px-3 py-2 text-sm" role="status">
+        <strong>Sample data.</strong> These USB flash drive cases are for the demo.
+      </p>}
+      {source === 'captured' && feed.state === 'loading' && <p className="text-sm text-muted" role="status">Loading captured reports…</p>}
+      {source === 'captured' && feed.state === 'available' && <p className="text-sm text-muted" role="status">Showing options scored by the pipeline.</p>}
+      {(feed.state === 'error' || (source === 'captured' && feed.state === 'missing')) && (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <p role="status">{feed.state === 'error' ? 'Captured reports could not be read.' : 'No exported reports are available yet.'}</p>
+          <Button type="button" size="sm" variant="outline" onClick={() => { setFeed({ state: 'loading' }); setLoadAttempt((n) => n + 1) }}>
+            Refresh reports
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+
   if (!isQueue) return (
     <div className="page-container">
       <PageHeader
         eyebrow="Seller investigations"
         title="Review overview"
-        description="Choose a priority, then select a group of SSD cases to review."
+        description="Choose a priority, then select a group of USB flash drive options to review."
         actions={<>
           <Button type="button" variant="outline" onClick={() => setAddCaseOpen(true)}>Add listing links</Button>
-          <Link className="review-primary" to={queueLink(overviewPriority)}>Open review queue</Link>
+          <Link className="review-primary" to={queueLink(source, overviewPriority)}>Open review queue</Link>
         </>}
       />
-      <ReviewOverview
+      {sourceControls}
+      {!loading && <ReviewOverview
         cases={readyCases}
         priority={overviewPriority}
         onSelect={(id) => updateParams({ priority: id === overviewPriority ? null : id })}
-        toQueue={queueLink}
-      />
-      <p className="caption-5 mt-4 text-muted">Demo scores use sample SSD evidence. Captured links enter the queue as Needs evidence.</p>
+        toQueue={(priority, signal, band) => queueLink(source, priority, signal, band)}
+      />}
+      <p className="caption-5 mt-4 text-muted">Submitted links stay in this browser for evidence collection.</p>
       {addCaseOpen && <AddCaseDrawer open onClose={() => setAddCaseOpen(false)} />}
     </div>
   )
@@ -148,12 +209,18 @@ export function ReviewQueuePage() {
           {!priority && !group && <Badge>All priorities</Badge>}
         </div>}
       />
-      <section className="surface mt-6" aria-labelledby="queue-heading">
+      {sourceControls}
+      {!loading && <section className="surface mt-6" aria-labelledby="queue-heading">
         <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-6">
           <h2 ref={tableTitle} tabIndex={-1} id="queue-heading" className="heading-6 flex flex-wrap items-center gap-2 outline-none">
             Cases to review <Badge className="tabular-nums"><span aria-live="polite">{filtered.length}</span></Badge>
           </h2>
-          <Button ref={nextButton} type="button" disabled={!nextCase} onClick={() => nextCase && openCase(nextCase, nextButton.current)}>Review next</Button>
+          <div className="flex flex-wrap gap-2">
+            {source === 'captured' && <Button type="button" variant="outline" disabled={!exportedDecisions.length}
+              title={exportedDecisions.length ? undefined : 'Review a pipeline option to export its decision'}
+              onClick={downloadDecisions}>Export decisions</Button>}
+            <Button ref={nextButton} type="button" disabled={!nextCase} onClick={() => nextCase && openCase(nextCase, nextButton.current)}>Review next</Button>
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-3 border-t border-line px-4 py-3 sm:px-6">
           <input type="search" aria-label="Search review cases" className="form-control w-full sm:max-w-xs"
@@ -176,21 +243,25 @@ export function ReviewQueuePage() {
               {filtered.slice(pageStart, pageStart + pageSize).map((item) => {
                 const finding = group ? item.findings.find((result) => result.signal === group.signal && inConfidenceBand(result.confidence, group.band)) : item.findings[0]
                 const score = finding?.confidence ?? item.confidence
+                const [primaryReason, ...otherReasons] = item.pipeline?.reasons ?? []
                 return (
                   <tr key={item.id} className="cursor-pointer border-b border-line transition-colors hover:bg-peach/60 focus-within:bg-peach/60"
                     onClick={(event) => openCase(item, event.currentTarget.querySelector('button'))}>
                     <td className="py-3 pl-6 pr-4">
                       <strong className="block">{item.title}</strong>
-                      <span className="caption-5 block text-muted">{item.sellerName} · {item.id}</span>
+                      <span className="caption-5 block text-muted">{[item.sellerName, item.variant, item.caseLabel].filter(Boolean).join(' · ')}</span>
                     </td>
                     <td className="px-4 py-3"><Badge tone={priorities[item.priority].tone}>{priorities[item.priority].label}</Badge></td>
                     <td className="px-4 py-3 font-semibold tabular-nums">{score === null ? '—' : `${score}%`}</td>
-                    <td className="px-4 py-3">{finding ? signals[finding.signal].label : 'Insufficient evidence'}
-                      {!group && item.findings.length > 1 && <span className="caption-5 block text-muted">+{item.findings.length - 1} more</span>}
+                    <td className="px-4 py-3">{primaryReason ? publicText(primaryReason)
+                      : finding ? signals[finding.signal].label : 'Insufficient evidence'}
+                      {otherReasons.length > 0 && <span className="caption-5 block text-muted">+{otherReasons.length} more</span>}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted">{item.status}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted">
+                      {item.status}<span className="caption-5 block">{caseVerdict(item.decision)}</span>
+                    </td>
                     <td className="py-3 pl-4 pr-6 text-right">
-                      <button type="button" aria-haspopup="dialog" aria-label={`Review case ${item.id}`}
+                      <button type="button" aria-haspopup="dialog" aria-label={`Review ${item.title}${item.variant ? ' · ' + item.variant : ''} · ${item.caseLabel}`}
                         className="focus-ring whitespace-nowrap rounded px-2 py-2 text-sm font-semibold text-[#a82d18] hover:underline"
                         onClick={(event) => { event.stopPropagation(); openCase(item, event.currentTarget) }}>Open case</button>
                     </td>
@@ -198,7 +269,9 @@ export function ReviewQueuePage() {
                 )
               })}
               {!filtered.length && <tr><td colSpan={6} className="p-6 text-muted">
-                No cases match these filters. <Link to="/review" className="focus-ring rounded font-semibold text-[#a82d18] hover:underline">See all open cases</Link>
+                {query || priority || group || status !== 'ready' ? <>
+                  No cases match these filters. <Link to={queueLink(source, null)} className="focus-ring rounded font-semibold text-[#a82d18] hover:underline">See all open cases</Link>
+                </> : 'There are no open cases in this view.'}
               </td></tr>}
             </tbody>
           </table>
@@ -210,8 +283,8 @@ export function ReviewQueuePage() {
             <Button type="button" size="sm" variant="outline" disabled={currentPage === lastPage} onClick={() => setPage(currentPage + 1)}>Next</Button>
           </div>
         </div>
-      </section>
-      {selected && <ReviewCaseModal key={selected.id} item={selected} focusedSignal={group?.signal} onClose={closeCase} onSave={saveCase} />}
+      </section>}
+      {selected && !loading && <ReviewCaseModal key={selected.id} item={selected} onClose={closeCase} onSave={saveCase} />}
     </div>
   )
 }
