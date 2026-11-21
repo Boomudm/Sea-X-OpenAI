@@ -13,6 +13,7 @@ dependencies = [
 [project.scripts]
 trongpok-read = "trongpok.cli:main"
 trongpok-analyze = "trongpok.__main__:main"
+trongpok-pipeline = "trongpok.pipeline:main"
 
 [dependency-groups]
 dev = [

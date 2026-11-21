@@ -8,7 +8,6 @@ import pytest
 from trongpok.errors import ReaderInputError
 from trongpok.export_web import DEFAULT_OUTPUT, build_cases, main
 
-
 FIXTURES = Path(__file__).parent / "fixtures" / "u4"
 
 

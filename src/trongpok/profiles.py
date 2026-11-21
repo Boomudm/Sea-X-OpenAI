@@ -89,7 +89,7 @@ class CategoryProfile(BaseModel):
     measurement_mode: Literal["numeric", "categorical"] = "numeric"
     promise_unit: NonEmptyText | None = None
     units: dict[NonEmptyText, UnitConversion] = Field(default_factory=dict)
-    tolerance: Decimal = Field(default=Decimal("1"), gt=0, le=1, allow_inf_nan=False)
+    tolerance: Decimal = Field(default=Decimal(1), gt=0, le=1, allow_inf_nan=False)
     maximum_ratio: Decimal | None = Field(default=None, ge=1, allow_inf_nan=False)
     baseline_mismatch_rate: Decimal | None = Field(default=None, ge=0, le=1, allow_inf_nan=False)
     review_roles: tuple[Identifier, ...] = Field(min_length=1)

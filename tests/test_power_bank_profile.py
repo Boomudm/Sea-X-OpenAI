@@ -7,7 +7,6 @@ import pytest
 
 from trongpok.rules import build_flags
 
-
 FIXTURES = Path(__file__).parent / "fixtures" / "power_bank"
 
 
@@ -22,14 +21,14 @@ def load_sample(name):
 def power_bank():
     from trongpok.profiles import load_profile
 
-    profile = load_profile("power_bank")
+    profile = load_profile("power_bank", allow_draft=True)
     assert profile.approved_by == "pending human review"
     return profile
 
 
 def test_two_independent_low_at_port_readings_trigger_q3(power_bank):
     listing, findings = load_sample("sample-power-bank-low")
-    [flag] = build_flags(listing, findings=findings, profile=power_bank)
+    [flag] = build_flags(listing, findings=findings, profile=power_bank, allow_draft=True)
 
     assert (flag["colour"], flag["deciding"], flag["verdict"]) == ("RED", "Q3", "unsure")
     reviews = [item for item in flag["evidence"] if item["source"] == "review"]
@@ -41,7 +40,7 @@ def test_two_independent_low_at_port_readings_trigger_q3(power_bank):
 
 def test_normal_65_percent_reading_with_ten_checked_reviews_is_green(power_bank):
     listing, findings = load_sample("sample-power-bank-normal")
-    [flag] = build_flags(listing, findings=findings, profile=power_bank)
+    [flag] = build_flags(listing, findings=findings, profile=power_bank, allow_draft=True)
 
     assert (flag["colour"], flag["deciding"]) == ("GREEN", "Q5")
     assert flag["evidence"] == [{
@@ -53,7 +52,7 @@ def test_normal_65_percent_reading_with_ten_checked_reviews_is_green(power_bank)
 
 def test_unmeasured_complaint_goes_to_a_person(power_bank):
     listing, findings = load_sample("sample-power-bank-complaint")
-    [flag] = build_flags(listing, findings=findings, profile=power_bank)
+    [flag] = build_flags(listing, findings=findings, profile=power_bank, allow_draft=True)
 
     assert (flag["colour"], flag["deciding"], flag["verdict"]) == ("YELLOW", "Q4", "unsure")
     [review] = [item for item in flag["evidence"] if item["source"] == "review"]
@@ -71,6 +70,6 @@ def test_tolerance_is_a_strict_lower_bound(power_bank, reading, expected):
     review["text"] = review["text"].replace("13,000", f"{reading:,}")
     findings[0].update(quantity=reading, quote=review["text"])
 
-    [flag] = build_flags(listing, findings=findings, profile=power_bank)
+    [flag] = build_flags(listing, findings=findings, profile=power_bank, allow_draft=True)
 
     assert (flag["colour"], flag["deciding"]) == expected

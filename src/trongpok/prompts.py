@@ -31,18 +31,33 @@ def _role_label(role: str) -> str:
 
 
 def _measurement_context(profile: CategoryProfile) -> str:
-    units = ", ".join(profile.units)
-    roles = ", ".join(map(_role_label, profile.measured_roles))
-    context = (
-        f"Attribute: {profile.attribute}. Accepted units: {units}. "
-        f"Advertised values use {profile.promise_unit}.\n"
-        f"Measurement roles: {roles}.\n"
-        f"Normal reading: {profile.normal_display_text}"
-    )
-    if profile.prompt_traps:
-        traps = "\n".join(f"- {trap}" for trap in profile.prompt_traps)
-        context += f"\nMeasurement pitfalls:\n{traps}"
-    return context
+    languages = ", ".join(profile.languages)
+    context = [
+        f"Attribute: {profile.attribute}. Locale: {profile.locale}. Review languages: {languages}."
+    ]
+    if profile.measurement_mode == "numeric":
+        units = ", ".join(
+            f"{name} (aliases: {', '.join(conversion.all_aliases)})"
+            if conversion.all_aliases else name
+            for name, conversion in profile.units.items()
+        )
+        roles = ", ".join(map(_role_label, profile.measured_roles))
+        context.extend((
+            f"Accepted units: {units}. Advertised values use {profile.promise_unit}.",
+            f"Measurement roles: {roles}.",
+        ))
+    else:
+        context.append("Evaluate the reported mismatch type. This category uses no quantitative measurements.")
+    context.append(f"Normal reading: {profile.normal_display_text}")
+    traps = [
+        *profile.prompt_traps,
+        *(f"[{language}] {trap}"
+          for language, entries in profile.prompt_traps_by_language.items() for trap in entries),
+    ]
+    if traps:
+        context.append("Measurement pitfalls:" + "".join(f"\n- {trap}" for trap in traps))
+    return "\n".join(context)
+
 
 
 def review_developer(profile: CategoryProfile | None = None) -> str:
@@ -59,9 +74,15 @@ def review_developer(profile: CategoryProfile | None = None) -> str:
 review. Extract a written number even when it is bare (for example 58), and inherit the
 option's {profile.attribute} unit for a bare {profile.attribute} number. Roles are semantic: {role_text}. Do not perform
 the {percent}% decision; code validates the number and calculates it. Never invent text or values."""
+    if profile.measurement_mode == "numeric":
+        guidance = (
+            "Extract a written number and its unit. A measurement requires an explicit,\n"
+            "supported unit. If a complaint has no usable measurement, record it without a number."
+        )
+    else:
+        guidance = "Classify the reported mismatch and leave the numeric fields empty."
     return f"""{_REVIEW_OPENING}
-review. Extract a written number and its unit. A measurement requires an explicit,
-supported unit. If a complaint has no usable measurement, record it without a number.
+review. {guidance}
 Allowed roles: {", ".join(roles)}.
 Allowed mismatch types: {", ".join(profile.mismatch_types)}.
 {_measurement_context(profile)}

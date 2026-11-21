@@ -23,7 +23,11 @@ from .models import (
     Unit,
 )
 from .profiles import load_profile
-from .reviews import conflicting_review_measurements, measured_bytes, review_number_units
+from .reviews import (
+    conflicting_review_measurements,
+    measured_bytes,
+    review_number_units,
+)
 
 _STORAGE_PROFILE = load_profile()
 _PROMISE_FACTORS = {

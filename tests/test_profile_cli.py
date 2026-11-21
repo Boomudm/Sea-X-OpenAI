@@ -9,7 +9,6 @@ import pytest
 from trongpok.__main__ import main
 from trongpok.decisions import save_decision
 
-
 SAMPLES = Path(__file__).resolve().parent / "fixtures" / "power_bank"
 
 
@@ -20,7 +19,7 @@ def test_cli_analyzes_sample_with_selected_profile(tmp_path, monkeypatch):
     decisions_db = tmp_path / "decisions.sqlite3"
     monkeypatch.setattr(sys, "argv", [
         "trongpok-analyze",
-        "--profile", "power_bank",
+        "--profile", "power_bank", "--allow-draft",
         "--findings-dir", str(SAMPLES / "findings"),
         "--output-dir", "flags",
         "--decisions-db", str(decisions_db),
@@ -43,7 +42,7 @@ def test_cli_analyzes_sample_with_selected_profile(tmp_path, monkeypatch):
 
 def test_cli_rejects_live_read_for_power_bank(monkeypatch, capsys):
     monkeypatch.setattr(sys, "argv", [
-        "trongpok-analyze", "--profile", "power_bank", "--read",
+        "trongpok-analyze", "--profile", "power_bank", "--allow-draft", "--read",
     ])
 
     with pytest.raises(SystemExit) as error:
@@ -51,3 +50,13 @@ def test_cli_rejects_live_read_for_power_bank(monkeypatch, capsys):
 
     assert error.value.code == 2
     assert "--read is available for the storage profile" in capsys.readouterr().err
+
+
+def test_cli_requires_explicit_draft_opt_in(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["trongpok-analyze", "--profile", "power_bank"])
+
+    with pytest.raises(SystemExit) as error:
+        main()
+
+    assert error.value.code == 2
+    assert "pending human review" in capsys.readouterr().err

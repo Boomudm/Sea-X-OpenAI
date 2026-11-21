@@ -7,7 +7,6 @@ from pathlib import Path
 
 from trongpok.rules import queue_key
 
-
 SAMPLE_ROOT = Path(__file__).parent / "fixtures" / "u4"
 
 

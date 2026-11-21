@@ -18,7 +18,6 @@ from trongpok.reviewer_data import (
 )
 from trongpok.reviewer_table import option_table
 
-
 ROOT = Path(__file__).resolve().parents[2]
 SAMPLE = ROOT / "tests/fixtures/u4"
 PRIORITIES = {

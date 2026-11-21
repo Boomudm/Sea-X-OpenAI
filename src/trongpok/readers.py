@@ -28,7 +28,7 @@ from .models import (
     ReviewDraftBatch,
 )
 from .paths import listing_filename, within_directory, write_json
-from .profiles import CategoryProfile
+from .profiles import CategoryProfile, require_profile_approval
 from .prompts import (
     CLAIMS_DEVELOPER,
     IMAGES_DEVELOPER,
@@ -195,7 +195,10 @@ def assess_confidence(
     *,
     client: StructuredReader | None = None,
     profile: CategoryProfile | None = None,
+    allow_draft: bool = False,
 ) -> ConfidenceAssessment:
+    if profile is not None:
+        require_profile_approval(profile, allow_draft=allow_draft)
     reader = client or OpenAIReaderClient()
     payload = {"flag": dict(flag), "evidence": evidence, "round": 1, "tools": []}
     batch = reader.generate(

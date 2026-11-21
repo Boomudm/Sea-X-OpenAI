@@ -3,10 +3,12 @@ import argparse
 import json
 from pathlib import Path
 
+from .capture import normalize_marketplace_fields
 from .decisions import load_decision
 from .errors import ReaderError, ReaderInputError
 from .paths import listing_filename, within_directory, write_json
 from .profiles import load_profile
+from .publication import publish_flag
 from .readers import process_listing_file
 from .rules import build_flags
 
@@ -37,7 +39,7 @@ def _load_evidence(args, path, listing_id, filename):
 
 
 def _analyze_listing(args, path, kb, profile):
-    listing = _read_json(path)
+    listing = normalize_marketplace_fields(_read_json(path), profile)
     listing_id = listing["listing_id"]
     filename = listing_filename(listing_id)
     claims, findings = _load_evidence(args, path, listing_id, filename)
@@ -45,14 +47,15 @@ def _analyze_listing(args, path, kb, profile):
     if absent:
         print(f"{listing_id}: no {' or '.join(absent)} supplied; building flags from available evidence")
     challenges = _read_optional(args.challenges_dir / filename, {}) if args.challenges_dir else {}
-    flags = build_flags(listing, kb, findings, claims, challenges=challenges, profile=profile)
+    flags = build_flags(listing, kb, findings, claims, challenges=challenges,
+                        profile=profile, allow_draft=args.allow_draft)
     for flag in flags:
         decision = load_decision(args.decisions_db, listing_id, flag["option_id"])
         if decision:
             flag["reviewer_decision"] = decision
             flag["verdict"] = "mismatch" if decision["decision"] == "accepted" else "no_mismatch"
     output = args.output_dir / filename
-    write_json(output, flags)
+    write_json(output, [publish_flag(flag) for flag in flags])
     print(f"{output}: {len(flags)} option(s)")
 
 
@@ -60,6 +63,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("listings", nargs="*", type=Path, help="Listing JSON paths (default: data/listings/*.json)")
     parser.add_argument("--profile", default="storage", help="Category profile ID (default: storage)")
+    parser.add_argument("--allow-draft", action="store_true", help="Use a profile pending human review")
     parser.add_argument("--read", action="store_true", help="Run the storage reader before generating flags")
     parser.add_argument("--reader-output-root", type=Path, default=Path("out"),
                         help="Where to write claims and findings with --read")
@@ -71,7 +75,7 @@ def main():
     parser.add_argument("--decisions-db", type=Path, default=Path("out/decisions.sqlite3"))
     args = parser.parse_args()
     try:
-        profile = load_profile(args.profile)
+        profile = load_profile(args.profile, allow_draft=args.allow_draft)
     except (OSError, ValueError) as error:
         parser.error(str(error))
 

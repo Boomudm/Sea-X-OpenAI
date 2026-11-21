@@ -15,8 +15,13 @@ from openai.types.responses import Response
 from pydantic import TypeAdapter, ValidationError
 
 from .client import load_api_key
-from .errors import InvalidReaderOutput, ReaderError, ReaderInputError, ReaderUnavailableError
-from .profiles import CategoryId, CategoryProfile, PENDING_APPROVAL
+from .errors import (
+    InvalidReaderOutput,
+    ReaderError,
+    ReaderInputError,
+    ReaderUnavailableError,
+)
+from .profiles import PENDING_APPROVAL, CategoryId, CategoryProfile
 
 _CATEGORY_ID = TypeAdapter(CategoryId)
 _DOMAIN = re.compile(

@@ -16,7 +16,7 @@ Run all three from the repository root.
 
 ```sh
 uv run --locked trongpok-analyze \
-  --profile power_bank \
+  --profile power_bank --allow-draft \
   --findings-dir tests/fixtures/power_bank/findings \
   --output-dir .profile-sample-flags \
   tests/fixtures/power_bank/listings/*.json

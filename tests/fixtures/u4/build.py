@@ -6,7 +6,6 @@ from pathlib import Path
 from trongpok.paths import write_json
 from trongpok.rules import build_flags
 
-
 ROOT = Path(__file__).parent
 DAY = "2026-11-21"
 BASE_URL = "https://example.invalid/trongpok-sample"

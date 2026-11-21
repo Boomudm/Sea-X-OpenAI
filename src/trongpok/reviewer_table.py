@@ -2,7 +2,6 @@
 
 import streamlit as st
 
-
 option_table = st.components.v2.component(
     "review_options",
     html="""

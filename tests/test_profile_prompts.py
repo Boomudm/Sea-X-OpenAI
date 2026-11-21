@@ -1,7 +1,6 @@
 from trongpok import prompts
 from trongpok.profiles import load_profile
 
-
 _STORAGE_REVIEW = """You read captured buyer review text into checkable findings.
 Return exactly one finding per supplied review. Copy an exact, contiguous quote from that
 review. Extract a written number even when it is bare (for example 58), and inherit the
@@ -20,7 +19,7 @@ def test_storage_prompts_keep_their_exact_text():
 
 
 def test_power_bank_prompts_explain_what_counts_as_a_measurement():
-    profile = load_profile("power_bank")
+    profile = load_profile("power_bank", allow_draft=True)
     review = prompts.review_developer(profile)
     confidence = prompts.confidence_developer(profile)
     for prompt in (review, confidence):

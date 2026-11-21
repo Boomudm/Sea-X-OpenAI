@@ -1,10 +1,11 @@
 """Deterministic flags from captured listings, approved references and reader evidence."""
-import re
 from datetime import datetime
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from zoneinfo import ZoneInfo
 
-from .profiles import CategoryProfile, load_profile
+from .profiles import CategoryProfile, load_profile, require_profile_approval
+from .references import reference_number as _number
+from .references import reference_source_for
 from .reviews import measured_bytes as measured_bytes  # noqa: PLC0414 - public re-export
 from .reviews import review_evidence
 
@@ -12,89 +13,12 @@ QUESTION_ORDER = ("Q1", "Q2", "Q3", "Q4", "Q5")
 COLOUR_ORDER = {"RED": 0, "YELLOW": 1, "GREY": 2, "GREEN": 3}
 
 
-def _identity(value):
-    return str(value or "").strip().casefold()
-
-
-def _find_kb(claim, rows):
-    brand = _identity(claim.get("brand"))
-    product_line = _identity(claim.get("product_line"))
-    storage_type = _identity(claim.get("type"))
-    if not (brand and product_line and storage_type):
-        return None
-
-    matches = [
-        row for row in rows
-        if brand in {_identity(name) for name in [row["brand"], *row["aliases"]]}
-        and product_line == _identity(row["product_line"])
-        and storage_type == _identity(row["type"])
-    ]
-    return matches[0] if len(matches) == 1 else None
-
-
-def _captured_kb(listing, rows):
-    """Use a unique approved row named explicitly in the captured title and specs."""
-    title = _identity(listing.get("title"))
-    spec = _identity(listing.get("spec_text"))
-
-    def mentions(value, text):
-        name = _identity(value)
-        return bool(name and re.search(rf"(?<!\w){re.escape(name)}(?!\w)", text))
-
-    matches = [
-        row for row in rows
-        if row.get("approved_by")
-        and mentions(row["product_line"], title)
-        and mentions(row["type"], spec)
-        and any(mentions(name, title) for name in [row["brand"], *row["aliases"]])
-    ]
-    return matches[0] if len(matches) == 1 else None
-
-
-def _number(value):
-    try:
-        number = Decimal(str(value))
-    except InvalidOperation:
-        return None
-    return number if number.is_finite() else None
-
-
-def _market_evidence(kb, promise, option):
-    ranges = [
-        band for band in kb["market_range"]
-        if _number(band["capacity_gb"]) == promise
-    ]
-    if len(ranges) != 1:
-        return None, False
-
-    band = ranges[0]
-    sources = [
-        source for source in kb["mall_sources"]
-        if _number(source["capacity_gb"]) == promise and source.get("url")
-    ]
-    source_count = len({source["url"] for source in sources})
-    thin = min(band["offers_used"], source_count) < 3
-    low_per_gb = _number(band["low_thb_per_gb"])
-    high_per_gb = _number(band["high_thb_per_gb"])
-    if thin or low_per_gb is None or high_per_gb is None or not 0 < low_per_gb <= high_per_gb:
-        return None, thin
-
-    return {
-        "source": "market_range",
-        "was_thb": option["was_thb"],
-        "now_thb": option["now_thb"],
-        "low_thb": float(low_per_gb * promise),
-        "high_thb": float(high_per_gb * promise),
-        "date": band["date"],
-        "sources": sources,
-    }, False
-
-
-def _price_reasons(market):
-    now = _number(market["now_thb"])
-    was = _number(market["was_thb"])
-    low = _number(market["low_thb"])
-    high = _number(market["high_thb"])
+def _price_reasons(market, currency):
+    key = currency.lower()
+    now = _number(market[f"now_{key}"])
+    was = _number(market[f"was_{key}"])
+    low = _number(market[f"low_{key}"])
+    high = _number(market[f"high_{key}"])
     if now is None or now < 0:
         return {}
     result = {}
@@ -119,7 +43,7 @@ def _challenge_sources(evidence):
     return sources
 
 
-def _confidence(deciding_evidence, all_evidence, market, thin, kb, uncertain, as_of, challenges, missing,
+def _confidence(deciding_evidence, all_evidence, market, thin, reference_matched, uncertain, as_of, challenges, missing,
                 extra_sources=frozenset(), *, profile: CategoryProfile):
     reviews = [item for item in deciding_evidence if item["source"] == "review"]
     storage = profile.category == "storage"
@@ -140,7 +64,7 @@ def _confidence(deciding_evidence, all_evidence, market, thin, kb, uncertain, as
         (any(item.get("image_type") == "os_properties" for item in reviews)
          and all(not item.get("image_ref") or item.get("image_type") == "os_properties"
                  for item in reviews), -10, "Image evidence is OS-screen only"),
-        (thin or kb is None, -10, "Market range is thin or the KB row is missing"),
+        (thin or not reference_matched, -10, "Market range is thin or the KB row is missing"),
     )
     adjustments = [
         {"points": points, "reason": reason} for applies, points, reason in factors if applies
@@ -193,7 +117,7 @@ def _checked_review_ids(listing, option, findings):
     }
 
 
-def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profile):
+def _build_flag(listing, option, claim, reference_source, findings, as_of, challenges, profile, checks_complete):
     storage = profile.category == "storage"
     promise_key = "promise_gb" if storage else "promise_value"
     text_key = "capacity_text" if storage else "measurement_text"
@@ -203,10 +127,6 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
     unclear = claim.get(unclear_key, False) or (numeric and (promise is None or promise <= 0))
     if not storage:
         unclear = unclear or option.get(unclear_key, False)
-    kb = None
-    if storage:
-        has_claim_identity = any(claim.get(field) for field in ("brand", "product_line", "type"))
-        kb = _find_kb(claim, rows) if has_claim_identity else _captured_kb(listing, rows)
     attribute = profile.attribute
     tolerance = format((profile.tolerance * 100).normalize(), "f")
     bounds = f"below {tolerance}%"
@@ -219,7 +139,6 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
     evidence = {}
     missing = []
     market = None
-    thin = False
 
     def add(question, reason, items):
         reasons.setdefault(question, []).append(reason)
@@ -231,28 +150,27 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
         }])
         missing.append(f"Confirm the {attribute} advertised for this option")
         promise = None
-    if kb is None:
+    references = reference_source.resolve(listing, claim, promise)
+    if not references.matched:
         missing.append("Find an approved reference for this brand, product line and type")
     elif promise is not None:
-        market, thin = _market_evidence(kb, promise, option)
-        if market:
-            for question, reason in _price_reasons(market).items():
+        if references.market:
+            market = references.market.flag_evidence(promise, option)
+            for question, reason in _price_reasons(market, references.market.currency).items():
                 add(question, reason, [market])
         else:
-            missing.append("Capture at least 3 comparable official Mall offers for this capacity")
+            missing.append(f"Capture at least 3 comparable official Mall offers for this {attribute}")
 
-        brand_page = kb["brand_page"]
-        if brand_page and brand_page["date"] and brand_page["url"] and brand_page["capacities_gb"]:
-            if promise not in map(_number, brand_page["capacities_gb"]):
-                add("Q2", "The brand page does not list this capacity", [
-                    {**brand_page, "source": "brand_page", "promise_gb": float(promise)},
+        if references.official:
+            if promise not in references.official.values:
+                add("Q2", f"The brand page does not list this {attribute}", [
+                    references.official.flag_evidence(promise),
                 ])
-        elif kb["mall_capacities_gb"] and promise not in map(_number, kb["mall_capacities_gb"]):
-            add("Q4", "This capacity was not observed in official Mall offers", [{
-                "source": "mall_capacities", "capacities_gb": kb["mall_capacities_gb"],
-                "sources": kb["mall_sources"],
-            }])
-            missing.append("Check the manufacturer's dated capacity list for this line")
+        elif references.mall and promise not in references.mall.values:
+            add("Q4", f"This {attribute} was not observed in official Mall offers", [
+                references.mall.flag_evidence(promise),
+            ])
+            missing.append(f"Check the manufacturer's dated {attribute} list for this line")
 
     outside_tolerance, unverified, mismatches, matched_count, checked_count, uncertain = review_evidence(
         listing, option, promise, findings, profile=profile,
@@ -289,10 +207,14 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
         "checked_text_reviews": checked_count,
     }
     if deciding is None:
-        deciding = "Q5" if matched_count >= 10 and checked_count == matched_count else "grey"
+        enough_checked_reviews = checks_complete and matched_count >= 10 and checked_count == matched_count
+        deciding = "Q5" if enough_checked_reviews else "grey"
         if deciding == "Q5":
             add("Q5", "No flags found in the matched reviews", [count_evidence])
         else:
+            if not checks_complete:
+                add("grey", "AI checks are incomplete", [count_evidence])
+                missing.append("Complete the AI checks before clearing this option")
             if matched_count < 10:
                 add("grey", "Not enough matched text reviews", [count_evidence])
                 missing.append(f"Collect {10 - matched_count} more matched text reviews")
@@ -329,7 +251,8 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profi
         "evidence": all_evidence,
         "verdict": "unsure",
         "confidence": _confidence(
-            evidence[deciding], all_evidence, market, thin, kb, uncertain, as_of, challenges, missing,
+            evidence[deciding], all_evidence, market, references.thin, references.matched,
+            uncertain, as_of, challenges, missing,
             _checked_review_ids(listing, option, findings) if deciding == "Q5" else frozenset(),
             profile=profile,
         ),
@@ -345,19 +268,20 @@ def queue_key(flag):
 
 def build_flags(
     listing, kb_rows=(), findings=(), claims=(), *, as_of=None, challenges=None,
-    profile: CategoryProfile | None = None,
+    profile: CategoryProfile | None = None, allow_draft: bool = False,
+    checks_complete: bool = True,
 ):
     """Evaluate every option using the active profile, defaulting to storage."""
-    profile = profile or load_profile()
+    profile = require_profile_approval(profile or load_profile(), allow_draft=allow_draft)
     as_of = str(as_of or datetime.now(ZoneInfo("Asia/Bangkok")).date())[:10]
     claims_by_option = {claim["option_id"]: claim for claim in claims}
     challenges_by_option = challenges or {}
-    kb_rows = tuple(kb_rows)
+    reference_source = reference_source_for(profile.category, kb_rows)
     findings = tuple(findings)
     return sorted((
         _build_flag(
-            listing, option, claims_by_option.get(option["option_id"], {}), kb_rows,
-            findings, as_of, challenges_by_option.get(option["option_id"], ()), profile,
+            listing, option, claims_by_option.get(option["option_id"], {}), reference_source,
+            findings, as_of, challenges_by_option.get(option["option_id"], ()), profile, checks_complete,
         )
         for option in listing["options"]
     ), key=queue_key)
