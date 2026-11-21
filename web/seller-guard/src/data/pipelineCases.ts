@@ -45,6 +45,8 @@ export interface PipelineCase {
     was_thb?: number | null
     now_thb?: number
     photo_count?: number
+    listing_images?: string[]
+    buyer_images?: string[]
   }
 }
 
@@ -82,7 +84,9 @@ function isPipelineCase(value: unknown): value is PipelineCase {
       Number.isFinite(adjustment.points) && typeof adjustment.reason === 'string') &&
     Array.isArray(value.evidence) && value.evidence.every((entry: unknown) =>
       record(entry) && typeof entry.source === 'string') &&
-    record(value.capture)
+    record(value.capture) &&
+    (value.capture.listing_images === undefined || strings(value.capture.listing_images)) &&
+    (value.capture.buyer_images === undefined || strings(value.capture.buyer_images))
 }
 
 export async function loadCapturedCases(signal: AbortSignal): Promise<CaptureFeed> {

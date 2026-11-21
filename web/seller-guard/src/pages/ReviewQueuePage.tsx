@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { ExternalLink } from 'lucide-react'
 import { Link, useLocation, useMatch, useSearchParams } from 'react-router-dom'
 import { PageHeader } from '../components/layout/PageHeader'
 import { AddCaseDrawer } from '../components/investigations/AddCaseDrawer'
@@ -265,12 +266,28 @@ export function ReviewQueuePage() {
                 const score = finding?.confidence ?? item.confidence
                 const [primaryReason, ...otherReasons] = item.pipeline?.reasons ?? []
                 const fallbackFinding = finding ? signals[finding.signal].label : 'Insufficient evidence'
+                const shop = item.shopee?.shop
                 return (
                   <tr key={item.id} className="cursor-pointer border-b border-line transition-colors hover:bg-peach/60 focus-within:bg-peach/60"
-                    onClick={(event) => openCase(item, event.currentTarget.querySelector('button'))}>
+                    onClick={(event) => {
+                      if (event.target instanceof Element && event.target.closest('a')) return
+                      openCase(item, event.currentTarget.querySelector('button'))
+                    }}>
                     <td className="py-3 pl-6 pr-4">
-                      <strong className="block">{item.title}</strong>
+                      <strong>
+                        {item.title}
+                        {item.shopee && <a href={item.shopee.url} target="_blank" rel="noopener noreferrer"
+                          aria-label={`Open ${item.title} on Shopee (opens in a new tab)`}
+                          className="focus-ring ml-1 inline-grid size-8 place-items-center rounded-md align-middle text-[#a82d18] hover:bg-peach">
+                          <ExternalLink className="size-4" aria-hidden="true" />
+                        </a>}
+                      </strong>
                       <span className="caption-5 block text-muted">{[item.sellerName, item.variant, item.caseLabel].filter(Boolean).join(' · ')}</span>
+                      {shop && <a href={shop.url} target="_blank" rel="noopener noreferrer"
+                        aria-label={`Shop ${shop.id} (opens in a new tab)`}
+                        className="focus-ring mt-2 inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1 text-xs font-semibold text-[#a82d18] hover:bg-peach">
+                        Shop {shop.id} <ExternalLink className="size-3" aria-hidden="true" />
+                      </a>}
                     </td>
                     <td className="px-4 py-3"><Badge tone={priorities[item.priority].tone}>{priorities[item.priority].label}</Badge></td>
                     <td className="px-4 py-3 font-semibold tabular-nums">{score === null ? '—' : `${score}%`}</td>

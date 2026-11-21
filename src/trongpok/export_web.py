@@ -1,15 +1,18 @@
 """Publish the pipeline's local option reports for the Seller Guard browser demo."""
 
 import argparse
+from collections.abc import Callable
+from functools import cache
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import NotRequired, TypedDict
+from urllib.parse import quote, urlsplit
 
 from pydantic import TypeAdapter, ValidationError
 
 from .errors import ReaderInputError
 from .paths import within_directory, write_json
-from .reviewer_data import load_listings
+from .reviewer_data import load_listings, resolve_thumbnail
 from .rules import queue_key
 from .shapes import Adjustment, Flag, Listing, Number, Question
 
@@ -19,6 +22,7 @@ RESULTS_OUTPUT = DEFAULT_OUTPUT.with_name("results.md")
 PRIORITY = {"RED": "red", "YELLOW": "yellow", "GREEN": "green", "GREY": "unknown"}
 SIGNAL = {"Q3": "capacity", "Q2": "unsupported", "Q1": "price", "Q4": "reports", "Q5": "clear"}
 _FLAGS = TypeAdapter(list[Flag])
+ImageLink = Callable[[str], str | None]
 
 
 class WebCapture(TypedDict):
@@ -26,6 +30,8 @@ class WebCapture(TypedDict):
     was_thb: NotRequired[Number | None]
     now_thb: NotRequired[Number]
     photo_count: NotRequired[int]
+    listing_images: NotRequired[list[str]]
+    buyer_images: NotRequired[list[str]]
 
 
 class WebCase(TypedDict):
@@ -46,7 +52,7 @@ class WebCase(TypedDict):
     capture: WebCapture
 
 
-def _web_case(flag: Flag, listing: Listing | None) -> WebCase:
+def _web_case(flag: Flag, listing: Listing | None, image_link: ImageLink | None) -> WebCase:
     capture: WebCapture = {}
     title = variation = None
     if listing is not None:
@@ -61,15 +67,23 @@ def _web_case(flag: Flag, listing: Listing | None) -> WebCase:
             variation = option["variation_label"] or None
             capture["was_thb"] = option["was_thb"]
             capture["now_thb"] = option["now_thb"]
-            photos = set(filter(None, listing["listing_images"]))
+            listing_images = set(filter(None, listing["listing_images"]))
+            buyer_images: set[str] = set()
             # The pipeline counts reviews only when the variation names one exact option.
             if variation and sum(item["variation_label"] == variation for item in listing["options"]) == 1:
-                photos.update(
+                buyer_images.update(
                     photo for review in listing["reviews"]
                     if review["variation_label"] == variation
                     for photo in review["images"] if photo
                 )
-            capture["photo_count"] = len(photos)
+            capture["photo_count"] = len(listing_images | buyer_images)
+            if image_link is not None:
+                links = _image_links(listing_images, image_link)
+                if links:
+                    capture["listing_images"] = links
+                links = _image_links(buyer_images, image_link)
+                if links:
+                    capture["buyer_images"] = links
 
     signal = SIGNAL.get(flag["deciding"])
     score = flag["confidence"]
@@ -92,7 +106,40 @@ def _web_case(flag: Flag, listing: Listing | None) -> WebCase:
     }
 
 
-def build_cases(flags_dir: Path, listings_dir: Path) -> list[WebCase]:
+def _image_links(refs: set[str], image_link: ImageLink) -> list[str]:
+    return sorted({link for ref in refs if (link := image_link(ref)) is not None})
+
+
+def _image_link_resolver(listings_dir: Path, destination_dir: Path) -> ImageLink:
+    listings_dir = listings_dir.resolve()
+    root = Path.cwd()
+
+    @cache
+    def image_link(ref: str) -> str | None:
+        try:
+            url = urlsplit(ref)
+        except ValueError:
+            return None
+        if url.scheme in {"https", "http"}:
+            if url.hostname and not url.hostname.endswith(".invalid") and url.username is None:
+                return ref
+            return None
+
+        source = resolve_thumbnail(ref, listings_dir, root)
+        if source is None:
+            return None
+        relative = source.relative_to(listings_dir)
+        destination = destination_dir / relative
+        if destination.resolve() != destination:
+            raise ReaderInputError("Evidence image destinations must not use symbolic links")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        _publish_bytes(destination, source.read_bytes())
+        return f"/data/images/{quote(relative.as_posix())}"
+
+    return image_link
+
+
+def build_cases(flags_dir: Path, listings_dir: Path, *, image_link: ImageLink | None = None) -> list[WebCase]:
     """Join existing flags to their option metadata in the pipeline's queue order."""
     listings, issues = load_listings(listings_dir)
     if issues:
@@ -114,7 +161,18 @@ def build_cases(flags_dir: Path, listings_dir: Path) -> list[WebCase]:
                 raise ReaderInputError(f"Invalid confidence score in {path.name}")
             flags[key] = flag
 
-    return [_web_case(flag, listings.get(flag["listing_id"])) for flag in sorted(flags.values(), key=queue_key)]
+    return [_web_case(flag, listings.get(flag["listing_id"]), image_link) for flag in sorted(flags.values(), key=queue_key)]
+
+
+def _publish_bytes(destination: Path, content: bytes) -> None:
+    with NamedTemporaryFile(dir=destination.parent, delete=False) as temp:
+        temporary = Path(temp.name)
+        try:
+            temp.write(content)
+            temp.close()
+            temporary.replace(destination)
+        finally:
+            temporary.unlink(missing_ok=True)
 
 
 def _publish_results() -> None:
@@ -128,14 +186,7 @@ def _publish_results() -> None:
         content = source.read_bytes()
     except FileNotFoundError:
         return
-    with NamedTemporaryFile(dir=destination.parent, delete=False) as temp:
-        temporary = Path(temp.name)
-        try:
-            temp.write(content)
-            temp.close()
-            temporary.replace(destination)
-        finally:
-            temporary.unlink(missing_ok=True)
+    _publish_bytes(destination, content)
 
 
 def main() -> None:
@@ -150,9 +201,11 @@ def main() -> None:
         output = within_directory(args.output, Path.cwd())
         if output.suffix != ".json":
             raise ReaderInputError("The cases output must be a JSON file")
-        cases = build_cases(args.flags_dir, args.listings_dir)
+        default_output = output == Path.cwd() / DEFAULT_OUTPUT
+        image_link = _image_link_resolver(args.listings_dir, output.parent / "images") if default_output else None
+        cases = build_cases(args.flags_dir, args.listings_dir, image_link=image_link)
         output.parent.mkdir(parents=True, exist_ok=True)
-        if not args.no_results and output == Path.cwd() / DEFAULT_OUTPUT:
+        if not args.no_results and default_output:
             _publish_results()
         write_json(output, cases)
     except (ReaderInputError, OSError, ValueError) as error:
