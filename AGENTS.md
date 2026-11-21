@@ -31,7 +31,7 @@ The design is agreed. Values marked **default** are confirmed by the team in 5 m
 | Stack | §6 | All |
 | Owners | One each: capture + KB · LLM readers · rules + queue UI · evaluation + pitch | — |
 | Hand-in format, demo length | Ask the organisers at 09:00; write the answer in `README.md` | Demo |
-| Open rule risks | Decide the three edge cases in issue #1 (eval label, rule order, 2-price check) | §4.2, §4.3, §4.5, §5 |
+| Rule edge cases (issue #1) | **Decided by the lead: 1A, 2A, 3A** (eval split by deciding question · deciding reason Q3 > Q2 > Q1 · 2-price second clause below 0.75 × `L`). Already written into this file | §4.2, §4.3, §4.5, §5 |
 
 ### 0.3 Working agreement for every task (team rules, partly from OpenAI's GPT-6.2 guidance)
 1. **Make reasonable, reversible assumptions and keep going.** State each assumption in one line. Stop and ask only for a scope change, a real blocker, a decision only the team can make, or anything destructive (deleting data, force-pushing, rewriting history).
@@ -181,6 +181,8 @@ flowchart TD
 
 **Exact rules.** The first rule that fires sets the colour; every other triggered reason is still listed on the card. All values are per option, keyed by `(listing_id, option_id)`.
 
+**Deciding reason.** Evaluate Q1, Q2 and Q3 every time. When more than one RED rule fires, the colour is still RED and the **deciding reason** is the strongest one: **Q3 (buyers) > Q2 (brand page) > Q1 (price)**. The path, the confidence factors (§4.5) and the evaluation split (§5) use the deciding reason; the other reasons stay listed on the card. For YELLOW, GREEN and GREY the deciding reason is the rule that set the colour.
+
 Before the tree:
 - `promise_gb`: capacity from the option label (1 TB = 1,000 GB). Missing, unclear or conflicting with the title → `capacity_unclear = true`.
 - `kb`: the KB row whose brand (or alias), product line and type match exactly; otherwise none.
@@ -190,7 +192,7 @@ Before the tree:
 
 | Step | Fires when | Result |
 |---|---|---|
-| Q1 | `L` exists and (`now < L/2`, or `was` exists and `now < L` and `was` is outside [`L`, `H`]) | RED |
+| Q1 | `L` exists and (`now < L/2`, or `was` exists and `now < 0.75 × L` and `was` is outside [`L`, `H`]) | RED |
 | Q2 | the dated brand-page capacity list for the exact line excludes `promise_gb` | RED |
 | Q2 (Mall only) | the size is absent from the Mall-observed capacities but no brand-page list exists | add a YELLOW reason; continue to Q3 |
 | Q3 | 2 or more separate buyers each report a measured shortfall | RED |
@@ -219,10 +221,12 @@ Example: a 1 TB option; market range ฿1.8–2.4 per GB → `L` = ฿1,800, `H`
 | Fake product | ฿2,990 | ฿299 | both outside, now below range → RED |
 | Gap case | ฿2,000 ✓ | ฿299 | now below half of `L` (฿900) → RED |
 | Overpriced | ฿3,500 | ฿3,000 | both above → no price flag |
+| Reseller undercut | ฿2,990 | ฿1,500 | `was` outside, but `now` ≥ 0.75 × `L` (฿1,350) → Q1 does not fire; Q4 "price is low" → YELLOW |
 
 - Use the option's price before personal coupons, coins and shipping.
 - Compare at the same type and capacity: per-GB prices usually differ between sizes.
 - "Price RED" means review first, not proof. A person decides.
+- Why 0.75 × `L` in the second clause: `L` is the **lowest** Mall "now" price, so a reseller slightly under Mall with an inflated "was" is common and should not be RED. It gets YELLOW "price is low" instead (decided in issue #1, option 3A).
 
 ### 4.4 Reading buyers' numbers (Q3, Q4)
 
@@ -334,7 +338,8 @@ kb_row:   brand, aliases[], product_line, type, mall_capacities_gb[], brand_page
 finding:  review_id, option_id, complaint (capacity_short | capacity_no_number | wrong_item | other | none),
           quantity | null, unit (MB | GB | TB | GiB | TiB | none), role, bytes | null, ratio | null,
           quote, image_ref | null, image_type | null, read_status (ok | cannot_read)
-flag:     listing_id, option_id, colour, path[], reasons[], evidence[], verdict ("unsure" | "mismatch" | "no_mismatch"),
+flag:     listing_id, option_id, colour, deciding (Q1 | Q2 | Q3 | Q4 | Q5 | grey), path[], reasons[], evidence[],
+          verdict ("unsure" | "mismatch" | "no_mismatch"),
           confidence {score, base, adjustments[] {points, reason}, missing_evidence[], rounds},
           reviewer_decision {decision: accepted | dismissed, reason, at} | null
 ```
@@ -351,6 +356,8 @@ flag:     listing_id, option_id, colour, path[], reasons[], evidence[], verdict 
 8. 2 TB option, "1.81 TB" → not a shortfall.
 9. A number exactly at 85% → not a shortfall.
 10. Accept a flag, restart the app → the decision is still saved.
+11. 1 TB option, range ฿1,800–2,400: was 2,990 / now 1,500 → no Q1 RED (now ≥ ฿1,350); Q4 "price is low" → YELLOW. Was 2,990 / now 1,200 → RED.
+12. An option where Q1 (price) and Q3 (4 separate measured buyers) both fire → RED, deciding reason Q3, the "+15: 2 or more separate buyers" factor applies, and the price reason is still listed.
 
 ---
 
@@ -359,7 +366,8 @@ flag:     listing_id, option_id, colour, path[], reasons[], evidence[], verdict 
 **Evaluation (Phase 6)**
 - Freeze all thresholds, prompts and baseline cut-offs **before** the evaluation run.
 - A teammate who did not write the rules labels each test option blind: "buyers report a real shortfall: yes / no".
-- Tool positive = RED (also report RED + YELLOW). Baselines on the same options: share of 1–2-star reviews (cut-off fixed in advance) · Shopee complaint tag present · one ChatGPT prompt given the same copied listing.
+- **Split by deciding reason (issue #1, option 1A).** The blind label asks about buyers, so only REDs whose deciding reason is **Q3** are scored against it as the tool's positive (also report Q3 RED + YELLOW). REDs decided by **Q1 (price)** or **Q2 (brand page)** are reported as separate counts with the label each option got, and are never counted as false alarms of the buyer check.
+- Baselines on the same options: share of 1–2-star reviews (cut-off fixed in advance) · Shopee complaint tag present · one ChatGPT prompt given the same copied listing.
 - Report true positives, misses and false alarms **with the sample size**, wins/ties/losses per option, confidence against correctness by score band, and photo-reading accuracy against a person's reading. Do not claim accuracy beyond the sample.
 
 **Demo hero case:** a 64 GB flash drive where 4 buyers wrote "only 29 GB / 30.5 GB": RED with the 4 quotes, while price and stars look normal (4.8 stars, 30k+ sold), so a price or star check would miss it. Show it next to a genuine card where "58 GB" stays quiet. Capture this case first; backup: a 1-buyer YELLOW. (The example shows review priority; the mismatch verdict is the reviewer's.)
@@ -412,3 +420,4 @@ flag:     listing_id, option_id, colour, path[], reasons[], evidence[], verdict 
 | KB | The source-of-truth table of brands, lines, capacities and market ranges |
 | Mall | Shopee's official brand stores |
 | H2testw / F3 | Write-and-verify tools that reveal a drive's real capacity |
+| Deciding reason | The rule shown as the reason for the colour; for RED the strongest that fired (Q3 > Q2 > Q1) |
