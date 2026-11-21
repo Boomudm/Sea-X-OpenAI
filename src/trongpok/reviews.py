@@ -35,11 +35,17 @@ _OTHER_CAPACITY_BEFORE = re.compile(
     re.IGNORECASE,
 )
 _MEASUREMENT_BEFORE = re.compile(
-    r"(?:\b(?:measured|verified|tested|actual|capacity is|corrupt after)\b|"
-    r"วัดได้|ทดสอบได้|ความจุจริง)[^,;.!?\n\d]{0,16}$",
+    r"(?:\b(?:measured|verified|tested|actual|capacity is|corrupt after|"
+    r"run|rerun|rechecked|retested|got only|got)\b|"
+    r"วัดได้|ทดสอบได้|ความจุจริง|ได้แค่)[^,;.!?\n\d]{0,16}$",
     re.IGNORECASE,
 )
-_OTHER_CAPACITY_AFTER = re.compile(r"^\s*(?:/\s*s\b|per second\b|free\b)", re.IGNORECASE)
+_OTHER_CAPACITY_AFTER = re.compile(
+    r"^\s*(?:/\s*s\b|per second\b|free\b|available space\b)",
+    re.IGNORECASE,
+)
+_ITEM_COUNT_AFTER = re.compile(r"^\s*(?:drives?|pieces?)\b", re.IGNORECASE)
+_RERUN_AFTER = re.compile(r"^\s*(?:on|in) (?:a |the )?(?:second run|rerun|retest)\b", re.IGNORECASE)
 _ALTERNATIVE = re.compile(r"\s*(?:or|versus|vs\.?|หรือ(?:ว่า)?)\s*", re.IGNORECASE)
 _MEASURED_ROLES = {"delivered_capacity", "fails_after", "test_result"}
 _COMPLETED_IMAGE_TYPES = {
@@ -89,16 +95,32 @@ def measured_bytes(quantity: object, unit: object, capacity_text: str) -> Decima
     return number * scale
 
 
-def review_number_units(text: str, quantity: object) -> set[str]:
-    """Return units attached to the selected number. A bare number has an empty unit."""
+def _non_measurement(before: str, after: str, unit: str | None) -> bool:
+    return bool(
+        _OTHER_CAPACITY_AFTER.match(after)
+        or (unit is None and _ITEM_COUNT_AFTER.match(after))
+        or (_OTHER_CAPACITY_BEFORE.search(before) and not _MEASUREMENT_BEFORE.search(before))
+    )
+
+
+def review_number_units(text: str, quantity: object, *, measurements_only: bool = False) -> set[str]:
+    """Return the selected number's units, with an empty unit for a bare number."""
     selected = _decimal(quantity)
     if selected is None:
         return set()
-    return {
-        _unit_key(unit)
-        for number, unit in _REVIEW_NUMBER.findall(text.translate(_THAI_DIGITS))
-        if _decimal(number) == selected
-    }
+    normalized = text.translate(_THAI_DIGITS)
+    previous_end = 0
+    units = set()
+    for mention in _REVIEW_NUMBER.finditer(normalized):
+        number, unit = mention.groups()
+        before = normalized[previous_end:mention.start()]
+        after = normalized[mention.end():]
+        previous_end = mention.end()
+        if _decimal(number) == selected and (
+            not measurements_only or not _non_measurement(before, after, unit)
+        ):
+            units.add(_unit_key(unit))
+    return units
 
 
 def conflicting_review_measurements(
@@ -113,14 +135,14 @@ def conflicting_review_measurements(
         before = normalized[previous_end:mention.start()]
         previous_end = mention.end()
         after = normalized[previous_end:]
-        other_capacity = _OTHER_CAPACITY_BEFORE.search(before)
-        measured_context = _MEASUREMENT_BEFORE.search(before)
-        if (other_capacity and not measured_context) or _OTHER_CAPACITY_AFTER.match(after):
-            continue
         quantity, unit = mention.groups()
+        if _non_measurement(before, after, unit):
+            continue
         if unit is None:
             unit = _alternative_unit(mentions, index, before, after)
-            if unit is None and not measured_context:
+            if unit is None and not (
+                _MEASUREMENT_BEFORE.search(before) or _RERUN_AFTER.match(after)
+            ):
                 continue
         number = measured_bytes(quantity, unit, capacity_text)
         if number is not None:
@@ -194,9 +216,15 @@ def _finding_evidence(
                 and number < promised_bytes * Decimal("0.85")
             )
 
-    ambiguous = (
-        not image_ref and role in _MEASURED_ROLES
-        and conflicting_review_measurements(review["text"], number, capacity_text)
+    measured_text = not image_ref and role in _MEASURED_ROLES
+    excluded = measured_text and quantity is not None and not review_number_units(
+        review["text"], quantity, measurements_only=True,
+    )
+    if excluded:
+        number = quantity = None
+        complaint = False
+    ambiguous = measured_text and conflicting_review_measurements(
+        review["text"], number, capacity_text,
     )
     if ambiguous:
         number = quantity = None
@@ -209,7 +237,7 @@ def _finding_evidence(
         "date": review.get("date"),
         "quote": quote,
         "quantity": float(quantity) if quantity is not None else None,
-        "unit": "none" if ambiguous else finding.get("unit"),
+        "unit": "none" if ambiguous or excluded else finding.get("unit"),
         "role": role,
         "bytes": float(number) if number is not None else None,
         "ratio": float(number / promised_bytes) if number is not None and promised_bytes else None,

@@ -77,6 +77,11 @@ def assert_unmeasured_flag(flag, quotes):
             id="two-bare-measurements-inherit-option-unit",
         ),
         pytest.param(
+            "First run: 29. Second run: 58.",
+            "First run: 29",
+            id="bare-test-run-results",
+        ),
+        pytest.param(
             "วัดได้แค่ ๒๙ GB แต่วัดอีกครั้งได้ ๕๘ GiB",
             "วัดได้แค่ ๒๙ GB",
             id="thai-digits",
@@ -139,3 +144,25 @@ def test_legacy_saved_short_finding_cannot_hide_conflicting_review_text():
     ]
 
     assert_unmeasured_flag(build_single_flag(listing, findings), list(quotes))
+
+
+@pytest.mark.parametrize("suffix", [" free", "/s"], ids=["free-space", "speed"])
+def test_non_measurement_cannot_supply_second_buyer(suffix):
+    listing = listing_with_reviews("Measured 30.5 GB.", f"29 GB{suffix}.")
+    [option] = listing.options
+    clear_draft = draft_for(listing, 0, "Measured 30.5 GB", 30.5)
+    misread = draft_for(listing, 1, "29 GB", 29)
+
+    clear = normalize_review_draft(listing.reviews[0], option, clear_draft)
+    finding = normalize_review_draft(listing.reviews[1], option, misread)
+    assert finding.complaint == "none"
+    assert finding.quantity is finding.bytes is finding.ratio is None
+
+    legacy = Finding(
+        **misread.model_dump(), bytes=29 * 2**30, ratio=0.486,
+        image_ref=None, image_type=None, read_status="ok",
+    )
+    flag = build_single_flag(listing, [clear, legacy])
+    assert (flag["colour"], flag["deciding"]) == ("YELLOW", "Q4")
+    evidence = [item for item in flag["evidence"] if item["source"] == "review"]
+    assert [item["quote"] for item in evidence] == [clear.quote]

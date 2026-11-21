@@ -166,10 +166,19 @@ def normalize_review_draft(
         )
     quantity = draft.quantity
     unit: Unit = draft.unit
-    measurable = draft.role in {"delivered capacity", "fails after", "test result"}
+    role = draft.role
+    measurable = role in {"delivered capacity", "fails after", "test result"}
+    excluded = False
     if quantity is not None:
         unit = _quoted_review_unit(review, option, draft)
-        if measurable and (
+        excluded = measurable and not review_number_units(
+            review.text, quantity, measurements_only=True,
+        )
+        if excluded:
+            quantity = None
+            unit = "none"
+            role = "other"
+        elif measurable and (
             unit == "none" or conflicting_review_measurements(
                 review.text, measured_bytes(quantity, unit, option.capacity_text),
                 option.capacity_text or option.variation_label,
@@ -194,7 +203,9 @@ def normalize_review_draft(
         if parsed_bytes is not None and promise_gb
         else None
     )
-    if measurable and ratio is not None:
+    if excluded:
+        complaint = "none"
+    elif measurable and ratio is not None:
         complaint = "capacity_short" if ratio < 0.85 else "none"
     elif measurable or draft.complaint == "capacity_no_number":
         complaint = "capacity_no_number"
@@ -209,7 +220,7 @@ def normalize_review_draft(
         complaint=complaint,
         quantity=quantity,
         unit=unit,
-        role=draft.role,
+        role=role,
         bytes=parsed_bytes,
         ratio=ratio,
         quote=draft.quote,
