@@ -4,6 +4,8 @@ Freeze these settings before running the tool or baselines on the labeled sample
 
 ## Blind labels
 
+Use the [blind label sheet](label-sheet.md) to record labels against the captured options.
+
 1. Pick captured USB-drive options with at least one hand-copied review of the exact, unambiguous Variation. Freeze the chosen listing JSON and image files. Leave options with no matched review out of the evaluation.
 2. Have a team member who did not write the rules read only the captured listings and buyer photos. For each selected option, set `buyers_report_shortfall` to true if the matched reviews credibly report a real delivered-capacity shortfall. Read the copied evidence in context, including GB/GiB display and the kind of test. Set it to false if the reviewed evidence contains no credible report. Hide flags, model findings and baseline predictions during labeling.
 3. In `eval/labels.json`, record the labeler's name, the Bangkok freeze time in ISO 8601 format with UTC offset, and an `options` array of objects with `listing_id`, `option_id`, and `buyers_report_shortfall`. Commit this before scoring. Retain the dataset and rules commit IDs with the results.

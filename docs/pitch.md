@@ -4,25 +4,42 @@
 
 ## Run of show
 
-1. **Open with the reviewer’s problem.** “A Shopee listing can sell several capacities under one rating. Buyers’ reports of delivered capacity are buried in reviews for different options. ตรงปก Queue gives reviewers one priority colour per option, with the exact quotes, rule path and confidence.”
-2. **Open the copied listing and its 64 GB option `[listing ID / option ID pending]`.** Show the option’s Variation, then open the queue card. The target is a Q3 RED backed by four independent buyer quotes. Read one quote aloud and point to all four quotes, their dates, the normalised sizes and the rule path. Show the captured price and listing rating if verified. Open the comparison option `[ID pending]` and explain why a 58 reading for 64 GB clears the 85% threshold. If the four-buyer hero is unavailable, use a captured one-buyer YELLOW and explain what a second independent buyer report would change.
-3. **Show the two-price pair `[IDs pending]`.** On the Q1 RED card, show both prices and the dated range from at least three same-type, same-capacity official Mall offers. On the inflated-discount card, point to the paid price inside the range and the absence of a price flag. The ฿2,990/฿299 pair in [AGENTS.md §4.3](../AGENTS.md) is a rule illustration. Use captured prices for marketplace claims.
-4. **Close the review loop.** Show the initial “unsure” verdict. Act as the reviewer, accept or dismiss the flag using the on-screen evidence, and enter a reason. Reopen the queue after restarting to show the saved decision. “The colour tells the reviewer where to look first. The reviewer decides what the evidence supports.”
-5. **Show the comparison and the build evidence.** Use the committed `eval/results.md` table. Open the relevant [Codex log](codex-log/) entry and one real build-day Codex transcript `[link or excerpt pending]`. Point to a concrete contribution, the team’s decision and the verification recorded in the log.
+If the live path is still unavailable at 15:00, use the [fallback demo script](fallback-demo.md).
+
+1. **Open with the reviewer’s problem.** “A Shopee listing can sell several capacities under one rating. Reports of delivered capacity are buried in reviews for different options. ตรงปก Queue gives reviewers one priority colour per option, with the exact quotes, rule path and confidence.”
+2. **Follow the 64 GB hero `[listing and option IDs pending]`.** Start with the hand-copied listing and the option’s Variation. The AI readers extract claims, quotes and numbers. Code matches reviews to the exact option, looks up approved reference data and applies Q1–Q5. Open the queue card, read one quote aloud, and point to the four target buyer quotes, dates, normalised sizes and rule path. Show the rating and price if verified. Then show the 58-reading comparison `[IDs pending]`. If the four-buyer hero is unavailable, use a captured one-buyer YELLOW and explain what a second independent measured report would change.
+3. **Show the two-price pair `[IDs pending]`.** Open the Q1 RED card and point to both prices and the dated market range. On the inflated-discount card, show that the paid price falls inside the range. The ฿2,990/฿299 pair is a rule illustration. Use captured prices for marketplace claims. [AGENTS.md §4.3](../AGENTS.md)
+4. **Close the review loop.** Show the initial “unsure” verdict, accept or dismiss the flag, enter a reason, and reopen the queue after restarting to show the saved decision. “The colour tells the reviewer where to look first. The reviewer decides what the evidence supports.”
+5. **Show the evaluation and one real Codex transcript.** Read the verified results below. Open `[build-day transcript link or excerpt pending]` beside the matching log entry. Point to what Codex produced, what the team decided and how the team verified the change. [Codex log](codex-log/)
+
+## Rules to explain on screen
+
+- **Buyer evidence.** A promised GB is decimal (`10⁹` bytes) and a GiB is binary (`2³⁰` bytes). For an ambiguous GB reading, use the larger interpretation. On a 64 GB option, 58 × 2³⁰ bytes is about 62.3 GB, or 97% of the promise. A measured shortfall is strictly below 85%, and Q3 RED takes at least two separate buyers of that Variation. A completed H2testw or F3 test can supply a measurement. An OS Properties screen shows reported capacity.
+- **Two prices.** `L` and `H` are the lowest and highest “now” prices from at least three dated official Mall offers of the same type and capacity. Q1 fires if `now < L/2`, or if `now < 0.75 × L` and a recorded `was` is outside `[L, H]`. If Q1 clears, `L/2 ≤ now < L` adds a Q4 YELLOW reason.
+- **Deciding reason and confidence.** When multiple RED rules fire, the strongest deciding reason is **Q3 buyers > Q2 brand page > Q1 price**. The card shows the additional reasons. Confidence never changes the colour. It orders cards within each colour. [AGENTS.md §§4.2–4.6](../AGENTS.md)
 
 ## Evaluation talking points
 
-- Read the sample size, true positives, misses and false alarms for Q3 RED and for the broader buyer check with YELLOW. Compare the same options against the share of 1–2-star reviews at the preselected cutoff, the presence of a Shopee complaint tag, and one ChatGPT prompt on the same copied listing. Report wins, ties and losses for each baseline.
-- Give separate Q1 and Q2 RED counts with their blind buyer labels. Show correctness by confidence band and photo-reading agreement with a person, including the denominator for each.
-- Results are pending. Use the same verified values in the talk and slides, including any unavailable comparisons. If the evaluation is still pending at judging, say so and show the working review path. Test fixtures are for testing.
+**Sample** · `[N blind-labeled options across M listings pending]`.
+
+| Method | True positives | Misses | False alarms | Q3 RED wins / ties / losses |
+|---|---|---|---|---|
+| Q3 RED | `[pending]` | `[pending]` | `[pending]` | — |
+| Q3 RED + YELLOW | `[pending]` | `[pending]` | `[pending]` | — |
+| 1–2-star share at the preselected cutoff | `[pending]` | `[pending]` | `[pending]` | `[W / T / L pending]` |
+| Shopee complaint tag | `[pending]` | `[pending]` | `[pending]` | `[W / T / L pending]` |
+| One ChatGPT prompt on the same captured input | `[pending]` | `[pending]` | `[pending]` | `[W / T / L pending]` |
+
+- Q1 and Q2 RED counts with blind buyer labels `[pending]`. Confidence-band correctness `[correct / total per band pending]`. Photo-reading agreement with a person `[matches / photos pending]`.
+- Use the same verified values in the talk and slides. If the evaluation is still pending at judging, say so and show the working review path. [Evaluation results](../eval/results.md)
 
 ## Judges’ Q&A
 
 | Question | Answer |
 |---|---|
-| Which build direction did you choose? | Deep Domain AI. The readers extract evidence and the rules account for capacity units, option matching and the market range. The queue puts that evidence into the reviewer’s workflow. |
+| Which direction, and why? | Deep Domain AI. The readers extract evidence and the rules account for capacity units, option matching and the market range. The queue puts that evidence into the reviewer’s workflow. |
 | How do you know a review is about that option? | We match its captured Variation to the option, skip unmatched or ambiguous reviews, and count each masked buyer once. Identical review text across buyer names counts once. |
-| Would 58 GB on a genuine 64 GB drive trigger a shortfall? | A 58 reading interpreted as GiB is about 62.3 decimal GB, or 97% of the promise, which clears the threshold. For an image alone, a completed H2testw or F3 write-and-verify test can supply a measured number. |
-| What are your false alarms and sample size? | Read the Q3 RED counts and the denominator from `eval/results.md`. A teammate who did not write the rules labels whether buyers report a shortfall. Q1 price and Q2 brand-page REDs have their own rows. Any conclusions apply to this sample. |
-| Did you tune 85% after seeing the results? | The rule is strictly below 85%, as specified before evaluation in [AGENTS.md §4.4](../AGENTS.md). Show the pre-run freeze of the thresholds, prompts and baseline cut-offs alongside the results. |
-| How did you use Codex? | Show the selected transcript and matching log entry. Point out what Codex produced, what the team decided, and the specific check that verified the change. |
+| Is a genuine 64 GB card showing 58 GB flagged? | The capacity reading clears the threshold. At 58 GiB it’s about 62.3 decimal GB, or 97% of the promise. |
+| What are your false alarms and sample size? | Give the Q3 RED false alarms and sample size from the results. A teammate who did not write the rules blind-labels whether buyers report a shortfall. The report shows Q1 and Q2 RED counts alongside their blind labels. [Evaluation results](../eval/results.md) |
+| Did you tune 85% after seeing the results? | The rule was specified before evaluation. Show the pre-run freeze of thresholds, prompts and baseline cut-offs. [Evaluation protocol](../eval/protocol.md) |
+| Show one Codex transcript. | Open the selected transcript and matching log entry. Point to the contribution, the team decision and the verification. |
