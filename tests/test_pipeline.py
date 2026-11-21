@@ -298,6 +298,7 @@ def test_pending_profile_refused_in_direct_pipeline_without_opt_in(tmp_path):
 
 
 def test_watch_cli_and_queue_message_accept_only_saved_captures(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
     client = ScriptedClient()
     state = tmp_path / "jobs.db"
     captures = tmp_path / "captures"
@@ -653,6 +654,7 @@ def test_nonreference_profiles_ignore_price_reference_and_unused_metadata_change
 def test_watch_ignores_older_duplicate_listing_file_but_manual_replay_remains_valid(
     tmp_path, monkeypatch, capsys, old_filename, new_filename,
 ):
+    monkeypatch.chdir(tmp_path)
     db = tmp_path / "jobs.db"
     captures = tmp_path / "captures"
     captures.mkdir()
@@ -680,6 +682,7 @@ def test_watch_ignores_older_duplicate_listing_file_but_manual_replay_remains_va
 
 
 def test_watch_enriches_queue_snapshot_once_after_scanning_files(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
     captures = tmp_path / "captures"
     captures.mkdir()
     listing_ids = ("pipeline-first", "pipeline-second")
@@ -821,3 +824,73 @@ def test_queue_retains_the_actual_analysis_day_and_dated_market_adjustment(tmp_p
     assert pipeline.queue() == [flag]
     assert pipeline.process_listing(listing) == [flag]
     assert len(client.calls) == calls
+
+
+
+@pytest.mark.parametrize("symlink", [False, True])
+def test_pipeline_message_refuses_captures_outside_the_workspace(tmp_path, monkeypatch, symlink):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    monkeypatch.chdir(workspace)
+    message = tmp_path / "sample-message.json"
+    message.write_text(json.dumps({"listing": clean_capture()}), encoding="utf-8")
+    if symlink:
+        alias = workspace / "sample-message.json"
+        alias.symlink_to(message)
+        message = alias
+    client = ScriptedClient()
+    monkeypatch.setattr(pipeline_module, "PipelineResponsesClient", lambda: client)
+    monkeypatch.setattr(sys, "argv", ["trongpok-pipeline", "--message", str(message)])
+
+    with pytest.raises(SystemExit) as error:
+        main()
+
+    assert error.value.code == 2
+    assert client.calls == []
+    assert not (workspace / "pipeline.sqlite3").exists()
+
+
+def test_pipeline_message_reads_in_workspace_regular_json(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    incoming = tmp_path / "incoming"
+    incoming.mkdir()
+    message = incoming / "sample-message.json"
+    message.write_text(json.dumps({"listing": clean_capture()}), encoding="utf-8")
+    monkeypatch.setattr(pipeline_module, "PipelineResponsesClient", ScriptedClient)
+    monkeypatch.setattr(sys, "argv", ["trongpok-pipeline", "--message", str(message)])
+
+    main()
+
+    [flag] = json.loads(capsys.readouterr().out)
+    assert flag["colour"] == "GREEN"
+
+
+def test_pipeline_message_requires_a_json_filename(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    note = tmp_path / "sample-message.txt"
+    note.write_text(json.dumps({"listing": clean_capture()}), encoding="utf-8")
+    client = ScriptedClient()
+    monkeypatch.setattr(pipeline_module, "PipelineResponsesClient", lambda: client)
+    monkeypatch.setattr(sys, "argv", ["trongpok-pipeline", "--message", str(note)])
+
+    with pytest.raises(SystemExit) as error:
+        main()
+
+    assert error.value.code == 2
+    assert client.calls == []
+
+
+def test_pipeline_cli_refuses_state_database_outside_the_workspace(tmp_path, monkeypatch):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    monkeypatch.chdir(workspace)
+    external_state = tmp_path / "sample-state.sqlite3"
+    monkeypatch.setattr(sys, "argv", [
+        "trongpok-pipeline", "--queue", "--state-db", str(external_state),
+    ])
+
+    with pytest.raises(SystemExit) as error:
+        main()
+
+    assert error.value.code == 2
+    assert not external_state.exists()

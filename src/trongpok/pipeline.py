@@ -6,11 +6,14 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import re
+import stat
 import sys
 import time
 from collections import defaultdict
 from collections.abc import Callable, Iterable
+from contextlib import ExitStack
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from functools import cache
@@ -25,7 +28,7 @@ from .cache import ReviewCache
 from .capture import normalize_marketplace_fields
 from .decisions import load_decision
 from .errors import InvalidReaderOutput, ReaderInputError
-from .paths import listing_filename
+from .paths import listing_filename, within_directory
 from .pipeline_ai import (
     CLAIM_VERSION,
     CONFIDENCE_VERSION,
@@ -322,17 +325,19 @@ class Pipeline:
                         continue
         return listing_id
 
-    def process_file(self, path: str | Path) -> list[dict]:
-        return self.process_listing(_read_capture_file(Path(path)))
+    def process_file(self, path: str | Path, *, root: Path | None = None) -> list[dict]:
+        """Replay a capture inside the current workspace or an explicitly selected root."""
+        return self.process_listing(_read_capture_file(Path(path), root=root or Path.cwd()))
 
     def scan_watch_directory(self, directory: Path) -> None:
         """Admit the newest valid captures before any watched jobs can use the model."""
+        directory = directory.resolve()
         latest: dict[str, tuple[str | None, list[dict]]] = {}
         for path in sorted(directory.glob("*.json")):
             if path.is_symlink() or not path.is_file():
                 continue
             try:
-                revision, listing = self._prepare_capture(_read_capture_file(path))
+                revision, listing = self._prepare_capture(_read_capture_file(path, root=directory))
             except (ReaderInputError, ValueError, OSError):
                 print("A watched capture could not be read", file=sys.stderr)
                 continue
@@ -616,9 +621,28 @@ class Pipeline:
         return flag, 3
 
 
-def _read_capture_file(path: Path) -> dict:
-    with path.open("rb") as source:
-        raw = source.read(_MAX_CAPTURE_BYTES + 1)
+def _read_capture_file(path: Path, *, root: Path) -> object:
+    root = root.resolve()
+    candidate = within_directory(path, root)
+    if path.suffix.lower() != ".json" or candidate.suffix.lower() != ".json":
+        raise ReaderInputError("Capture inputs must be JSON files")
+    relative = candidate.relative_to(root)
+    # Open each validated component beneath the previous directory descriptor.
+    # No component can redirect the read if it is swapped for a symlink.
+    directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    file_flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+    with ExitStack() as handles:
+        directory_fd = os.open(root, directory_flags)
+        handles.callback(os.close, directory_fd)
+        for part in relative.parts[:-1]:
+            directory_fd = os.open(part, directory_flags, dir_fd=directory_fd)
+            handles.callback(os.close, directory_fd)
+        file_fd = os.open(relative.name, file_flags, dir_fd=directory_fd)
+        handles.callback(os.close, file_fd)
+        if not stat.S_ISREG(os.fstat(file_fd).st_mode):
+            raise ReaderInputError("Capture inputs must be regular files")
+        with os.fdopen(file_fd, "rb", closefd=False) as source:
+            raw = source.read(_MAX_CAPTURE_BYTES + 1)
     if len(raw) > _MAX_CAPTURE_BYTES:
         raise ReaderInputError("Captured JSON exceeds the 2 MB pipeline limit")
     return json.loads(raw)
@@ -641,26 +665,36 @@ def main() -> None:
     args = parser.parse_args()
     if (
         not math.isfinite(args.interval) or args.interval <= 0
-        or (args.watch is not None and not args.watch.is_dir())
         or (args.once and args.watch is None)
     ):
         parser.error("Provide an existing watch directory and positive interval; --once requires --watch")
 
     try:
+        workspace = Path.cwd().resolve()
+        watch = within_directory(args.watch, workspace) if args.watch is not None else None
+        if watch is not None and not watch.is_dir():
+            raise ReaderInputError("Select an existing workspace watch directory")
+        state_db = within_directory(args.state_db, workspace)
+        decisions_db = within_directory(args.decisions_db, workspace)
+        message = _read_capture_file(args.message, root=workspace) if args.message is not None else None
         profile = load_profile(args.profile, allow_draft=args.allow_draft)
-        kb_rows = _read_capture_file(args.kb) if profile.category == "storage" and args.kb.is_file() else ()
+        kb_rows = ()
+        if profile.category == "storage":
+            kb_path = within_directory(args.kb, workspace)
+            if kb_path.is_file():
+                kb_rows = _read_capture_file(kb_path, root=workspace)
         pipeline = Pipeline(
-            args.state_db, client=PipelineResponsesClient(), profile=profile, allow_draft=args.allow_draft,
-            kb_rows=kb_rows, decisions_db=args.decisions_db, budget_microusd=args.budget_microusd,
+            state_db, client=PipelineResponsesClient(), profile=profile, allow_draft=args.allow_draft,
+            kb_rows=kb_rows, decisions_db=decisions_db, budget_microusd=args.budget_microusd,
         )
         if args.queue:
             print(_json(pipeline.queue()))
         elif args.message is not None:
-            print(_json(pipeline.process_message(_read_capture_file(args.message))))
+            print(_json(pipeline.process_message(message)))
         else:
             previous = ""
             while True:
-                pipeline.scan_watch_directory(args.watch)
+                pipeline.scan_watch_directory(watch)
                 snapshot = _json(pipeline.queue())
                 if snapshot != previous:
                     print(snapshot, flush=True)
