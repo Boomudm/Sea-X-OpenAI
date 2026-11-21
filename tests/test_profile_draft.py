@@ -194,3 +194,13 @@ def test_profile_created_during_request_survives_publication(tmp_path: Path):
 
     assert list(tmp_path.iterdir()) == [destination]
     assert destination.read_text(encoding="utf-8") == content
+
+
+def test_draft_rejects_completed_open_of_an_unexpected_page(tmp_path):
+    unexpected = "https://brand.example/specifications/another-model"
+    client, _ = scripted_client(api_response(profile_payload(), opened=(SPEC_URL, unexpected)))
+
+    with client, pytest.raises(InvalidReaderOutput, match="only those pages"):
+        draft_profile("test_category", [SPEC_URL], profiles_dir=tmp_path, client=client)
+
+    assert list(tmp_path.iterdir()) == []

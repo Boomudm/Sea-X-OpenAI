@@ -24,10 +24,12 @@ class MarketRange:
         currency = self.currency.lower()
         was_key = f"was_{currency}"
         now_key = f"now_{currency}"
+        was = _captured_price(option.get(was_key))
+        now = _captured_price(option.get(now_key))
         return {
             "source": "market_range",
-            was_key: option.get(was_key),
-            now_key: option[now_key],
+            was_key: was,
+            now_key: now,
             f"low_{currency}": float(self.low_per_unit * promise),
             f"high_{currency}": float(self.high_per_unit * promise),
             "date": self.date,
@@ -108,6 +110,13 @@ def reference_number(value: object) -> Decimal | None:
     except InvalidOperation:
         return None
     return number if number.is_finite() else None
+
+
+def _captured_price(value: object) -> int | float | str | None:
+    if not isinstance(value, (int, float, str)):
+        return None
+    number = reference_number(value)
+    return value if number is not None and number >= 0 else None
 
 
 def _market_range(row: Record, promise: Decimal) -> tuple[MarketRange | None, bool]:

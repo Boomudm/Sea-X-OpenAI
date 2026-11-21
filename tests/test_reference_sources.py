@@ -116,3 +116,15 @@ def test_other_categories_skip_references_even_with_a_matching_storage_row(appro
 
     assert not result.matched and not result.thin
     assert result.market is None and result.official is None and result.mall is None
+
+
+@pytest.mark.parametrize("unsafe_price", ["arbitrary price note", {"note": "price missing"}, float("inf")])
+def test_storage_market_evidence_omits_unusable_captured_price(approved_reference, unsafe_price):
+    market = reference_source_for("storage", [approved_reference]).resolve(
+        LISTING, CLAIM, Decimal(64),
+    ).market
+
+    evidence = market.flag_evidence(Decimal(64), {"was_thb": unsafe_price, "now_thb": 90})
+
+    assert evidence["now_thb"] == 90
+    assert evidence["was_thb"] is None
