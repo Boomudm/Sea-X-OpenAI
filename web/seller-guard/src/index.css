@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #211a18;
+  background: #faf8f6;
+  font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: #faf8f6; }
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+img { display: block; max-width: 100%; }
+
+.review-modal, .review-modal-form { max-height: calc(100dvh - 2rem); }
+.review-modal::backdrop { background: rgb(33 26 24 / 42%); }
+body:has(.review-modal[open]) { overflow: hidden; }
+
+@layer components {
+  .heading-1 { @apply text-4xl font-semibold tracking-tight text-ink md:text-5xl; text-wrap: balance; }
+  .heading-2 { @apply text-4xl font-semibold tracking-tight text-ink md:text-5xl; text-wrap: balance; }
+  .heading-3 { @apply text-3xl font-semibold tracking-tight text-ink md:text-4xl; text-wrap: balance; }
+  .heading-5 { @apply text-2xl font-semibold text-ink; }
+  .heading-6 { @apply text-xl font-semibold text-ink; }
+  .title-2 { @apply text-lg font-medium; }
+  .title-3 { @apply text-base font-medium; }
+  .title-4 { @apply text-base font-medium; }
+  .body-2 { @apply text-base font-medium leading-6; text-wrap: pretty; }
+  .body-3 { @apply text-base font-normal leading-6; text-wrap: pretty; }
+  .body-5 { @apply text-base font-medium leading-6; }
+  .body-6 { @apply text-base font-normal leading-6; text-wrap: pretty; }
+  .caption-4 { @apply text-sm font-medium leading-5; }
+  .caption-5 { @apply text-sm font-normal leading-5; }
+  .button-md { @apply text-base font-semibold leading-6; }
+  .button-sm { @apply text-sm font-semibold leading-5; }
+  .focus-ring { @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2; }
+  .review-primary { @apply focus-ring button-md inline-flex min-h-11 items-center justify-center rounded-lg bg-[#cc3d23] px-3 py-2 text-white transition-colors duration-300 hover:bg-[#ac321d]; }
+  .review-nav { @apply focus-ring flex h-full items-center whitespace-nowrap rounded-sm border-b-2 border-transparent px-2 text-sm font-semibold text-muted transition-colors hover:text-ink; }
+  .review-nav.is-current { @apply border-brand text-[#a82d18]; }
+  .surface { @apply rounded-xl border border-line bg-white/95 shadow-soft; }
+  .page-container { @apply relative z-10 mx-auto w-full max-w-[1480px] px-4 py-8 md:px-8 lg:px-10; }
+  .form-control { @apply focus-ring h-11 rounded-lg border border-line bg-white px-3 text-base text-ink transition-colors duration-300 placeholder:text-stone-400 hover:border-stone-300 focus:border-brand; }
+  .eyebrow { @apply text-sm font-semibold uppercase tracking-[0.16em] text-brand; }
+  .organic-panel { @apply relative isolate overflow-hidden; }
+  .organic-panel::before { content: ''; @apply pointer-events-none absolute -right-16 -top-16 -z-10 h-48 w-64 rotate-[-18deg] rounded-full bg-[#FFE6DB]; }
+  .organic-panel::after { content: ''; @apply pointer-events-none absolute -bottom-20 right-24 -z-10 h-40 w-72 rotate-12 rounded-full bg-[#FFF0E9]; }
+}
+
+@media print {
+  header, .no-print { display: none !important; }
+  body { background: white; }
+  .page-container { max-width: none; padding: 0; }
+  .surface { box-shadow: none; break-inside: avoid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

@@ -1,5 +1,20 @@
 # Sea-X-OpenAI
 
+## Seller Guard web demo
+
+The [Seller Guard web demo](web/seller-guard/) opens the overview at `/` and
+the reviewer workspace at `/review`.
+
+```sh
+cd web/seller-guard
+npm ci
+npm run dev
+```
+
+Open `http://localhost:5173/review` for the review table or use **Back to
+overview** for the donut and heatmap. The demo uses bundled SSD examples and
+keeps submitted links and decisions in the current browser.
+
 ## Evaluation and hand-in
 
 Follow the [evaluation protocol](eval/protocol.md) and use the [pitch notes](docs/pitch.md) for rehearsal.
