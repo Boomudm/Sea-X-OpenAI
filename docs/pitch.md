@@ -4,13 +4,15 @@
 
 ## Run of show
 
-If the live path is still unavailable at 15:00, use the [fallback demo script](fallback-demo.md).
+Lead with the captured listings. If the live reader is unavailable, use the manual-read handoff for this capture. The [fallback demo script](fallback-demo.md) shows the separate synthetic acceptance cases.
 
 1. **Open with the reviewer’s problem.** “A Shopee listing can sell several capacities under one rating. Reports of delivered capacity are buried in reviews for different options. ตรงปก Queue gives reviewers one priority colour per option, with the exact quotes, rule path and confidence.”
-2. **Follow the 64 GB hero `[listing and option IDs pending]`.** Start with the hand-copied listing and the option’s Variation. The AI readers extract claims, quotes and numbers. Code matches reviews to the exact option, looks up approved reference data and applies Q1–Q5. Open the queue card, read one quote aloud, and point to the four target buyer quotes, dates, normalised sizes and rule path. Show the rating and price if verified. Then show the 58-reading comparison `[IDs pending]`. If the four-buyer hero is unavailable, use a captured one-buyer YELLOW and explain what a second independent measured report would change.
-3. **Show the two-price pair `[IDs pending]`.** Open the Q1 RED card and point to both prices and the dated market range. On the inflated-discount card, show that the paid price falls inside the range. The ฿2,990/฿299 pair is a rule illustration. Use captured prices for marketplace claims. [AGENTS.md §4.3](../AGENTS.md)
-4. **Close the review loop.** Show the initial “unsure” verdict, accept or dismiss the flag, enter a reason, and reopen the queue after restarting to show the saved decision. “The colour tells the reviewer where to look first. The reviewer decides what the evidence supports.”
-5. **Show the evaluation and one real Codex transcript.** Read the verified results below. Open `[build-day transcript link or excerpt pending]` beside the matching log entry. Point to what Codex produced, what the team decided and how the team verified the change. [Codex log](codex-log/)
+2. **512 GB, Q1 RED.** Start with the hand-copied listing, then open its queue card. Show ฿3,948 was and ฿1,389 now against the ฿3,350–5,145 range from three official Mall offers captured 21 November. ฿1,389 is below half the low end (฿1,675), so this option goes to the front of the review queue on price evidence. [Captured listing][price] · [Approved KB][kb]
+3. **128 GB, Q4 YELLOW.** Show the exact Variation `สีเงินเมทัลลิก-128G`. One matched buyer says “ที่เก็บได้6gเองครับ” (could store only 6 GB). Point to the copied quote, its date and the rule path. A second independent measured report from the same Variation would satisfy Q3. [Captured listing and review][buyer]
+4. **64 GB, GREY after one matched review.** The text reports about 57 GB and Windows Properties displays 57.2 GB. The display is OS-reported capacity, and the reading clears the 85% cutoff. One matched review is below the ten-review minimum for GREEN. Then open the captured 2 TB option with zero matched text reviews. Its listing’s review belongs to 1 TB, so the 2 TB option stays GREY. [64 GB review][comparison] · [Windows screenshot][screenshot] · [2 TB capture][grey]
+5. **Close the review loop.** On the 128 GB card, show the initial “unsure” verdict, record a reviewer decision with a reason, then reopen the queue after restarting. “The colour tells the reviewer where to look first. The reviewer decides what the evidence supports.”
+6. **Separate sample mode.** If showing the four-buyer 64 GB Q3 RED, switch the queue to **Sample data**, display **Synthetic sample** on screen and introduce it aloud as a rule demonstration. Use the real capture for marketplace claims and the scored results for evaluation claims. [Sample documentation][sample]
+7. **Show the evaluation status and one real Codex transcript.** Read the scorecard once verified. Open `[build-day transcript link or excerpt pending]` beside the matching log entry. Point to what Codex produced, what the team decided and how the team verified the change. [Codex log](codex-log/)
 
 ## Rules to explain on screen
 
@@ -43,3 +45,11 @@ If the live path is still unavailable at 15:00, use the [fallback demo script](f
 | What are your false alarms and sample size? | Give the Q3 RED false alarms and sample size from the results. A teammate who did not write the rules blind-labels whether buyers report a shortfall. The report shows Q1 and Q2 RED counts alongside their blind labels. [Evaluation results](../eval/results.md) |
 | Did you tune 85% after seeing the results? | The rule was specified before evaluation. Show the pre-run freeze of thresholds, prompts and baseline cut-offs. [Evaluation protocol](../eval/protocol.md) |
 | Show one Codex transcript. | Open the selected transcript and matching log entry. Point to the contribution, the team decision and the verification. |
+
+[price]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/50570965257.json
+[kb]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/kb/kb.json
+[buyer]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/47255645924.json
+[comparison]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/16397222698.json
+[screenshot]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/16397222698/images/review-40946425908-02.jpg
+[grey]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/28894372103.json
+[sample]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/tests/fixtures/u4/README.md
