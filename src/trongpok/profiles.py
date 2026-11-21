@@ -102,6 +102,7 @@ class CategoryProfile(BaseModel):
     locale: LanguageTag = "th-TH"
     languages: tuple[LanguageTag, ...] = Field(default=("th", "en"), min_length=1)
     prompt_traps_by_language: Translations = Field(default_factory=dict)
+    measurement_exclusions: Translations = Field(default_factory=dict)
     marketplace_fields: MarketplaceFields = Field(default_factory=MarketplaceFields)
     official_spec_urls: tuple[NonEmptyText, ...] = ()
     approved_by: NonEmptyText
@@ -116,7 +117,10 @@ class CategoryProfile(BaseModel):
                 raise ValueError("tolerance is required for numeric profiles")
             if not self.measured_roles:
                 raise ValueError("measured_roles is required for numeric profiles")
-        elif self.promise_unit is not None or self.units or self.measured_roles or self.maximum_ratio:
+        elif (
+            self.promise_unit is not None or self.units or self.measured_roles
+            or self.maximum_ratio is not None or self.measurement_exclusions
+        ):
             raise ValueError("Categorical profiles cannot declare numeric measurement rules")
 
         if not set(self.measured_roles).issubset(self.review_roles):
@@ -130,6 +134,7 @@ class CategoryProfile(BaseModel):
         languages = {language.casefold() for language in self.languages}
         localized = (
             *self.prompt_traps_by_language,
+            *self.measurement_exclusions,
             *(tag for unit in self.units.values() for tag in unit.aliases_by_language),
         )
         if any(language.casefold() not in languages for language in localized):

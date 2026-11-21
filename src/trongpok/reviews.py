@@ -10,6 +10,31 @@ from .profiles import CategoryProfile, UnitConversion, load_profile
 
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
 _QUANTITY = r"(?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)(?:\.[0-9]+)?"
+_COMMA_DECIMAL = frozenset({
+    "bg", "ca", "cs", "da", "de", "el", "es", "et", "fi", "fr", "hr", "hu", "id", "is", "it",
+    "lt", "lv", "nb", "nl", "nn", "pl", "pt", "ro", "ru", "sk", "sl", "sr", "sv", "tr", "uk", "vi",
+})
+_CONTEXT_BREAK = re.compile(
+    r"(?<!\d)[,.]|[,.](?!\d)|[;!?。！？；，\n]"
+    r"|\b(?:and|but|whereas|while(?!\s+charging))\b|(?:但是|然而|但|而)",
+    re.IGNORECASE,
+)
+_SENTENCE_END = ".!?。！？"
+_MODEL_INSTRUCTION = re.compile(
+    r"\b(?:ignore|disregard|override|forget)\b[^\n.!?]{0,45}\b(?:instructions?|rules?|prompts?|system)\b"
+    r"|\b(?:system|developer|assistant|model)\s+(?:task|message|instructions?|prompt)\b"
+    r"|\b(?:tag|classify|label|mark)\s+(?:this|the|my)\s+review\s+(?:as|with)\b",
+    re.IGNORECASE,
+)
+_MISMATCH_WORD = r"(?:wrong|incorrect|mismatch|missing|falsch\w*|fehl\w*)"
+_NEGATED_MISMATCH = re.compile(
+    rf"\b(?:not|never|no|nicht|kein(?:e[nmrs]?)?)\s+"
+    rf"(?:(?:a|an|the|any|actually|ein(?:e[nmrs]?)?|die|den|das)\s+){{0,4}}{_MISMATCH_WORD}\b"
+    rf"|\b(?:not|never|don't|didn't|wouldn't|nicht)\s+"
+    rf"(?:say|claim|think|believe|report|receive|sagen|behaupten|denken|glauben)\b"
+    rf"[^.!?\n]{{0,60}}\b{_MISMATCH_WORD}\b",
+    re.IGNORECASE,
+)
 _OTHER_CAPACITY_BEFORE = re.compile(
     r"(?:\b(?:ordered|bought|promised|advertised|listed|rated|free space|os reports|"
     r"properties shows)\b|สั่ง(?:ซื้อ)?|โฆษณา|ระบุ|พื้นที่ว่าง)"
@@ -48,15 +73,33 @@ _COMPLETED_IMAGE_TYPES = {
 }
 
 
-def _decimal(value: object) -> Decimal | None:
+def _separators(profile: CategoryProfile | None) -> tuple[str, str]:
+    if profile is not None and profile.category != "storage":
+        language = profile.locale.split("-", 1)[0].casefold()
+        if language in _COMMA_DECIMAL:
+            return ",", "."
+    return ".", ","
+
+
+@cache
+def _quantity_pattern(decimal_separator: str, group_separator: str) -> str:
+    if (decimal_separator, group_separator) == (".", ","):
+        return _QUANTITY
+    decimal = re.escape(decimal_separator)
+    group = re.escape(group_separator)
+    return rf"(?:[0-9]{{1,3}}(?:{group}[0-9]{{3}})+|[0-9]+)(?:{decimal}[0-9]+)?"
+
+
+def _decimal(value: object, *, profile: CategoryProfile | None = None) -> Decimal | None:
     try:
         if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool):
             number = Decimal(str(value))
             return number if number.is_finite() and number >= 0 else None
         if isinstance(value, str):
             raw = value.strip().translate(_THAI_DIGITS)
-            if re.fullmatch(_QUANTITY, raw):
-                return Decimal(raw.replace(",", ""))
+            decimal, group = _separators(profile)
+            if re.fullmatch(_quantity_pattern(decimal, group), raw):
+                return Decimal(raw.replace(group, "").replace(decimal, "."))
         return None
     except InvalidOperation:
         return None
@@ -68,21 +111,111 @@ def _storage_profile() -> CategoryProfile:
 
 
 @cache
-def _number_pattern(units: tuple[str, ...], *, optional: bool) -> re.Pattern[str]:
+def _number_pattern(
+    units: tuple[str, ...], *, optional: bool, separators: tuple[str, str], legacy: bool,
+) -> re.Pattern[str]:
     alternatives = "|".join(re.escape(unit) for unit in sorted(units, key=len, reverse=True))
-    suffix = rf"\s*({alternatives})(?![a-z])"
-    if optional:
-        return re.compile(
-            rf"(?<![\d.\-−])({_QUANTITY})(?![0-9]|\.[0-9])(?:{suffix})?", re.IGNORECASE,
-        )
-    return re.compile(rf"{_QUANTITY}{suffix}", re.IGNORECASE)
+    unit_end = r"(?![a-z])" if legacy else r"(?![a-z0-9_²³])"
+    suffix = rf"\s*({alternatives}){unit_end}"
+    quantity = _quantity_pattern(*separators)
+    if legacy:
+        if optional:
+            return re.compile(
+                rf"(?<![\d.\-−])({quantity})(?![0-9]|\.[0-9])(?:{suffix})?", re.IGNORECASE,
+            )
+        return re.compile(rf"{quantity}{suffix}", re.IGNORECASE)
+
+    # Consume or reject a number together, so a separator cannot expose a
+    # prefix or suffix as another measurement in a different locale.
+    pattern = rf"(?<![\d.\-−])(?<!\d[,.])({quantity})(?![0-9]|[,.][0-9])"
+    return re.compile(pattern + (rf"(?:{suffix})?" if optional else suffix), re.IGNORECASE)
 
 
 def _review_pattern(profile: CategoryProfile) -> re.Pattern[str]:
     units = tuple(
         token for name, definition in profile.units.items() for token in (name, *definition.all_aliases)
     )
-    return _number_pattern(units, optional=True)
+    return _number_pattern(
+        units, optional=True, separators=_separators(profile), legacy=profile.category == "storage",
+    )
+
+
+def _quote_spans(text: str, quote: str) -> Iterable[tuple[int, int]]:
+    if not quote.strip():
+        return
+    start = text.find(quote)
+    while start >= 0:
+        yield start, start + len(quote)
+        start = text.find(quote, start + 1)
+
+
+def advertised_amounts(text: str, profile: CategoryProfile) -> set[Decimal]:
+    """Find complete advertised numbers with explicit units, in the profile's promise unit."""
+    if profile.promise_unit is None:
+        return set()
+    promise_factor = profile.units[profile.promise_unit].promise_factor
+    assert promise_factor is not None
+    amounts = set()
+    normalized = text.translate(_THAI_DIGITS)
+    for mention in _review_pattern(profile).finditer(normalized):
+        quantity, unit = mention.groups()
+        if unit is None or _OTHER_CAPACITY_AFTER.match(normalized[mention.end():]):
+            continue
+        definition = _unit_definition(_unit_key(unit, profile), profile)
+        value = _decimal(quantity, profile=profile)
+        if definition is not None and definition.promise_factor is not None and value is not None:
+            amounts.add(value * definition.promise_factor / promise_factor)
+    return amounts
+
+
+def quoted_number_units(
+    text: str, quote: str, quantity: object, *, profile: CategoryProfile,
+) -> set[str]:
+    """Find original number-plus-unit tokens wholly inside an exact evidence quote."""
+    selected = _decimal(quantity, profile=profile)
+    spans = list(_quote_spans(text, quote))
+    if selected is None or not spans:
+        return set()
+    units = set()
+    next_span = iter(spans)
+    span = next(next_span)
+    for mention in _review_pattern(profile).finditer(text.translate(_THAI_DIGITS)):
+        while span[1] < mention.end():
+            span = next(next_span, None)
+            if span is None:
+                return units
+        number, unit = mention.groups()
+        if (
+            span[0] <= mention.start()
+            and _decimal(number, profile=profile) == selected
+            and not _measurement_excluded(mention, profile)
+            and not (unit and _OTHER_CAPACITY_AFTER.match(mention.string[mention.end():]))
+        ):
+            units.add(_unit_key(unit, profile))
+    return units
+
+
+def categorical_quote_supported(text: str, quote: str, *, mismatch_type: str) -> bool:
+    """Require the quoted assertion in context and reject moderation instructions."""
+    references_code = re.compile(
+        rf"\b(?:set|mark|tag|classify|return|output|emit|use|respond with)\b"
+        rf"[^\n.!?]{{0,50}}\b{re.escape(mismatch_type)}\b",
+        re.IGNORECASE,
+    )
+    if _MODEL_INSTRUCTION.search(text) or references_code.search(text):
+        return False
+    if _NEGATED_MISMATCH.search(quote) or quote.rstrip().endswith(("?", "？")):
+        return False
+    for start, end in _quote_spans(text, quote):
+        before = text[:start].rstrip(" \t\r")
+        after = text[end:].lstrip(" \t\r")
+        if before and before[-1] not in _SENTENCE_END + "\n":
+            continue
+        if after.startswith(("?", "？")):
+            continue
+        if not after or after[0] in _SENTENCE_END + "\n" or quote.rstrip()[-1] in _SENTENCE_END:
+            return True
+    return False
 
 
 def _unit_key(unit: object, profile: CategoryProfile) -> str:
@@ -105,15 +238,24 @@ def _measurement_unit(unit: object, measurement_text: str, profile: CategoryProf
     if key not in {"", "none"}:
         return key
 
-    option_pattern = _number_pattern(tuple(profile.units), optional=False)
-    matches = {name.casefold() for name in option_pattern.findall(measurement_text.translate(_THAI_DIGITS))}
+    if profile.category == "storage":
+        option_pattern = _number_pattern(
+            tuple(profile.units), optional=False, separators=(".", ","), legacy=True,
+        )
+        matches = {name.casefold() for name in option_pattern.findall(measurement_text.translate(_THAI_DIGITS))}
+    else:
+        matches = {
+            _unit_key(unit, profile)
+            for _, unit in _review_pattern(profile).findall(measurement_text.translate(_THAI_DIGITS))
+            if unit
+        }
     return matches.pop() if len(matches) == 1 else ""
 
 
 def _measured_value(
     quantity: object, unit: object, measurement_text: str, profile: CategoryProfile,
 ) -> Decimal | None:
-    number = _decimal(quantity)
+    number = _decimal(quantity, profile=profile)
     definition = _unit_definition(_measurement_unit(unit, measurement_text, profile), profile)
     if number is None or definition is None:
         return None
@@ -125,6 +267,28 @@ def measured_bytes(quantity: object, unit: object, capacity_text: str) -> Decima
     return _measured_value(quantity, unit, capacity_text, _storage_profile())
 
 
+def _measurement_excluded(mention: re.Match[str], profile: CategoryProfile) -> bool:
+    if not profile.measurement_exclusions:
+        return False
+    # Limit context to phrases near the reading within its original clause.
+    preceding = _CONTEXT_BREAK.split(mention.string[max(0, mention.start() - 180):mention.start()])[-1].casefold()
+    following = _CONTEXT_BREAK.split(mention.string[mention.end():mention.end() + 180], maxsplit=1)[0].casefold()
+    for phrases in profile.measurement_exclusions.values():
+        for phrase in phrases:
+            marker = phrase.casefold()
+            before = preceding.rfind(marker)
+            if before >= 0:
+                tail = preceding[before + len(marker):]
+                if not any(unit for _, unit in _review_pattern(profile).findall(tail)):
+                    return True
+            after = following.find(marker)
+            if after >= 0 and not any(
+                unit for _, unit in _review_pattern(profile).findall(following[:after])
+            ):
+                return True
+    return False
+
+
 def _non_measurement(
     mention: re.Match[str], previous_end: int, promised: Decimal | None,
     profile: CategoryProfile,
@@ -132,6 +296,8 @@ def _non_measurement(
     number, unit = mention.groups()
     before = mention.string[previous_end:mention.start()]
     after = mention.string[mention.end():]
+    if _measurement_excluded(mention, profile):
+        return True
     if _OTHER_CAPACITY_AFTER.match(after) or (unit is None and _ITEM_COUNT_AFTER.match(after)):
         return True
     if _MEASUREMENT_BEFORE.search(before):
@@ -165,16 +331,16 @@ def review_number_units(
     promised_bytes: Decimal | None = None, profile: CategoryProfile | None = None,
 ) -> set[str]:
     """Return the selected number's units, with an empty unit for a bare number."""
-    selected = _decimal(quantity)
+    profile = profile or _storage_profile()
+    selected = _decimal(quantity, profile=profile)
     if selected is None:
         return set()
-    profile = profile or _storage_profile()
     normalized = text.translate(_THAI_DIGITS)
     previous_end = 0
     units = set()
     for mention in _review_pattern(profile).finditer(normalized):
         number, unit = mention.groups()
-        if _decimal(number) == selected and (
+        if _decimal(number, profile=profile) == selected and (
             not measurements_only or not _non_measurement(mention, previous_end, promised_bytes, profile)
         ):
             units.add(_unit_key(unit, profile))
@@ -227,10 +393,13 @@ def _alternative_unit(mentions, index: int, before: str, after: str) -> str | No
 
 
 def _quote_supports_number(
-    quote: str, finding: dict, measurement_text: str, profile: CategoryProfile,
+    text: str, quote: str, finding: dict, measurement_text: str, profile: CategoryProfile,
 ) -> bool:
     unit = _measurement_unit(finding.get("unit"), measurement_text, profile)
-    written_units = review_number_units(quote, finding.get("quantity"), profile=profile)
+    if profile.category == "storage":
+        written_units = review_number_units(quote, finding.get("quantity"), profile=profile)
+    else:
+        written_units = quoted_number_units(text, quote, finding.get("quantity"), profile=profile)
     # Legacy storage captures allow bare quantities. Other profiles require a
     # written unit so an unsupported unit cannot be read as the advertised one.
     return any(
@@ -283,8 +452,14 @@ def _finding_evidence(
     if image_ref:
         if mismatch_type or image_ref not in review.get("images", ()):
             return None
-    elif not quote.strip() or quote not in review.get("text", ""):
-        return None
+    else:
+        review_text = review.get("text", "")
+        supported_quote = (
+            categorical_quote_supported(review_text, quote, mismatch_type=mismatch_type)
+            if mismatch_type else bool(quote.strip()) and quote in review_text
+        )
+        if not supported_quote:
+            return None
 
     role = _role(finding)
     complaint_kind = finding.get("complaint")
@@ -296,7 +471,7 @@ def _finding_evidence(
             )
         )
     )
-    quantity = None if mismatch_type else _decimal(finding.get("quantity"))
+    quantity = None if mismatch_type else _decimal(finding.get("quantity"), profile=profile)
     image_type = _label(finding.get("image_type"))
     number = None
     measurable = role in profile.measured_roles and not mismatch_type
@@ -304,7 +479,9 @@ def _finding_evidence(
         if image_ref:
             supported = storage and role == "test_result" and image_type in _COMPLETED_IMAGE_TYPES
         else:
-            supported = _quote_supports_number(quote, finding, measurement_text, profile)
+            supported = _quote_supports_number(
+                review["text"], quote, finding, measurement_text, profile,
+            )
         if supported:
             number = _measured_value(quantity, finding.get("unit"), measurement_text, profile)
             complaint = complaint or (
@@ -479,11 +656,19 @@ def _checked_text_review(
             and quote in text
         )
 
-    def valid_type(finding: dict) -> bool:
+    def valid_observation(finding: dict) -> bool:
         complaint = finding.get("mismatch_type") or finding.get("complaint")
-        return complaint == "none" or (
-            complaint in profile.mismatch_types and bool((finding.get("quote") or "").strip())
-        )
+        quote = finding.get("quote") or ""
+        if complaint != "none" and (complaint not in profile.mismatch_types or not quote.strip()):
+            return False
+        mismatch_type = _mismatch_type(finding, profile)
+        if mismatch_type:
+            return categorical_quote_supported(text, quote, mismatch_type=mismatch_type)
+        quantity = finding.get("quantity")
+        if _role(finding) in profile.measured_roles and quantity is not None:
+            unit = _unit_key(finding.get("unit"), profile)
+            return bool(unit) and unit in quoted_number_units(text, quote, quantity, profile=profile)
+        return True
 
     text_findings = [finding for finding in findings if not finding.get("image_ref")]
     if profile.category == "storage":
@@ -491,7 +676,7 @@ def _checked_text_review(
     return bool(text_findings) and all(
         checked(finding)
         and finding.get("option_id") == option_id
-        and valid_type(finding)
+        and valid_observation(finding)
         for finding in findings
     )
 

@@ -31,5 +31,12 @@
   "prompt_traps_by_language": {
     "zh": ["区分典型容量和最低容量，并核对完整放电的测试电流和截止电压。"]
   },
+  "measurement_exclusions": {
+    "en": [
+      "charger input", "charge input", "charging input", "input capacity", "charging capacity",
+      "charge accepted", "charge capacity", "while charging", "during charging"
+    ],
+    "zh": ["充电输入", "充电容量", "充入容量", "充电时"]
+  },
   "approved_by": "pending human review"
 }
