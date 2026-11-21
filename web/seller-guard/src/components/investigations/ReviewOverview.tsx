@@ -10,18 +10,19 @@ import { Badge } from '../ui/Badge'
 type ScoredPriority = typeof scoredPriorities[number]
 
 const heatPalettes = {
-  all: ['#f3efeb', '#e8e0da', '#d4c7bd', '#b9a79a'],
   red: ['#ffefec', '#fad5cd', '#f3aa9c', '#e67e6d'],
   yellow: ['#fff7e4', '#fce9b9', '#f7d478', '#eebc55'],
   green: ['#eaf7ef', '#d0eadb', '#a8d5ba', '#7bbd99'],
 }
 
 // Match the deciding checks returned by the pipeline.
-const signalsByPriority = {
-  red: ['unsupported', 'capacity', 'price'],
-  yellow: ['reports'],
-  green: ['clear'],
-} as const satisfies Record<ScoredPriority, readonly ReviewSignal[]>
+const priorityBySignal = {
+  unsupported: 'red',
+  capacity: 'red',
+  price: 'red',
+  reports: 'yellow',
+  clear: 'green',
+} as const satisfies Record<ReviewSignal, ScoredPriority>
 
 const selectTones = {
   red: 'border-[#efc9c1] bg-[#fdece8]',
@@ -40,8 +41,7 @@ export function ReviewOverview({ cases, priority, onSelect, toQueue }: OverviewP
   const counts = { red: 0, yellow: 0, green: 0, unknown: 0 }
   for (const item of cases) counts[item.priority] += 1
   const matching = priority ? cases.filter((item) => item.priority === priority) : cases
-  const palette = heatPalettes[priority ?? 'all']
-  const visibleSignals = priority ? signalsByPriority[priority] : signalIds
+  const visibleSignals = priority ? signalIds.filter((signal) => priorityBySignal[signal] === priority) : signalIds
 
   return (
     <div className="mt-6 grid gap-4 min-[860px]:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
@@ -106,6 +106,8 @@ export function ReviewOverview({ cases, priority, onSelect, toQueue }: OverviewP
               <tr key={signal}>
                 <th scope="row" className="pr-1 text-left font-semibold">{signals[signal].label}</th>
                 {bandIds.map((band) => {
+                  const rowPriority = priorityBySignal[signal]
+                  const palette = heatPalettes[rowPriority]
                   const count = matching.filter((item) =>
                     item.findings.some((finding) => finding.signal === signal && inConfidenceBand(finding.confidence, band)),
                   ).length
@@ -115,7 +117,7 @@ export function ReviewOverview({ cases, priority, onSelect, toQueue }: OverviewP
                       {count ? (
                         <Link
                           to={toQueue(priority, signal, band)}
-                          aria-label={`Review ${signals[signal].label}, ${confidenceBands[band].label} confidence, ${count} ${count === 1 ? 'case' : 'cases'}`}
+                          aria-label={`Review ${signals[signal].label}, ${confidenceBands[band].label} confidence, ${count} ${count === 1 ? 'case' : 'cases'}, ${priorities[rowPriority].label} priority`}
                           className={cn(cell, 'focus-ring hover:border-stone-600')}
                           style={{ backgroundColor: palette[count > 4 ? 3 : Math.min(count - 1, 2)] }}
                         >{count}</Link>
@@ -127,11 +129,27 @@ export function ReviewOverview({ cases, priority, onSelect, toQueue }: OverviewP
             ))}
           </tbody>
         </table>
-        <div className="mt-2 flex flex-wrap items-center justify-end gap-1 text-xs text-muted">
-          <span>Fewer cases</span>
-          {palette.map((color) => <span className="size-3 rounded" style={{ backgroundColor: color }} key={color} aria-hidden="true" />)}
-          <span>More cases</span>
-        </div>
+        {priority ? (
+          <div className="mt-2 flex flex-wrap items-center justify-end gap-1 text-xs text-muted">
+            <span>Fewer cases</span>
+            {heatPalettes[priority].map((color) =>
+              <span className="size-3 rounded" style={{ backgroundColor: color }} key={color} aria-hidden="true" />,
+            )}
+            <span>More cases</span>
+          </div>
+        ) : (
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs text-muted">
+            <ul aria-label="Priority colors" className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              {scoredPriorities.map((id) => (
+                <li key={id} className="inline-flex items-center gap-1.5">
+                  <span className="size-3 rounded" style={{ backgroundColor: heatPalettes[id][3] }} aria-hidden="true" />
+                  {priorities[id].label}
+                </li>
+              ))}
+            </ul>
+            <span>Darker cells have more cases</span>
+          </div>
+        )}
         <p className="caption-5 mt-2 text-muted">Cases are grouped by the check that set their priority.</p>
       </section>
     </div>
