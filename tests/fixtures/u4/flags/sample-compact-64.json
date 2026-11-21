@@ -1,0 +1,107 @@
+[
+  {
+    "listing_id": "sample-compact-64",
+    "option_id": "64-gb",
+    "colour": "RED",
+    "deciding": "Q3",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "sample-compact-64-review-1",
+        "buyer_masked": "Bu***01",
+        "date": "2026-11-20",
+        "quote": "Only 29 GB on mine.",
+        "quantity": 29.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 31138512896.0,
+        "ratio": 0.486539264,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-compact-64-review-2",
+        "buyer_masked": "Bu***02",
+        "date": "2026-11-19",
+        "quote": "I received only 30.5 GB.",
+        "quantity": 30.5,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 32749125632.0,
+        "ratio": 0.511705088,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-compact-64-review-3",
+        "buyer_masked": "Bu***03",
+        "date": "2026-11-18",
+        "quote": "My drive holds just 29 GB.",
+        "quantity": 29.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 31138512896.0,
+        "ratio": 0.486539264,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "sample-compact-64-review-4",
+        "buyer_masked": "Bu***04",
+        "date": "2026-11-17",
+        "quote": "Files corrupt after 30 GB.",
+        "quantity": 30.0,
+        "unit": "GB",
+        "role": "fails_after",
+        "bytes": 32212254720.0,
+        "ratio": 0.50331648,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 4,
+        "checked_text_reviews": 4
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 95,
+      "base": 95,
+      "adjustments": [
+        {
+          "points": 15,
+          "reason": "2 or more separate buyers"
+        },
+        {
+          "points": 10,
+          "reason": "Deciding buyer evidence quotes a clear number"
+        },
+        {
+          "points": 10,
+          "reason": "Deciding reviews match the option exactly"
+        },
+        {
+          "points": 10,
+          "reason": "Market range and at least 3 offers captured today"
+        }
+      ],
+      "missing_evidence": [],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]

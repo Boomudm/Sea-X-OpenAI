@@ -1,0 +1,107 @@
+[
+  {
+    "listing_id": "sample-reference-1tb",
+    "option_id": "1-tb-blue",
+    "colour": "YELLOW",
+    "deciding": "Q4",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 2000,
+        "now_thb": 1500,
+        "low_thb": 1800.0,
+        "high_thb": 2400.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-1",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 1800
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-2",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 2100
+          },
+          {
+            "url": "https://example.invalid/trongpok-sample/mall/1000-3",
+            "date": "2026-11-21",
+            "capacity_gb": 1000,
+            "now_thb": 2400
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 60,
+      "base": 60,
+      "adjustments": [
+        {
+          "points": 10,
+          "reason": "Market range and at least 3 offers captured today"
+        }
+      ],
+      "missing_evidence": [],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  },
+  {
+    "listing_id": "sample-reference-1tb",
+    "option_id": "1-tb",
+    "colour": "GREY",
+    "deciding": "grey",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 60,
+      "base": 60,
+      "adjustments": [
+        {
+          "points": 10,
+          "reason": "Market range and at least 3 offers captured today"
+        }
+      ],
+      "missing_evidence": [
+        "Collect 10 more matched text reviews"
+      ],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]

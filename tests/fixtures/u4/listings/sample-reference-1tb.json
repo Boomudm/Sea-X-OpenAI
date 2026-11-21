@@ -1,0 +1,28 @@
+{
+  "listing_id": "sample-reference-1tb",
+  "url": "https://example.invalid/trongpok-sample/sample-reference-1tb",
+  "captured_at": "2026-11-21T10:00:00+07:00",
+  "title": "Sample · Fixture Brand Reference",
+  "spec_text": "USB flash drive",
+  "description": "Synthetic demo fixture. No marketplace observations.",
+  "listing_images": [],
+  "options": [
+    {
+      "option_id": "1-tb",
+      "variation_label": "1 TB · Black",
+      "capacity_text": "1 TB",
+      "promise_gb": 1000,
+      "was_thb": 6000,
+      "now_thb": 2000
+    },
+    {
+      "option_id": "1-tb-blue",
+      "variation_label": "1 TB · Blue",
+      "capacity_text": "1 TB",
+      "promise_gb": 1000,
+      "was_thb": 2000,
+      "now_thb": 1500
+    }
+  ],
+  "reviews": []
+}
