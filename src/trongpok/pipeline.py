@@ -16,6 +16,7 @@ from decimal import Decimal, InvalidOperation
 from functools import cache
 from pathlib import Path
 from uuid import uuid4
+from zoneinfo import ZoneInfo
 
 from openai import APIConnectionError
 from pydantic import BaseModel, ValidationError
@@ -46,6 +47,7 @@ from .references import reference_source_for
 from .reviews import (
     advertised_amounts,
     categorical_quote_supported,
+    plain_quote_supported,
     quoted_number_units,
 )
 from .rules import build_option_flag, queue_key, rescore_option_flag
@@ -198,8 +200,8 @@ def _positive_decimal(value: object) -> Decimal | None:
     return number if number.is_finite() and number > 0 else None
 
 
-def _exact_quote(quote: str, text: str) -> bool:
-    return bool(quote.strip()) and quote in text
+def _bangkok_analysis_date() -> str:
+    return datetime.now(ZoneInfo("Asia/Bangkok")).date().isoformat()
 
 
 def _eligible_sources(flag: dict, checked_reviews: list[dict]) -> dict[str, str]:
@@ -257,7 +259,7 @@ class Pipeline:
         listing_id = self._process_capture(listing, automatic=False)
         return self._with_decisions(self.state.results(self._profile_key, listing_id))
 
-    def _process_capture(self, listing: dict, *, automatic: bool) -> str:
+    def _prepare_capture(self, listing: dict) -> tuple[str | None, dict]:
         if not isinstance(listing, dict):
             raise ReaderInputError("A saved capture must be a listing object")
         for group in ("options", "reviews"):
@@ -265,7 +267,14 @@ class Pipeline:
             if not isinstance(records, list) or any(not isinstance(item, dict) for item in records):
                 raise ReaderInputError(f"Capture must contain a {group} object array")
         revision = _capture_timestamp(listing.get("captured_at"))
-        listing = _validated_capture(normalize_marketplace_fields(listing, self.profile), self.profile)
+        checked = _validated_capture(normalize_marketplace_fields(listing, self.profile), self.profile)
+        return revision, checked
+
+    def _process_capture(self, listing: dict, *, automatic: bool) -> str:
+        revision, prepared = self._prepare_capture(listing)
+        return self._process_prepared_capture(prepared, revision, automatic=automatic)
+
+    def _process_prepared_capture(self, listing: dict, revision: str | None, *, automatic: bool) -> str:
         options = listing["options"]
         options_by_variation = defaultdict(list)
         reviews_by_variation = defaultdict(list)
@@ -316,9 +325,29 @@ class Pipeline:
     def process_file(self, path: str | Path) -> list[dict]:
         return self.process_listing(_read_capture_file(Path(path)))
 
-    def process_watched_file(self, path: str | Path) -> None:
-        """Admit a watched capture automatically, leaving result collection to the scan."""
-        self._process_capture(_read_capture_file(Path(path)), automatic=True)
+    def scan_watch_directory(self, directory: Path) -> None:
+        """Admit the newest valid captures before any watched jobs can use the model."""
+        latest: dict[str, tuple[str | None, list[dict]]] = {}
+        for path in sorted(directory.glob("*.json")):
+            if path.is_symlink() or not path.is_file():
+                continue
+            try:
+                revision, listing = self._prepare_capture(_read_capture_file(path))
+            except (ReaderInputError, ValueError, OSError):
+                print("A watched capture could not be read", file=sys.stderr)
+                continue
+            listing_id = listing["listing_id"]
+            previous = latest.get(listing_id)
+            if previous is None or (revision or "") > (previous[0] or ""):
+                latest[listing_id] = revision, [listing]
+            elif revision == previous[0]:
+                previous[1].append(listing)
+        for revision, captures in latest.values():
+            for listing in captures:
+                try:
+                    self._process_prepared_capture(listing, revision, automatic=True)
+                except (ReaderInputError, ValueError, OSError):
+                    print("A watched capture could not be read", file=sys.stderr)
 
     def process_message(self, message: dict) -> list[dict]:
         """Consume a queue message carrying a saved capture instead of a file path."""
@@ -427,7 +456,7 @@ class Pipeline:
         quantity = observation.quantity
         if (
             role not in profile.review_roles or complaint not in {*profile.mismatch_types, "none"}
-            or not _exact_quote(quote, review["text"])
+            or not plain_quote_supported(review["text"], quote)
             or (quantity is None and unit != "none")
         ):
             raise InvalidReaderOutput("A finding did not match the category or captured review")
@@ -508,6 +537,7 @@ class Pipeline:
         self, listing: dict, option: dict, reviews: list[dict], promise: Decimal | None,
         ai: _JobReader, cache: ReviewCache,
     ) -> dict:
+        as_of = _bangkok_analysis_date()
         try:
             claims = self._claim(listing, option, promise, ai)
         except (InvalidReaderOutput, ValidationError):
@@ -520,11 +550,17 @@ class Pipeline:
                     findings.extend(self._read_review(listing["listing_id"], review, option, ai, cache))
                 except (InvalidReaderOutput, ValidationError):
                     ai.record_failure()
+
         def calculate() -> dict:
-            return build_option_flag(
-                listing, option, self.kb_rows, findings, claims,
+            flag = build_option_flag(
+                listing, option, self.kb_rows, findings, claims, as_of=as_of,
                 profile=self.profile, allow_draft=self.allow_draft, checks_complete=not ai.failed,
             )
+            flag["as_of"] = as_of
+            for adjustment in flag["confidence"]["adjustments"]:
+                if adjustment["reason"] == "Market range and at least 3 offers captured today":
+                    adjustment["reason"] = f"Market range and at least 3 offers captured on {as_of}"
+            return flag
 
         flag = calculate()
         rounds = 0
@@ -624,13 +660,7 @@ def main() -> None:
         else:
             previous = ""
             while True:
-                for path in sorted(args.watch.glob("*.json")):
-                    if path.is_symlink() or not path.is_file():
-                        continue
-                    try:
-                        pipeline.process_watched_file(path)
-                    except (ReaderInputError, ValueError, OSError):
-                        print("A watched capture could not be read", file=sys.stderr)
+                pipeline.scan_watch_directory(args.watch)
                 snapshot = _json(pipeline.queue())
                 if snapshot != previous:
                     print(snapshot, flush=True)
