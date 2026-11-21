@@ -1,10 +1,12 @@
 """SQLite job leases, budget reservations and the pipeline's review queue."""
 
+import hashlib
 import json
 import sqlite3
 import time
 from collections.abc import Iterator, Mapping
 from contextlib import closing, contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 
 _LEASE_SECONDS = 180
@@ -12,6 +14,18 @@ _LEASE_SECONDS = 180
 
 class LostJobLease(RuntimeError):
     """Another worker may finish this job after its lease expires."""
+
+
+@dataclass(frozen=True)
+class _Admission:
+    advance_revision: bool
+    new_snapshot: bool
+    changed: dict[str, str]
+    removed: set[str]
+
+    @property
+    def needs_write(self) -> bool:
+        return self.advance_revision or self.new_snapshot or bool(self.changed or self.removed)
 
 
 class PipelineState:
@@ -35,11 +49,18 @@ class PipelineState:
                     job_key TEXT NOT NULL REFERENCES pipeline_jobs(job_key),
                     PRIMARY KEY (profile_scope, listing_id, option_id)
                 );
+                CREATE INDEX IF NOT EXISTS pipeline_active_job ON pipeline_active_options (job_key);
                 CREATE TABLE IF NOT EXISTS pipeline_capture_revisions (
                     profile_scope TEXT NOT NULL,
                     listing_id TEXT NOT NULL,
                     captured_at TEXT NOT NULL,
                     PRIMARY KEY (profile_scope, listing_id)
+                );
+                CREATE TABLE IF NOT EXISTS pipeline_capture_snapshots (
+                    profile_scope TEXT NOT NULL,
+                    listing_id TEXT NOT NULL,
+                    snapshot_key TEXT NOT NULL,
+                    PRIMARY KEY (profile_scope, listing_id, snapshot_key)
                 );
             """)
 
@@ -57,52 +78,102 @@ class PipelineState:
         revision: str | None = None,
         from_message: bool = False,
     ) -> bool:
-        """Admit a capture and keep the newest normalized revision for message ordering."""
+        """Admit the capture unless a broker delivery is older or has been superseded."""
         keys = (scope, listing_id)
+        snapshot = hashlib.sha256(json.dumps((revision, dict(option_keys)), sort_keys=True).encode()).hexdigest()
         with self._connect() as connection:
+            # Most watch scans see an unchanged capture. Read one consistent
+            # snapshot without reserving the database's single writer slot.
+            connection.execute("BEGIN")
+            admission = self._plan_admission(connection, keys, option_keys, snapshot, revision, from_message)
+            connection.rollback()
+            if admission is None or not admission.needs_write:
+                return admission is not None
+
             connection.execute("BEGIN IMMEDIATE")
-            saved = connection.execute(
-                """SELECT captured_at FROM pipeline_capture_revisions
-                   WHERE profile_scope = ? AND listing_id = ?""",
-                keys,
-            ).fetchone()
-            newest = saved[0] if saved is not None else None
-            if from_message and newest is not None and (revision is None or revision < newest):
+            admission = self._plan_admission(connection, keys, option_keys, snapshot, revision, from_message)
+            if admission is None:
                 return False
-            if revision is not None and (newest is None or revision > newest):
+            if not admission.needs_write:
+                return True
+            if admission.advance_revision:
                 connection.execute(
                     """INSERT INTO pipeline_capture_revisions (profile_scope, listing_id, captured_at)
                        VALUES (?, ?, ?)
                        ON CONFLICT(profile_scope, listing_id) DO UPDATE SET captured_at = excluded.captured_at""",
                     (*keys, revision),
                 )
-
-            active = dict(connection.execute(
-                """SELECT option_id, job_key FROM pipeline_active_options
-                   WHERE profile_scope = ? AND listing_id = ?""",
-                keys,
-            ))
-            changed = [(option, key) for option, key in option_keys.items() if active.get(option) != key]
-            removed = active.keys() - option_keys.keys()
-            if not changed and not removed:
-                return True
-
+            if admission.new_snapshot:
+                connection.execute(
+                    """INSERT INTO pipeline_capture_snapshots (profile_scope, listing_id, snapshot_key)
+                       VALUES (?, ?, ?)""",
+                    (*keys, snapshot),
+                )
             connection.executemany(
                 "INSERT INTO pipeline_jobs (job_key) VALUES (?) ON CONFLICT DO NOTHING",
-                ((key,) for _, key in changed),
+                ((key,) for key in admission.changed.values()),
             )
             connection.executemany(
                 """INSERT INTO pipeline_active_options (profile_scope, listing_id, option_id, job_key)
                    VALUES (?, ?, ?, ?)
                    ON CONFLICT(profile_scope, listing_id, option_id) DO UPDATE SET job_key = excluded.job_key""",
-                ((*keys, option, key) for option, key in changed),
+                ((*keys, option, key) for option, key in admission.changed.items()),
             )
             connection.executemany(
                 """DELETE FROM pipeline_active_options
                    WHERE profile_scope = ? AND listing_id = ? AND option_id = ?""",
-                ((*keys, option) for option in removed),
+                ((*keys, option) for option in admission.removed),
             )
             return True
+
+    @staticmethod
+    def _plan_admission(
+        connection: sqlite3.Connection,
+        keys: tuple[str, str],
+        option_keys: Mapping[str, str],
+        snapshot: str,
+        revision: str | None,
+        from_message: bool,
+    ) -> _Admission | None:
+        saved = connection.execute(
+            """SELECT captured_at FROM pipeline_capture_revisions
+               WHERE profile_scope = ? AND listing_id = ?""",
+            keys,
+        ).fetchone()
+        newest = saved[0] if saved is not None else None
+        if from_message and newest is not None and (revision is None or revision < newest):
+            return None
+
+        seen = connection.execute(
+            """SELECT 1 FROM pipeline_capture_snapshots
+               WHERE profile_scope = ? AND listing_id = ? AND snapshot_key = ?""",
+            (*keys, snapshot),
+        ).fetchone() is not None
+        active = dict(connection.execute(
+            """SELECT option_id, job_key FROM pipeline_active_options
+               WHERE profile_scope = ? AND listing_id = ?""",
+            keys,
+        ))
+        if from_message and seen and active != option_keys:
+            return None
+        return _Admission(
+            advance_revision=revision is not None and (newest is None or revision > newest),
+            new_snapshot=not seen,
+            changed={option: key for option, key in option_keys.items() if active.get(option) != key},
+            removed=active.keys() - option_keys.keys(),
+        )
+
+    def runnable_keys(self, scope: str, listing_id: str) -> set[str]:
+        """Find active jobs eligible for an initial claim or expired-lease recovery."""
+        with self._connect() as connection:
+            rows = connection.execute(
+                """SELECT jobs.job_key FROM pipeline_active_options AS queue
+                   JOIN pipeline_jobs AS jobs ON jobs.job_key = queue.job_key
+                   WHERE queue.profile_scope = ? AND queue.listing_id = ? AND jobs.result IS NULL
+                   AND (jobs.owner IS NULL OR jobs.lease_until <= ?)""",
+                (scope, listing_id, time.time()),
+            ).fetchall()
+        return {row[0] for row in rows}
 
     def claim(self, job_key: str, owner: str) -> bool | None:
         now = time.time()
@@ -113,6 +184,7 @@ class PipelineState:
                        owner = ?, lease_until = ?
                    WHERE job_key = ? AND result IS NULL
                    AND (owner IS NULL OR lease_until <= ?)
+                   AND EXISTS (SELECT 1 FROM pipeline_active_options WHERE job_key = pipeline_jobs.job_key)
                    RETURNING had_ai_error""",
                 (owner, now + _LEASE_SECONDS, job_key, now),
             ).fetchone()
