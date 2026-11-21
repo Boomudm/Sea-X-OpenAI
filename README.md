@@ -1,8 +1,8 @@
 # Sea-X-OpenAI
 
-## Seller Guard web demo
+## veritee web demo
 
-The [Seller Guard web demo](web/seller-guard/) opens the overview at `/`, the
+The [veritee web demo](web/seller-guard/) opens the overview at `/`, the
 reviewer workspace at `/review`, and the U5 report at `/results`.
 
 After capturing listings and buyer evidence, generate and export the reports

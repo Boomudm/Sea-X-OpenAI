@@ -1,4 +1,4 @@
-# Seller Guard
+# veritee
 
 Review USB flash drive options by priority, confidence, and evidence.
 

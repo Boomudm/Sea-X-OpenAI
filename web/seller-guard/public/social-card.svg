@@ -1,9 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="#FAF8F6"/>
-  <rect x="72" y="70" width="72" height="72" rx="16" fill="#EE4D2D"/>
-  <path d="m108 88 22 9v15c0 14-9 24-22 28-13-4-22-14-22-28V97l22-9Z" fill="none" stroke="white" stroke-width="6" stroke-linejoin="round"/>
-  <text x="72" y="250" font-family="system-ui, sans-serif" font-size="62" font-weight="650" fill="#211A18">Seller investigation workflow</text>
-  <text x="72" y="320" font-family="system-ui, sans-serif" font-size="28" fill="#78716C">Shopee Trust &amp; Safety · Fictional demonstration</text>
+  <path d="M19 86h49l14 24-21 29 3 4L127 42h47l-73 114H65Z" transform="translate(63 58) scale(.55)" fill="#EE4D2D"/>
+  <text x="72" y="250" font-family="system-ui, sans-serif" font-size="62" font-weight="650" fill="#211A18">veritee</text>
+  <text x="72" y="320" font-family="system-ui, sans-serif" font-size="28" fill="#78716C">Seller investigation workspace</text>
   <rect x="72" y="405" width="1056" height="110" rx="18" fill="white" stroke="#EAE3DF" stroke-width="2"/>
   <circle cx="125" cy="460" r="18" fill="#EE4D2D"/>
   <rect x="165" y="437" width="310" height="18" rx="9" fill="#211A18"/>

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { Search, ShoppingBag, UserRound } from 'lucide-react'
+import { Search, UserRound } from 'lucide-react'
 import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -22,9 +22,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       <a href="#main-content" className="focus-ring fixed left-4 top-2 z-[100] -translate-y-20 rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-white focus:translate-y-0">Skip to content</a>
       <header className="sticky top-0 z-50 border-b border-line bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1560px] items-center gap-4 px-4 md:px-8">
-          <NavLink to={'/' + sourceSearch} className="focus-ring flex shrink-0 items-center gap-2 rounded-lg" aria-label="Seller Guard home">
-            <span className="relative flex size-9 items-center justify-center text-brand"><ShoppingBag className="absolute inset-0 size-9 fill-brand stroke-brand" /><span className="relative mt-1 text-xl font-semibold text-white">S</span></span>
-            <span className="leading-tight"><strong className="block text-base font-semibold text-ink">Seller Guard</strong><span className="hidden text-sm text-muted sm:block">Trust &amp; Safety</span></span>
+          <NavLink to={'/' + sourceSearch} className="focus-ring flex shrink-0 items-center gap-2 rounded-lg" aria-label="veritee home">
+            <img src="/veritee-mark.png" alt="" width={40} height={40} className="size-10 shrink-0 object-contain" />
+            <span className="leading-tight">
+              <strong className="block text-xl font-bold leading-none tracking-tight text-ink sm:text-2xl">veritee</strong>
+              <span className="mt-0.5 hidden text-sm text-muted sm:block">Trust &amp; Safety</span>
+            </span>
           </NavLink>
           <nav className="hidden h-full items-center gap-2 lg:flex" aria-label="Primary navigation">
             <NavLink to={'/' + sourceSearch} end className={({ isActive }) => isActive ? 'review-nav is-current' : 'review-nav'}>Review overview</NavLink>
