@@ -13,6 +13,7 @@ def public_text(text: str) -> str:
 
 
 def masked_buyer(buyer: str) -> str:
+    buyer = buyer.strip()
     if not buyer or _MASKED_BUYER.fullmatch(buyer):
         return buyer
     digest = hashlib.sha256(buyer.encode("utf-8")).hexdigest()[:12]
