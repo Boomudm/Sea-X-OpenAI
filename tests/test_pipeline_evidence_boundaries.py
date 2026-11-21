@@ -235,6 +235,18 @@ def test_package_dimensions_do_not_conflict_with_a_cable_measurement(tmp_path):
         "I opened the box and found a label printed with the words no charging cable.",
     ),
     (
+        "None of the advertised charging cables were missing from my box.",
+        "No advertised brackets were missing from my package.",
+    ),
+    (
+        "I received the kit with no charger, and that was exactly as expected.",
+        "The box came without a charging cable, but that's how this version ships.",
+    ),
+    (
+        "ได้รับ ข้อความว่าไม่มีสายชาร์จแถมในชุด",
+        "ได้รับ SMS ว่าไม่มีหัวชาร์จสำหรับรุ่นนี้",
+    ),
+    (
         "I received my kit. The listing says the charger is not included.",
         "The charger is sold separately. My order arrived quickly.",
     ),
@@ -255,6 +267,10 @@ def test_offer_only_exclusions_do_not_trigger_missing_parts_red(tmp_path, quotes
     (
         "The advertised charger was missing from my box.",
         "The charging cable shown in the listing was missing from my parcel.",
+    ),
+    (
+        "I received the kit without a charger; as expected, the outer box was sealed.",
+        "I opened the kit and found no charging cable; as expected, the main unit worked.",
     ),
     ("I received the kit but the charger was missing.", "There was no charging cable in my box."),
 ])
@@ -281,13 +297,20 @@ def test_unrelated_between_phrases_preserve_definite_cable_measurements(tmp_path
     assert (flag["colour"], flag["deciding"]) == ("RED", "Q3")
 
 
-def test_unrelated_between_phrases_do_not_hide_conflicting_cable_measurements(tmp_path):
+@pytest.mark.parametrize("texts", [
+    (
+        "Warranty is between 1 and 2 years. I measured 70 cm and 100 cm.",
+        "The listing gives between 1 and 2 days. I measured 71 cm and 101 cm.",
+    ),
+    (
+        "I measured 70 cm between 2 clamps and 100 cm when straightened.",
+        "I measured 71 cm between 2 markers and 101 cm when straightened.",
+    ),
+])
+def test_unrelated_between_phrases_do_not_hide_conflicting_cable_measurements(tmp_path, texts):
     observations = {
         text: ("delivered_length", "capacity_short", amount, "cm", quote)
-        for text, amount, quote in (
-            ("Warranty is between 1 and 2 years. I measured 70 cm and 100 cm.", 70, "70 cm"),
-            ("The listing gives between 1 and 2 days. I measured 71 cm and 101 cm.", 71, "71 cm"),
-        )
+        for text, amount, quote in zip(texts, (70, 71), ("70 cm", "71 cm"), strict=True)
     }
 
     flag = evaluate(tmp_path, "cable_length", "1 m", 1000, observations)
@@ -296,13 +319,19 @@ def test_unrelated_between_phrases_do_not_hide_conflicting_cable_measurements(tm
 
 
 
-def test_mixed_unit_ranges_cannot_supply_a_shortfall_endpoint(tmp_path):
+@pytest.mark.parametrize("texts", [
+    (
+        "I measured somewhere between 27 inches and 71 cm.",
+        "The cable measured between 1 yard and 73 cm.",
+    ),
+    ("I measured between about 70 and 71 cm.", "My reading was between roughly 71 and 73 cm."),
+    ("I measured between 27″ and 71 cm.", "My reading was between 28″ and 73 cm."),
+    ("I measured between 1 foot 2 inches and 71 cm.", "My reading was between 1′ 3″ and 73 cm."),
+])
+def test_mixed_unit_ranges_cannot_supply_a_shortfall_endpoint(tmp_path, texts):
     observations = {
         text: ("delivered_length", "capacity_short", amount, "cm", quote)
-        for text, amount, quote in (
-            ("I measured somewhere between 27 inches and 71 cm.", 71, "71 cm"),
-            ("The cable measured between 1 yard and 73 cm.", 73, "73 cm"),
-        )
+        for text, amount, quote in zip(texts, (71, 73), ("71 cm", "73 cm"), strict=True)
     }
 
     flag = evaluate(tmp_path, "cable_length", "1 m", 1000, observations)

@@ -31,10 +31,16 @@ _SPACED_DIGITS_BEFORE = re.compile(r"[0-9][ \u00a0\u202f]+$")
 _RANGE_JOINER = r"(?:[-‐‑‒–—−]|\bto\b)"
 _RANGE_AFTER = re.compile(rf"\s*{_RANGE_JOINER}\s*[0-9]", re.IGNORECASE)
 _RANGE_BEFORE = re.compile(rf"[0-9](?:\s*[^0-9\s,.;!?-]+)?\s*{_RANGE_JOINER}\s*$", re.IGNORECASE)
-_BETWEEN_START = re.compile(r"\bbetween\s+$", re.IGNORECASE)
-_BETWEEN_NUMBER = re.compile(r"\bbetween\s+(?=[0-9])", re.IGNORECASE)
+_APPROXIMATE = r"(?:(?:about|around|roughly|approximately)\s+)?"
+_BETWEEN_START = re.compile(rf"\bbetween\s+{_APPROXIMATE}$", re.IGNORECASE)
+_BETWEEN_NUMBER = re.compile(rf"\bbetween\s+{_APPROXIMATE}(?=[0-9])", re.IGNORECASE)
 _BETWEEN_AND = re.compile(r"\band\s*$", re.IGNORECASE)
 _AND_NUMBER = re.compile(r"\s+and\s+[0-9]", re.IGNORECASE)
+_UNCONFIGURED_LENGTH_UNIT = r"(?:inch|inches|in|feet|foot|ft|yards?|yd|metres?|meters?|[′″\x22\x27]|นิ้ว|ฟุต|หลา|インチ)"
+_LENGTH_RANGE_SUFFIX = re.compile(
+    rf"{_UNCONFIGURED_LENGTH_UNIT}(?:\s*[0-9]+(?:[,.][0-9]+)?\s*{_UNCONFIGURED_LENGTH_UNIT})*",
+    re.IGNORECASE,
+)
 _COMPLETION_DENIAL_BEFORE = re.compile(
     r"\b(?:no|without|never|not|didn't|didn’t|doesn't|hasn't)\b[\w \t’']{0,35}$"
     r"|(?:未|没有|并未)[^\s。！？]{0,8}$",
@@ -113,12 +119,13 @@ _MISSING_COMPONENT = re.compile(
 )
 _PARTS_QUALIFIER = (
     r"(?:as (?:expected|stated|advertised|listed|specified|described)"
-    r"|which is how (?:this|the) (?:version|kit|model|set) (?:comes|ships))"
+    r"|(?:which is|that(?:['’]s| is)|this is) how (?:this|the) (?:version|kit|model|set) (?:comes|ships)"
+    r"|by design)"
 )
 _OFFER_ONLY = re.compile(
     r"\b(?:listing|photo|description|advertis\w*|pictured|promis\w*|order(?:ed|ing)|bought|selected"
     r"|wanted|picked|chose|requested|sold separately|optional extra"
-    rf"|{_PARTS_QUALIFIER}|by design|(?:meant|designed) to come without)\b"
+    rf"|{_PARTS_QUALIFIER}|(?:meant|designed) to come without)\b"
     r"|\b(?:seller|support|label|sticker|manual|message|email|notification|box|package)"
     r"\s+(?:(?:that|which)\s+)?"
     r"(?:said|says|saying|reads?|states?|stated|told|confirms?|confirmed|confirming|printed)\b"
@@ -127,9 +134,12 @@ _OFFER_ONLY = re.compile(
     r"|(?:สั่ง(?:ซื้อ)?|ซื้อ|เลือก)(?:แบบ|รุ่น|ชุด|ตัว)",
     re.IGNORECASE,
 )
+_PARTS_QUALIFIER_START = (
+    r"(?:(?:and|but)\s+)?(?:(?:that|it)\s+(?:was|is)\s+)?(?:(?:exactly|just)\s+)?"
+)
 _PARTS_CLAUSE = re.compile(
-    rf"(\b(?:and|but|although|while|whereas|however)\b|แต่"
-    rf"|[,;](?!\s*(?:exactly\s+)?{_PARTS_QUALIFIER}\b))",
+    rf"(;|(?:\b(?:and|but|although|while|whereas|however)\b|แต่|,)"
+    rf"(?!\s*{_PARTS_QUALIFIER_START}{_PARTS_QUALIFIER}\b))",
     re.IGNORECASE,
 )
 _PARTS_RECEIPT = re.compile(
@@ -142,7 +152,7 @@ _PARTS_RECEIPT = re.compile(
 _NON_PHYSICAL_RECEIPT = re.compile(
     r"\b(?:receiv\w*|got|opened)\s+(?:(?:an?|the|my)\s+)?"
     r"(?:message|email|text|notification|reply|confirmation|photo|link)\b"
-    r"|ได้รับ(?:ข้อความ|อีเมล|แจ้งเตือน|รูปภาพ|ลิงก์)",
+    r"|ได้รับ\s*(?:ข้อความ|อีเมล|SMS|แจ้งเตือน|รูปภาพ|ลิงก์)",
     re.IGNORECASE,
 )
 _NO_MISSING_PART = re.compile(
@@ -300,7 +310,10 @@ def _between_endpoint(before: str, profile: CategoryProfile) -> bool:
     if not endpoint:
         return False
     trailing_unit = amount[endpoint.end():].strip()
-    return not trailing_unit or (not endpoint.group(2) and trailing_unit.isalpha())
+    return not trailing_unit or (
+        not endpoint.group(2) and profile.attribute == "length"
+        and _LENGTH_RANGE_SUFFIX.fullmatch(trailing_unit) is not None
+    )
 
 def _source_mentions(
     text: str, profile: CategoryProfile, *, strict: bool = False, for_measurement: bool = False,
@@ -434,7 +447,7 @@ def _received_part_missing(quote: str, cues: tuple[str, ...]) -> bool:
                 continue
             receipt = bool(_PARTS_RECEIPT.search(clause))
             linked_receipt = connector.casefold() in {"and", "but", "แต่", ","} and previous_receipt
-            if (receipt or linked_receipt) and not _NO_MISSING_PART.search(clause) and (
+            if (receipt or linked_receipt) and not _NO_MISSING_PART.search(contents) and (
                 _MISSING_COMPONENT.search(contents)
                 or _THAI_MISSING_COMPONENT.search(clause)
                 or any(cue in clause.casefold() for cue in cues)
