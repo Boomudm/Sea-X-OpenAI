@@ -1,0 +1,1542 @@
+[
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra USB 3.0",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [
+      64
+    ],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-in/products/usb-flash-drives/sandisk-ultra-usb-3-0",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1000
+      ]
+    },
+    "market_range": [
+      {
+        "capacity_gb": 32,
+        "low_thb_per_gb": 14.0625,
+        "high_thb_per_gb": 17.625,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 64,
+        "low_thb_per_gb": 9.75,
+        "high_thb_per_gb": 11.15625,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 128,
+        "low_thb_per_gb": 9.0625,
+        "high_thb_per_gb": 9.609375,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 256,
+        "low_thb_per_gb": 6.40625,
+        "high_thb_per_gb": 8.00390625,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 512,
+        "low_thb_per_gb": 6.54296875,
+        "high_thb_per_gb": 10.048828125,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      }
+    ],
+    "mall_sources": [
+      {
+        "url": "https://shopee.co.th/product/17333589/4545068893",
+        "date": "2026-11-21",
+        "capacity_gb": 32,
+        "now_thb": 450
+      },
+      {
+        "url": "https://shopee.co.th/product/1320287136/45808353688",
+        "date": "2026-11-21",
+        "capacity_gb": 32,
+        "now_thb": 496
+      },
+      {
+        "url": "https://shopee.co.th/product/60775884/1005965879",
+        "date": "2026-11-21",
+        "capacity_gb": 32,
+        "now_thb": 564
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Shift--USB-3.2-Flash-Drive-64GB-%28SDCZ410-064G-G46%29-i.60775884.7455133332",
+        "date": "2026-11-21",
+        "capacity_gb": 64,
+        "now_thb": 624
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-USB-3.0-64GB--USB3.0-%E0%B8%AD%E0%B9%88%E0%B8%B2%E0%B8%99-100MB-s-%28SDCZ48_064G_U46--Black%29-i.60775884.1005966198",
+        "date": "2026-11-21",
+        "capacity_gb": 64,
+        "now_thb": 698
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-64GB-Speed-150MB-%28SDCZ73-064G-G46%29-i.60775884.1005965919?extraParams=%7B%22display_model_id%22%3A90081194215%2C%22model_selection_logic%22%3A3%7D",
+        "date": "2026-11-21",
+        "capacity_gb": 64,
+        "now_thb": 714
+      },
+      {
+        "url": "https://shopee.co.th/product/62824618/23019605179",
+        "date": "2026-11-21",
+        "capacity_gb": 128,
+        "now_thb": 1160
+      },
+      {
+        "url": "https://shopee.co.th/product/60775884/1005966205",
+        "date": "2026-11-21",
+        "capacity_gb": 128,
+        "now_thb": 1174
+      },
+      {
+        "url": "https://shopee.co.th/product/17333589/424775510",
+        "date": "2026-11-21",
+        "capacity_gb": 128,
+        "now_thb": 1230
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-256GB-Speed-150MB-%28SDCZ73_256G_G46%29-i.60775884.5547689053",
+        "date": "2026-11-21",
+        "capacity_gb": 256,
+        "now_thb": 1640
+      },
+      {
+        "url": "https://shopee.co.th/SANDISK-256GB-Flash-Drive-ULTRA-FLAIR-%28SDCZ73%29-USB-3.0-Black-A0133589-i.62824618.23019599041",
+        "date": "2026-11-21",
+        "capacity_gb": 256,
+        "now_thb": 1790
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Shift-USB-3.2-Flash-Drive-256GB-(SDCZ410-256G-G46)-i.60775884.4355135877",
+        "date": "2026-11-21",
+        "capacity_gb": 256,
+        "now_thb": 2049
+      },
+      {
+        "url": "https://shopee.co.th/SANDISK--512GB-Flash-Drive-ULTRA-FLAIR-%28SDCZ73%29-USB-3.0-Black---A0138899-i.62824618.17492249773",
+        "date": "2026-11-21",
+        "capacity_gb": 512,
+        "now_thb": 3350
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-512GB-Speed-150MB-(SDCZ73_512G_G46)-i.60775884.3247850251",
+        "date": "2026-11-21",
+        "capacity_gb": 512,
+        "now_thb": 4450
+      },
+      {
+        "url": "https://shopee.co.th/product/60775884/19074122751",
+        "date": "2026-11-21",
+        "capacity_gb": 512,
+        "now_thb": 5145
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Dual-Drive-Luxe-USB-Type-C-1TB-%28SDDDC4-1TB-G46%29-i.60775884.4735115224",
+        "date": "2026-11-21",
+        "capacity_gb": 1000,
+        "now_thb": 11995
+      }
+    ],
+    "expected_display": "64 GB nominal: about 57–59 as displayed by the operating system. Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Shift",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [
+      64,
+      256
+    ],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-ultra-shift-usb",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        32,
+        64,
+        128,
+        256,
+        512
+      ]
+    },
+    "market_range": [
+      {
+        "capacity_gb": 32,
+        "low_thb_per_gb": 14.0625,
+        "high_thb_per_gb": 17.625,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 64,
+        "low_thb_per_gb": 9.75,
+        "high_thb_per_gb": 11.15625,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 128,
+        "low_thb_per_gb": 9.0625,
+        "high_thb_per_gb": 9.609375,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 256,
+        "low_thb_per_gb": 6.40625,
+        "high_thb_per_gb": 8.00390625,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 512,
+        "low_thb_per_gb": 6.54296875,
+        "high_thb_per_gb": 10.048828125,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      }
+    ],
+    "mall_sources": [
+      {
+        "url": "https://shopee.co.th/product/17333589/4545068893",
+        "date": "2026-11-21",
+        "capacity_gb": 32,
+        "now_thb": 450
+      },
+      {
+        "url": "https://shopee.co.th/product/1320287136/45808353688",
+        "date": "2026-11-21",
+        "capacity_gb": 32,
+        "now_thb": 496
+      },
+      {
+        "url": "https://shopee.co.th/product/60775884/1005965879",
+        "date": "2026-11-21",
+        "capacity_gb": 32,
+        "now_thb": 564
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Shift--USB-3.2-Flash-Drive-64GB-%28SDCZ410-064G-G46%29-i.60775884.7455133332",
+        "date": "2026-11-21",
+        "capacity_gb": 64,
+        "now_thb": 624
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-USB-3.0-64GB--USB3.0-%E0%B8%AD%E0%B9%88%E0%B8%B2%E0%B8%99-100MB-s-%28SDCZ48_064G_U46--Black%29-i.60775884.1005966198",
+        "date": "2026-11-21",
+        "capacity_gb": 64,
+        "now_thb": 698
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-64GB-Speed-150MB-%28SDCZ73-064G-G46%29-i.60775884.1005965919?extraParams=%7B%22display_model_id%22%3A90081194215%2C%22model_selection_logic%22%3A3%7D",
+        "date": "2026-11-21",
+        "capacity_gb": 64,
+        "now_thb": 714
+      },
+      {
+        "url": "https://shopee.co.th/product/62824618/23019605179",
+        "date": "2026-11-21",
+        "capacity_gb": 128,
+        "now_thb": 1160
+      },
+      {
+        "url": "https://shopee.co.th/product/60775884/1005966205",
+        "date": "2026-11-21",
+        "capacity_gb": 128,
+        "now_thb": 1174
+      },
+      {
+        "url": "https://shopee.co.th/product/17333589/424775510",
+        "date": "2026-11-21",
+        "capacity_gb": 128,
+        "now_thb": 1230
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-256GB-Speed-150MB-%28SDCZ73_256G_G46%29-i.60775884.5547689053",
+        "date": "2026-11-21",
+        "capacity_gb": 256,
+        "now_thb": 1640
+      },
+      {
+        "url": "https://shopee.co.th/SANDISK-256GB-Flash-Drive-ULTRA-FLAIR-%28SDCZ73%29-USB-3.0-Black-A0133589-i.62824618.23019599041",
+        "date": "2026-11-21",
+        "capacity_gb": 256,
+        "now_thb": 1790
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Shift-USB-3.2-Flash-Drive-256GB-(SDCZ410-256G-G46)-i.60775884.4355135877",
+        "date": "2026-11-21",
+        "capacity_gb": 256,
+        "now_thb": 2049
+      },
+      {
+        "url": "https://shopee.co.th/SANDISK--512GB-Flash-Drive-ULTRA-FLAIR-%28SDCZ73%29-USB-3.0-Black---A0138899-i.62824618.17492249773",
+        "date": "2026-11-21",
+        "capacity_gb": 512,
+        "now_thb": 3350
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-512GB-Speed-150MB-(SDCZ73_512G_G46)-i.60775884.3247850251",
+        "date": "2026-11-21",
+        "capacity_gb": 512,
+        "now_thb": 4450
+      },
+      {
+        "url": "https://shopee.co.th/product/60775884/19074122751",
+        "date": "2026-11-21",
+        "capacity_gb": 512,
+        "now_thb": 5145
+      }
+    ],
+    "expected_display": "64 GB nominal: about 57–59 as displayed by the operating system. Nominal binary equivalents before device and filesystem overhead: 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Flair",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [
+      32,
+      64,
+      128,
+      256,
+      512
+    ],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-ultra-flair-usb-3-0",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        32,
+        64,
+        128,
+        256,
+        512,
+        1000
+      ]
+    },
+    "market_range": [
+      {
+        "capacity_gb": 32,
+        "low_thb_per_gb": 14.0625,
+        "high_thb_per_gb": 17.625,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 64,
+        "low_thb_per_gb": 9.75,
+        "high_thb_per_gb": 11.15625,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 128,
+        "low_thb_per_gb": 9.0625,
+        "high_thb_per_gb": 9.609375,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 256,
+        "low_thb_per_gb": 6.40625,
+        "high_thb_per_gb": 8.00390625,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      },
+      {
+        "capacity_gb": 512,
+        "low_thb_per_gb": 6.54296875,
+        "high_thb_per_gb": 10.048828125,
+        "offers_used": 3,
+        "date": "2026-11-21"
+      }
+    ],
+    "mall_sources": [
+      {
+        "url": "https://shopee.co.th/product/17333589/4545068893",
+        "date": "2026-11-21",
+        "capacity_gb": 32,
+        "now_thb": 450
+      },
+      {
+        "url": "https://shopee.co.th/product/1320287136/45808353688",
+        "date": "2026-11-21",
+        "capacity_gb": 32,
+        "now_thb": 496
+      },
+      {
+        "url": "https://shopee.co.th/product/60775884/1005965879",
+        "date": "2026-11-21",
+        "capacity_gb": 32,
+        "now_thb": 564
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Shift--USB-3.2-Flash-Drive-64GB-%28SDCZ410-064G-G46%29-i.60775884.7455133332",
+        "date": "2026-11-21",
+        "capacity_gb": 64,
+        "now_thb": 624
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-USB-3.0-64GB--USB3.0-%E0%B8%AD%E0%B9%88%E0%B8%B2%E0%B8%99-100MB-s-%28SDCZ48_064G_U46--Black%29-i.60775884.1005966198",
+        "date": "2026-11-21",
+        "capacity_gb": 64,
+        "now_thb": 698
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-64GB-Speed-150MB-%28SDCZ73-064G-G46%29-i.60775884.1005965919?extraParams=%7B%22display_model_id%22%3A90081194215%2C%22model_selection_logic%22%3A3%7D",
+        "date": "2026-11-21",
+        "capacity_gb": 64,
+        "now_thb": 714
+      },
+      {
+        "url": "https://shopee.co.th/product/62824618/23019605179",
+        "date": "2026-11-21",
+        "capacity_gb": 128,
+        "now_thb": 1160
+      },
+      {
+        "url": "https://shopee.co.th/product/60775884/1005966205",
+        "date": "2026-11-21",
+        "capacity_gb": 128,
+        "now_thb": 1174
+      },
+      {
+        "url": "https://shopee.co.th/product/17333589/424775510",
+        "date": "2026-11-21",
+        "capacity_gb": 128,
+        "now_thb": 1230
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-256GB-Speed-150MB-%28SDCZ73_256G_G46%29-i.60775884.5547689053",
+        "date": "2026-11-21",
+        "capacity_gb": 256,
+        "now_thb": 1640
+      },
+      {
+        "url": "https://shopee.co.th/SANDISK-256GB-Flash-Drive-ULTRA-FLAIR-%28SDCZ73%29-USB-3.0-Black-A0133589-i.62824618.23019599041",
+        "date": "2026-11-21",
+        "capacity_gb": 256,
+        "now_thb": 1790
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Shift-USB-3.2-Flash-Drive-256GB-(SDCZ410-256G-G46)-i.60775884.4355135877",
+        "date": "2026-11-21",
+        "capacity_gb": 256,
+        "now_thb": 2049
+      },
+      {
+        "url": "https://shopee.co.th/SANDISK--512GB-Flash-Drive-ULTRA-FLAIR-%28SDCZ73%29-USB-3.0-Black---A0138899-i.62824618.17492249773",
+        "date": "2026-11-21",
+        "capacity_gb": 512,
+        "now_thb": 3350
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-512GB-Speed-150MB-(SDCZ73_512G_G46)-i.60775884.3247850251",
+        "date": "2026-11-21",
+        "capacity_gb": 512,
+        "now_thb": 4450
+      },
+      {
+        "url": "https://shopee.co.th/product/60775884/19074122751",
+        "date": "2026-11-21",
+        "capacity_gb": 512,
+        "now_thb": 5145
+      },
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Dual-Drive-Luxe-USB-Type-C-1TB-%28SDDDC4-1TB-G46%29-i.60775884.4735115224",
+        "date": "2026-11-21",
+        "capacity_gb": 1000,
+        "now_thb": 11995
+      }
+    ],
+    "expected_display": "64 GB nominal: about 57–59 as displayed by the operating system. Nominal binary equivalents before device and filesystem overhead: 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Crayola USB-C",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/sandisk-usb-c-crayola/data-sheet-crayola-usb-c-flash-drive.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Creator Phone Drive",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/creator-phone-drive/data-sheet-sandisk-creator-phone-drive.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Creator USB-C Flash Drive",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-creator-flash-drive-usb-c?sku=SDCZ75C-256G-Z35",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        256,
+        512,
+        1000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Cruzer Blade USB 2.0",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/cruzer-blade-usb-2-0/data-sheet-cruzer-blade-usb-2-0.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        8,
+        16,
+        32,
+        64,
+        128
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 8 GB ≈ 7.5 GiB; 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Cruzer Fit USB 2.0",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/cruzer-fit-usb-2-0/data-sheet-cruzer-fit-usb-2-0.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 8 GB ≈ 7.5 GiB; 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Cruzer Force USB 2.0",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/cruzer-force-usb-2-0/data-sheet-cruzer-force-usb-2-0.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 8 GB ≈ 7.5 GiB; 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Cruzer Glide USB 2.0",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-cruzer-glide-usb-2-0",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Cruzer Glide USB 3.0",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-cruzer-glide-usb-3-0",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Cruzer Snap USB 2.0",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/cruzer-snap-usb-2-0/datasheet-cruzer-snap-usb.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Cruzer Spark USB 2.0",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/cruzer-spark-usb-2-0/data-sheet-cruzer-spark-usb-2-0.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "DJ Flash Drive",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/sandisk-dj-usb-flash-dual-drive/data-sheet-sandisk-dj-usb-flash-dual-drive.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        512,
+        1000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Extreme Fit USB-C",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-extreme-fit-usb-c",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256,
+        512,
+        1000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Extreme Fit USB-C with Case",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-extreme-fit-with-case-usb-c",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        128,
+        256,
+        512,
+        1000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Extreme Go USB 3.2",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-extreme-go-usb-3-2",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Extreme PRO Dual (SDDDE1)",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-extreme-pro-dual-drive-usb",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        256,
+        512,
+        1000,
+        2000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB; 2000 GB ≈ 1862.6 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Extreme PRO Flash Drive USB-A (SDCZ820)",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-extreme-pro-flash-drive-usb-a?sku=SDCZ820-1T00-G46",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        256,
+        512,
+        1000,
+        2000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB; 2000 GB ≈ 1862.6 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Extreme PRO Flash Drive USB-C (SDCZ890)",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-extreme-pro-flash-drive-usb-c",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        256,
+        512,
+        1000,
+        2000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB; 2000 GB ≈ 1862.6 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Extreme PRO USB 3.2 (SDCZ880)",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-extreme-pro-usb-3-2",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        128,
+        256,
+        512,
+        1000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "FIFA World Cup 2026 Gold USB-C",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/fifa-world-cup-2026-usb-flash/data-sheet-fifa-usb-c-flash-gold.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        128
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 128 GB ≈ 119.2 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "FIFA World Cup 2026 USB-C",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/fifa-world-cup-2026-usb-flash/data-sheet-fifa-usb-c-flash.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Fortnite Peely Edition",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/fortnite-peely-usb-flash-drive/data-sheet-sandisk-fortnite-peely-usb-flash-drive.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "iXpand Flash Drive Flip",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/ixpand-flip-usb-3-1-type-a/data-sheet-ixpand-flip-usb-3-1-type-a.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        32,
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "iXpand Flash Drive Go",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-in/products/usb-flash-drives/sandisk-ixpand-go-usb-3-0",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "iXpand Flash Drive Luxe",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/ixpand-luxe-usb-3-1-type-c/data-sheet-ixpand-luxe-usb-3-1-type-c.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "iXpand Flash Drive USB-A",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/ixpand-usb-3-0/data-sheet-ixpand-flash-drive.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "iXpand Mini Flash Drive",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/ixpand-mini-usb-3-0/data-sheet-iXpand-Mini-Flash-drive.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Phone Drive for Android",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-phone-drive-android",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        32,
+        64,
+        128,
+        256,
+        512
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Phone Drive for iPhone",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-phone-drive-iphone",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Phone Drive with USB-C",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/phone-drive-usb-c/data-sheet-phone-drive-usb-c.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256,
+        512,
+        1000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Pokémon Mew Edition USB-C",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/es-la/products/usb-flash-drives/sandisk-pokemon-mew-edition-usb-c?sku=SDCZBP-128G-G46",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        128
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 128 GB ≈ 119.2 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Smurfs USB Flash Drive",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-smurf-limited-edition-usb-flash-drive",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Curve USB 3.2",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/ultra-curve-3-2/data-sheet-ultra-curve-3-2.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        32,
+        64,
+        128,
+        256,
+        512
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Dual Drive Go USB-C",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-ultra-dual-drive-go-usb-3-1-type-c",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        32,
+        64,
+        128,
+        256,
+        512,
+        1000,
+        2000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB; 2000 GB ≈ 1862.6 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Dual Drive Luxe USB-C",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [
+      1000
+    ],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-ultra-dual-drive-luxe-usb-3-1-type-c",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        32,
+        64,
+        128,
+        256,
+        512,
+        1000,
+        2000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [
+      {
+        "url": "https://shopee.co.th/SanDisk-Ultra-Dual-Drive-Luxe-USB-Type-C-1TB-%28SDDDC4-1TB-G46%29-i.60775884.4735115224",
+        "date": "2026-11-21",
+        "capacity_gb": 1000,
+        "now_thb": 11995
+      }
+    ],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB; 2000 GB ≈ 1862.6 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Dual Drive m3.0 Micro-USB",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/ultra-dual-drive-m30-usb-3-0-micro-usb/data-sheet-ultra-dual-drive-m30-usb-3-0-micro-usb.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Dual Drive USB Type-C (SDDDC2)",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/ultra-dual-drive-m30-usb-3-1-type-c/data-sheet-ultra-dual-drive-m30-usb-3-1-type-c.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Eco USB 3.2",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-ultra-eco-usb-3-2",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256,
+        512
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Fit USB 3.2",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [
+      512
+    ],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-ultra-fit-usb-3-1",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1000,
+        2000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [
+      {
+        "url": "https://shopee.co.th/product/60775884/19074122751",
+        "date": "2026-11-21",
+        "capacity_gb": 512,
+        "now_thb": 5145
+      }
+    ],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB; 2000 GB ≈ 1862.6 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Luxe USB-A",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-ultra-luxe-usb-3-1",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 16 GB ≈ 14.9 GiB; 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Luxe USB-C",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ap/products/usb-flash-drives/sandisk-ultra-luxe-usb-type-c",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        32,
+        64,
+        128,
+        256,
+        512,
+        1000,
+        2000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB; 2000 GB ≈ 1862.6 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra Slider USB Type-C",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/products/usb-flash-drives/sandisk-ultra-slider-usb-type-c?sku=SDCZ480-1T00-G46",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        32,
+        64,
+        128,
+        256,
+        512,
+        1000,
+        2000
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB; 512 GB ≈ 476.8 GiB; 1000 GB ≈ 931.3 GiB; 2000 GB ≈ 1862.6 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "Ultra USB Type-C (SDCZ460)",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://documents.sandisk.com/content/dam/asset-library/en_us/assets/public/sandisk/product/usb-flash/ultra-usb-3-1-type-c/gallery/data-sheet-ultra-usb-3-1-type-c.pdf",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        32,
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 32 GB ≈ 29.8 GiB; 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  },
+  {
+    "brand": "SanDisk",
+    "aliases": [
+      "แซนดิสก์",
+      "แซนดิส"
+    ],
+    "product_line": "USB-C Flash Drive (SDCZB)",
+    "type": "USB flash drive",
+    "mall_capacities_gb": [],
+    "brand_page": {
+      "url": "https://www.sandisk.com/en-ua/products/usb-flash-drives/sandisk-usb-c-flash-drive",
+      "date": "2026-11-21",
+      "capacities_gb": [
+        64,
+        128,
+        256
+      ]
+    },
+    "market_range": [],
+    "mall_sources": [],
+    "expected_display": "Nominal binary equivalents before device and filesystem overhead: 64 GB ≈ 59.6 GiB; 128 GB ≈ 119.2 GiB; 256 GB ≈ 238.4 GiB.",
+    "approved_by": "JiratJV"
+  }
+]
