@@ -32,7 +32,8 @@ _RANGE_JOINER = r"(?:[-‐‑‒–—−]|\bto\b)"
 _RANGE_AFTER = re.compile(rf"\s*{_RANGE_JOINER}\s*[0-9]", re.IGNORECASE)
 _RANGE_BEFORE = re.compile(rf"[0-9](?:\s*[^0-9\s,.;!?-]+)?\s*{_RANGE_JOINER}\s*$", re.IGNORECASE)
 _BETWEEN_START = re.compile(r"\bbetween\s+$", re.IGNORECASE)
-_BETWEEN_NUMBER = re.compile(r"\bbetween\s+[0-9]", re.IGNORECASE)
+_BETWEEN_NUMBER = re.compile(r"\bbetween\s+(?=[0-9])", re.IGNORECASE)
+_BETWEEN_AND = re.compile(r"\band\s*$", re.IGNORECASE)
 _AND_NUMBER = re.compile(r"\s+and\s+[0-9]", re.IGNORECASE)
 _COMPLETION_DENIAL_BEFORE = re.compile(
     r"\b(?:no|without|never|not|didn't|didn’t|doesn't|hasn't)\b[\w \t’']{0,35}$"
@@ -111,9 +112,15 @@ _MISSING_COMPONENT = re.compile(
     re.IGNORECASE,
 )
 _OFFER_ONLY = re.compile(
-    r"\b(?:listing|photo|description|advertis\w*|pictured|promis\w*|order\w*|bought|selected"
-    r"|wanted|picked|chose|requested|sold separately|optional extra)\b"
+    r"\b(?:listing|photo|description|advertis\w*|pictured|promis\w*|order(?:ed|ing)|bought|selected"
+    r"|wanted|picked|chose|requested|sold separately|optional extra"
+    r"|as (?:expected|stated|advertised|listed|specified|described)"
+    r"|which is how (?:this|the) (?:version|kit|model|set) (?:comes|ships))\b"
+    r"|\b(?:seller|support|label|sticker|manual|message|email|notification|box|package)"
+    r"\s+(?:(?:that|which)\s+)?"
+    r"(?:said|says|saying|reads?|states?|stated|told|confirms?|confirmed|confirming)\b"
     r"|หน้าร้าน|หน้าสินค้า|รูปสินค้า|รายละเอียดสินค้า|โฆษณา|ระบุ|ขายแยก|ซื้อแยก|ไม่รวม|ไม่มีในชุด"
+    r"|ตามที่(?:แจ้ง|ตกลง)ไว้|ตามสเป[กค]|ตรงตามที่สั่ง|(?:ฉลาก|สติ[ก๊]เกอร์|ทางร้าน|ผู้ขาย)(?:เขียน|ระบุ|แจ้ง|บอก)"
     r"|(?:สั่ง(?:ซื้อ)?|ซื้อ|เลือก)(?:แบบ|รุ่น|ชุด|ตัว)",
     re.IGNORECASE,
 )
@@ -123,6 +130,15 @@ _PARTS_RECEIPT = re.compile(
     r"|(?:in|from) (?:(?:my|the|our) )?(?:box|package|parcel)|im (?:paket|karton))\b"
     r"|ได้รับของ|ได้รับสินค้า|ได้รับ|เปิดกล่อง|แกะกล่อง|ในกล่อง"
     r"|\bin (?:my|our) (?:kit|set)\b",
+    re.IGNORECASE,
+)
+_NON_PHYSICAL_RECEIPT = re.compile(
+    r"\b(?:receiv\w*|got|opened)\s+(?:(?:an?|the|my)\s+)?"
+    r"(?:message|email|text|notification|reply|confirmation|photo|link)\b",
+    re.IGNORECASE,
+)
+_NO_MISSING_PART = re.compile(
+    rf"\bno\s+(?:{_COMPONENT}|{_THAI_COMPONENT})\s+(?:(?:was|were|is|are)\s+)?missing\b",
     re.IGNORECASE,
 )
 _THAI_MISSING_COMPONENT = re.compile(
@@ -256,10 +272,13 @@ def _statement_spans(text: str, *, split_concessions: bool = False) -> Iterable[
         yield start, len(text)
 
 
-
-def _between_endpoint(before: str) -> bool:
-    first, separator, tail = before.casefold().rpartition(" and")
-    return bool(separator and not tail.strip() and _BETWEEN_NUMBER.search(first))
+def _between_endpoint(before: str, profile: CategoryProfile) -> bool:
+    joiner = _BETWEEN_AND.search(before)
+    if not joiner:
+        return False
+    first = before[:joiner.start()]
+    markers = list(_BETWEEN_NUMBER.finditer(first))
+    return bool(markers and _review_pattern(profile, strict=True).fullmatch(first[markers[-1].end():].strip()))
 
 def _source_mentions(
     text: str, profile: CategoryProfile, *, strict: bool = False, for_measurement: bool = False,
@@ -274,7 +293,7 @@ def _source_mentions(
                 before = text[max(0, mention.start() - 64):mention.start()]
                 if (
                     _SPACED_DIGITS_BEFORE.search(before) or _RANGE_BEFORE.search(before)
-                    or _between_endpoint(before) or _RANGE_AFTER.match(text, mention.end())
+                    or _between_endpoint(before, profile) or _RANGE_AFTER.match(text, mention.end())
                     or (_BETWEEN_START.search(before) and _AND_NUMBER.match(text, mention.end()))
                 ):
                     continue
@@ -387,12 +406,12 @@ def _received_part_missing(quote: str, cues: tuple[str, ...]) -> bool:
         clauses = _PARTS_CLAUSE.split(quote[start:end])
         previous_receipt = False
         for connector, clause in zip(("", *clauses[1::2]), clauses[::2], strict=True):
-            if _OFFER_ONLY.search(clause):
+            if _OFFER_ONLY.search(clause) or _NON_PHYSICAL_RECEIPT.search(clause):
                 previous_receipt = False
                 continue
             receipt = bool(_PARTS_RECEIPT.search(clause))
-            linked_receipt = connector.casefold() in {"but", "แต่"} and previous_receipt
-            if (receipt or linked_receipt) and (
+            linked_receipt = connector.casefold() in {"and", "but", "แต่", ","} and previous_receipt
+            if (receipt or linked_receipt) and not _NO_MISSING_PART.search(clause) and (
                 _MISSING_COMPONENT.search(clause)
                 or _THAI_MISSING_COMPONENT.search(clause)
                 or any(cue in clause.casefold() for cue in cues)

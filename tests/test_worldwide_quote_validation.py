@@ -278,7 +278,10 @@ def test_grouped_fresh_storage_shortfalls_survive_review_checks():
     assert (flag["colour"], flag["deciding"]) == ("RED", "Q3")
 
 
-@pytest.mark.parametrize("expression", ["between 1 and 2 TB", "between 1 TB and 2 TB", "1 to 2 TB"])
+@pytest.mark.parametrize("expression", [
+    "between 1 and 2 TB", "between 1 TB and 2 TB", "1 to 2 TB",
+    "Between 3 brands, measured between 1 and 2 TB", "between 1\tand 2 TB",
+])
 def test_worded_ranges_cannot_supply_one_endpoint(expression):
     profile = load_profile()
 
