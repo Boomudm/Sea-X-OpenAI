@@ -1,0 +1,131 @@
+{
+  "listing_id": "sample-standard-64",
+  "url": "https://example.invalid/trongpok-sample/sample-standard-64",
+  "captured_at": "2026-11-21T10:00:00+07:00",
+  "title": "Sample · Fixture Brand Standard",
+  "spec_text": "USB flash drive",
+  "description": "Synthetic demo fixture. No marketplace observations.",
+  "listing_images": [],
+  "options": [
+    {
+      "option_id": "64-gb",
+      "variation_label": "64 GB",
+      "capacity_text": "64 GB",
+      "promise_gb": 64,
+      "was_thb": 256,
+      "now_thb": 224
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "sample-standard-64-review-1",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "Bu***01",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "Verified 58 GB on the drive.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-standard-64-review-2",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "Bu***02",
+      "date": "2026-11-19",
+      "stars": 5,
+      "text": "No errors after copying my files.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-standard-64-review-3",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "Bu***03",
+      "date": "2026-11-18",
+      "stars": 5,
+      "text": "Recognized immediately by my computer.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-standard-64-review-4",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "Bu***04",
+      "date": "2026-11-17",
+      "stars": 5,
+      "text": "Works with my school files.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-standard-64-review-5",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "Bu***05",
+      "date": "2026-11-16",
+      "stars": 5,
+      "text": "The advertised size matched my test.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-standard-64-review-6",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "Bu***06",
+      "date": "2026-11-15",
+      "stars": 5,
+      "text": "Read my backups without a problem.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-standard-64-review-7",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "Bu***07",
+      "date": "2026-11-14",
+      "stars": 5,
+      "text": "All copied files opened again.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-standard-64-review-8",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "Bu***08",
+      "date": "2026-11-13",
+      "stars": 5,
+      "text": "I am using it for documents.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-standard-64-review-9",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "Bu***09",
+      "date": "2026-11-12",
+      "stars": 5,
+      "text": "Easy to use for moving photos.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-standard-64-review-10",
+      "variation_label": "64 GB",
+      "option_id": null,
+      "buyer_masked": "Bu***10",
+      "date": "2026-11-11",
+      "stars": 5,
+      "text": "Transfer finished without errors.",
+      "tags": [],
+      "images": []
+    }
+  ]
+}

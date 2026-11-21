@@ -1,0 +1,39 @@
+[
+  {
+    "listing_id": "sample-standard-64",
+    "option_id": "64-gb",
+    "colour": "GREEN",
+    "deciding": "Q5",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 60,
+      "base": 60,
+      "adjustments": [
+        {
+          "points": 10,
+          "reason": "Market range and at least 3 offers captured today"
+        }
+      ],
+      "missing_evidence": [],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]

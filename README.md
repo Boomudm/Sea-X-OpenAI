@@ -27,11 +27,9 @@ listing. See `uv run trongpok-analyze --help` for directory overrides. Run the
 CLI from the project root and keep generated reports and the reviewer database
 inside that directory.
 
-U4 can sort flags across listings using `trongpok.rules.queue_key` and call
-`trongpok.decisions.save_decision` and `load_decision` with the same SQLite path
-as the CLI (default `out/decisions.sqlite3`). When reader claims carry only
-capacity, U3 uses a KB row only if exactly one approved brand and product line
-are named in the captured title and the storage type is named in the specs.
+When reader claims carry only capacity, U3 uses a KB row only if exactly one
+approved brand and product line are named in the captured title and the
+storage type is named in the specs.
 
 To run the U2 reader and U3 rules in one command, configure the local
 `.env` from `.env.example`, then run:
@@ -53,3 +51,28 @@ For optional confidence challenges, provide a JSON object keyed by option ID
 in `<listing_id>.json` under the directory passed to `--challenges-dir`.
 Each option's list contains `points` (−10, −5, 5, or 10), `reason`, and
 `source` (an exact quote, review ID, image reference, or evidence source URL).
+
+## Review options in Streamlit
+
+```sh
+uv run streamlit run src/trongpok/reviewer_app.py
+```
+
+Open a row to see the deciding reason, other signals, evidence and confidence
+adjustments for that option. Accept or dismiss with a reviewer note. Decisions
+are saved to `out/decisions.sqlite3` and appear again after restarting the app.
+New captured reports can be loaded with **Refresh queue**.
+
+Choose **Sample data** for the demo. Open **Compact** and **Standard** to compare
+the four measured shortfalls with the normal 58 GB reading. Open **Discount**
+and **Reference · 1 TB · Black** to compare the ฿299 price flag with a ฿2,000
+current price. The [labelled samples](tests/fixtures/u4/README.md) use a separate
+`out/sample-decisions.sqlite3` database and can run without an API key.
+The [pitch screenshots](docs/u4-demo/) show these same labelled samples.
+
+To open another saved capture, pass its paths after `--`:
+
+```sh
+uv run streamlit run src/trongpok/reviewer_app.py -- \
+  --flags-dir out/flags --listings-dir data/listings --decisions-db out/decisions.sqlite3
+```
