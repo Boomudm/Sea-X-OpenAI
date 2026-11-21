@@ -1,0 +1,573 @@
+[
+  {
+    "listing_id": "50570965257",
+    "option_id": "512GB",
+    "title": "(ส่งด่วน) SANDISK Flash Drive USB 3.0 Ultra Flair 32GB/64GB/128GB/256GB/512GB/1TB (150MB/s) SDCZ73 ของแท้ แฟลชไดร์ฟ",
+    "variation_label": "512GB",
+    "priority": "red",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q1",
+    "findings": [
+      "price"
+    ],
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 3948,
+        "now_thb": 1389,
+        "low_thb": 3350.0,
+        "high_thb": 5145.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://shopee.co.th/SANDISK--512GB-Flash-Drive-ULTRA-FLAIR-%28SDCZ73%29-USB-3.0-Black---A0138899-i.62824618.17492249773",
+            "date": "2026-11-21",
+            "capacity_gb": 512,
+            "now_thb": 3350
+          },
+          {
+            "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-512GB-Speed-150MB-(SDCZ73_512G_G46)-i.60775884.3247850251",
+            "date": "2026-11-21",
+            "capacity_gb": 512,
+            "now_thb": 4450
+          },
+          {
+            "url": "https://shopee.co.th/product/60775884/19074122751",
+            "date": "2026-11-21",
+            "capacity_gb": 512,
+            "now_thb": 5145
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://shopee.co.th/product/1692544522/50570965257",
+      "was_thb": 3948,
+      "now_thb": 1389,
+      "photo_count": 1,
+      "listing_images": [
+        "/data/images/50570965257/images/listing-01.webp"
+      ]
+    }
+  },
+  {
+    "listing_id": "47255645924",
+    "option_id": "128gb",
+    "title": "AIDIY แฟลชไดร์ฟ Flash Drive USB3.0 OTG แฟลชไดรฟ์มือถือ คอมพิวเตอร์ ความจุ 8GB 16GB 32GB 64GB 128GB ส่งด่วน",
+    "variation_label": "สีเงินเมทัลลิก-128G",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding buyer evidence quotes a clear number"
+      },
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": -10,
+        "reason": "Market range is thin or the KB row is missing"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "47255645924-r01",
+        "buyer_masked": "w*****0",
+        "date": "2026-05-26T23:06:00+07:00",
+        "quote": "ที่เก็บได้6gเองครับ",
+        "quantity": 6.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 6442450944.0,
+        "ratio": 0.050331648,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Find an approved reference for this brand, product line and type",
+      "Look for an independent measured report for this variation"
+    ],
+    "capture": {
+      "listing_url": "https://shopee.co.th/product/1236358843/47255645924",
+      "was_thb": 299,
+      "now_thb": 168,
+      "photo_count": 1,
+      "listing_images": [
+        "/data/images/47255645924/images/listing-01.webp"
+      ]
+    }
+  },
+  {
+    "listing_id": "50908347169",
+    "option_id": "SDCZ73-64GB",
+    "title": "SanDisk Ultra Flair 64GB USB 3.0 SDCZ73",
+    "variation_label": "64GB",
+    "priority": "yellow",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is low"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 1716,
+        "now_thb": 620,
+        "low_thb": 624.0,
+        "high_thb": 714.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://shopee.co.th/SanDisk-Ultra-Shift--USB-3.2-Flash-Drive-64GB-%28SDCZ410-064G-G46%29-i.60775884.7455133332",
+            "date": "2026-11-21",
+            "capacity_gb": 64,
+            "now_thb": 624
+          },
+          {
+            "url": "https://shopee.co.th/SanDisk-Ultra-USB-3.0-64GB--USB3.0-%E0%B8%AD%E0%B9%88%E0%B8%B2%E0%B8%99-100MB-s-%28SDCZ48_064G_U46--Black%29-i.60775884.1005966198",
+            "date": "2026-11-21",
+            "capacity_gb": 64,
+            "now_thb": 698
+          },
+          {
+            "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-64GB-Speed-150MB-%28SDCZ73-064G-G46%29-i.60775884.1005965919?extraParams=%7B%22display_model_id%22%3A90081194215%2C%22model_selection_logic%22%3A3%7D",
+            "date": "2026-11-21",
+            "capacity_gb": 64,
+            "now_thb": 714
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [],
+    "capture": {
+      "listing_url": "https://shopee.co.th/SANDISK-FLASH-DRIVE-%28%E0%B9%81%E0%B8%9F%E0%B8%A5%E0%B8%8A%E0%B9%84%E0%B8%94%E0%B8%A3%E0%B9%8C%E0%B8%9F%29-ULTRA-FLAIR-64GB-USB-3.0-SDCZ73-Warranty-5-Years-i.1320287136.50908347169?extraParams=%7B%22display_model_id%22%3A370740845391%2C%22model_selection_logic%22%3A3%7D",
+      "was_thb": 1716,
+      "now_thb": 620,
+      "photo_count": 1,
+      "listing_images": [
+        "/data/images/50908347169/images/listing-01.jpg"
+      ]
+    }
+  },
+  {
+    "listing_id": "28894372103",
+    "option_id": "1tb",
+    "title": "u Disk 2TB/1TB แฟลชไดรฟ์ ความเร็วสูง Memory Stick แฟลชไดรฟ์โลหะ คุณภาพสูง flashdrive PC/Android",
+    "variation_label": "1TB",
+    "priority": "yellow",
+    "confidence": 50,
+    "base": 50,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Deciding reviews match the option exactly"
+      },
+      {
+        "points": -10,
+        "reason": "Market range is thin or the KB row is missing"
+      }
+    ],
+    "deciding": "Q4",
+    "findings": [
+      "reports"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "28894372103-r01",
+        "buyer_masked": "w*****n",
+        "date": "2026-09-21T09:09:00+07:00",
+        "quote": "ความจำในข้อมูล มีไม่ถึง",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Find an approved reference for this brand, product line and type",
+      "Verify the reported capacity against the original review or completed test"
+    ],
+    "capture": {
+      "listing_url": "https://shopee.co.th/product/1654994482/28894372103",
+      "was_thb": 599,
+      "now_thb": 365,
+      "photo_count": 1,
+      "listing_images": [
+        "/data/images/28894372103/images/listing-01.webp"
+      ]
+    }
+  },
+  {
+    "listing_id": "1005965919",
+    "option_id": "SDCZ73-064G-G46",
+    "title": "SanDisk Ultra Flair USB 3.0 64GB (SDCZ73-064G-G46)",
+    "variation_label": "64GB",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [
+      "Collect 10 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-64GB-Speed-150MB-%28SDCZ73-064G-G46%29-i.60775884.1005965919?extraParams=%7B%22display_model_id%22%3A90081194215%2C%22model_selection_logic%22%3A3%7D",
+      "was_thb": 725,
+      "now_thb": 714,
+      "photo_count": 1,
+      "listing_images": [
+        "/data/images/1005965919/images/listing-01.jpg"
+      ]
+    }
+  },
+  {
+    "listing_id": "16397222698",
+    "option_id": "SDCZ73_032G_G46B",
+    "title": "SanDisk Ultra Flair USB 3.0 16GB, 32GB, 64GB, 128GB, 256GB Speed / 150MB (SDCZ73) ประกัน Synnex 5ปี",
+    "variation_label": "SDCZ73_032G_G46B",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [
+      "Collect 10 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://shopee.co.th/product/43238610/16397222698",
+      "was_thb": 900,
+      "now_thb": 529,
+      "photo_count": 1,
+      "listing_images": [
+        "/data/images/16397222698/images/listing-01.webp"
+      ]
+    }
+  },
+  {
+    "listing_id": "16397222698",
+    "option_id": "SDCZ73_064G_G46",
+    "title": "SanDisk Ultra Flair USB 3.0 16GB, 32GB, 64GB, 128GB, 256GB Speed / 150MB (SDCZ73) ประกัน Synnex 5ปี",
+    "variation_label": "SDCZ73_064G_G46",
+    "priority": "unknown",
+    "confidence": 60,
+    "base": 60,
+    "adjustments": [
+      {
+        "points": 10,
+        "reason": "Market range and at least 3 offers captured today"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "missing_evidence": [
+      "Collect 9 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://shopee.co.th/product/43238610/16397222698",
+      "was_thb": 1200,
+      "now_thb": 725,
+      "photo_count": 3,
+      "listing_images": [
+        "/data/images/16397222698/images/listing-01.webp"
+      ],
+      "buyer_images": [
+        "/data/images/16397222698/images/review-40946425908-01.jpg",
+        "/data/images/16397222698/images/review-40946425908-02.jpg"
+      ]
+    }
+  },
+  {
+    "listing_id": "28894372103",
+    "option_id": "2tb",
+    "title": "u Disk 2TB/1TB แฟลชไดรฟ์ ความเร็วสูง Memory Stick แฟลชไดรฟ์โลหะ คุณภาพสูง flashdrive PC/Android",
+    "variation_label": "2TB",
+    "priority": "unknown",
+    "confidence": 40,
+    "base": 40,
+    "adjustments": [
+      {
+        "points": -10,
+        "reason": "Market range is thin or the KB row is missing"
+      }
+    ],
+    "deciding": "grey",
+    "findings": [],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "missing_evidence": [
+      "Find an approved reference for this brand, product line and type",
+      "Collect 10 more matched text reviews"
+    ],
+    "capture": {
+      "listing_url": "https://shopee.co.th/product/1654994482/28894372103",
+      "was_thb": 789,
+      "now_thb": 411,
+      "photo_count": 1,
+      "listing_images": [
+        "/data/images/28894372103/images/listing-01.webp"
+      ]
+    }
+  },
+  {
+    "listing_id": "lazada-2702676460",
+    "option_id": "SDDDC3-black-64gb",
+    "title": "SanDisk Ultra Dual Drive Go 64 GB Black · MemoryME general store",
+    "variation_label": "64 GB / Black",
+    "priority": "green",
+    "confidence": 40,
+    "base": 40,
+    "adjustments": [
+      {
+        "points": -10,
+        "reason": "Market range is thin or the KB row is missing"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 10,
+        "checked_text_reviews": 10
+      }
+    ],
+    "missing_evidence": [
+      "Approved Lazada price benchmark is pending",
+      "Find an approved reference for this brand, product line and type"
+    ],
+    "capture": {
+      "listing_url": "https://www.lazada.co.th/products/pdp-i2702676460.html",
+      "was_thb": 1120.0,
+      "now_thb": 799.0,
+      "photo_count": 0
+    }
+  },
+  {
+    "listing_id": "lazada-2702745070",
+    "option_id": "SDDDC3-lavender-256gb",
+    "title": "SanDisk Ultra Dual Drive Go 256 GB Lavender Purple · MemoryME general store",
+    "variation_label": "256G/Lavender Purple",
+    "priority": "green",
+    "confidence": 40,
+    "base": 40,
+    "adjustments": [
+      {
+        "points": -10,
+        "reason": "Market range is thin or the KB row is missing"
+      }
+    ],
+    "deciding": "Q5",
+    "findings": [
+      "clear"
+    ],
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: decided"
+    ],
+    "reasons": [
+      "No flags found in the matched reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 11,
+        "checked_text_reviews": 11
+      }
+    ],
+    "missing_evidence": [
+      "Approved Lazada price benchmark is pending",
+      "Find an approved reference for this brand, product line and type"
+    ],
+    "capture": {
+      "listing_url": "https://www.lazada.co.th/products/pdp-i2702745070.html",
+      "was_thb": 2920.0,
+      "now_thb": 2079.0,
+      "photo_count": 0
+    }
+  }
+]
