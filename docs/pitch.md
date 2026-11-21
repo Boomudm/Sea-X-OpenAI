@@ -1,16 +1,32 @@
 # ตรงปก Queue demo rehearsal
 
-**Build-day milestones (Bangkok time)** · Evaluation 15:30 · Rehearsal 16:00 · Code freeze and hand-in 17:00. The official demo length and submission format are pending organiser confirmation in the [README](../README.md).
+**Confirmed format.** Round 1 has 6 minutes for demo and pitch, followed by 2 minutes of Q&A. The final has 6 minutes followed by 4 minutes of Q&A. Judges prioritize the working product. Rehearsal is 16:00 Bangkok time. [Hand-in notes](../README.md)
 
-## Run of show
+## Six-minute demo
 
-If the live path is still unavailable at 15:00, use the [fallback demo script](fallback-demo.md).
+Open **Captured data** and have the source evidence ready. Use the [offline fallback](fallback-demo.md) if the live reader or web preview is unavailable.
 
-1. **Open with the reviewer’s problem.** “A Shopee listing can sell several capacities under one rating. Reports of delivered capacity are buried in reviews for different options. ตรงปก Queue gives reviewers one priority colour per option, with the exact quotes, rule path and confidence.”
-2. **Follow the 64 GB hero `[listing and option IDs pending]`.** Start with the hand-copied listing and the option’s Variation. The AI readers extract claims, quotes and numbers. Code matches reviews to the exact option, looks up approved reference data and applies Q1–Q5. Open the queue card, read one quote aloud, and point to the four target buyer quotes, dates, normalised sizes and rule path. Show the rating and price if verified. Then show the 58-reading comparison `[IDs pending]`. If the four-buyer hero is unavailable, use a captured one-buyer YELLOW and explain what a second independent measured report would change.
-3. **Show the two-price pair `[IDs pending]`.** Open the Q1 RED card and point to both prices and the dated market range. On the inflated-discount card, show that the paid price falls inside the range. The ฿2,990/฿299 pair is a rule illustration. Use captured prices for marketplace claims. [AGENTS.md §4.3](../AGENTS.md)
-4. **Close the review loop.** Show the initial “unsure” verdict, accept or dismiss the flag, enter a reason, and reopen the queue after restarting to show the saved decision. “The colour tells the reviewer where to look first. The reviewer decides what the evidence supports.”
-5. **Show the evaluation and one real Codex transcript.** Read the verified results below. Open `[build-day transcript link or excerpt pending]` beside the matching log entry. Point to what Codex produced, what the team decided and how the team verified the change. [Codex log](codex-log/)
+| Time | Show and say |
+|---|---|
+| 0:00–0:25 | One listing can sell several capacities under one rating. Buyers’ reports get buried across options. Show the queue that gives reviewers one priority per exact option. |
+| 0:25–1:25 | **Real 512 GB price RED.** Open the captured card. Show ฿3,948 was, ฿1,389 now, and the ฿3,350–5,145 range from three dated official Mall offers. Half the low end is ฿1,675, so this option gets Q1 review priority. Point to the sources and date. [Captured listing][price] · [Approved KB][kb] |
+| 1:25–2:20 | **Real 128 GB one-buyer YELLOW.** Point to exact Variation `สีเงินเมทัลลิก-128G` and the buyer’s “ที่เก็บได้6gเองครับ” (could store only 6 GB). One measured buyer sets Q4. Q3 RED requires at least two independent measured buyers of this same Variation. [Captured review][buyer] |
+| 2:20–3:00 | **Real 64 GB, normal reading.** Show the buyer’s approximately 57 GB report and Windows Properties at 57.2 GB. Explain binary display and the 85% cutoff. One matched review leaves this option GREY. [Captured review][comparison] · [Windows screenshot][screenshot] |
+| 3:00–3:30 | **GREY abstention.** Open the 2 TB option. Its listing’s only captured review is for 1 TB, leaving 2 TB with zero matched text reviews. [Captured options][grey] |
+| 3:30–4:15 | **Synthetic sample, buyer RED.** Switch to **Sample data** and keep the sample label visible. Say “This is a synthetic example for the buyer rule.” Open the 64 GB option with four sample measurements and show why Q3 fires. [Sample documentation][sample] |
+| 4:15–5:15 | **Human decision.** Return to Captured data. Show the 128 GB verdict as unsure, record the reviewer’s choice and reason, and reopen the saved decision. The priority tells the reviewer where to look first. The reviewer decides what the evidence supports. |
+| 5:15–6:00 | **Evaluation and Codex.** Show the scored results when available. Until then, say “Evaluation pending.” Open one [Codex log](codex-log/) entry with the matching transcript `[pending]`, and point to the actual contribution and check. |
+
+## Six judging criteria
+
+| Criterion | Evidence in the demo |
+|---|---|
+| Problem & solution fit | One listing-wide rating hides option-specific complaints. The queue matches exact Variations. |
+| Build quality | Open a real captured card, follow its report and evidence, then save and reopen a reviewer decision. |
+| Insight & originality | Show GB/GiB normalization, two independent measurements for Q3, and the two-price rule with a dated market range. |
+| Real-world value | Sort options by review priority and show the source evidence so the reviewer can decide. |
+| Alignment with build direction | Deep Domain AI models storage capacities and measurements. AI-native operations turn the captured evidence into a human review queue. |
+| Use of Codex | Show one transcript and log entry that connect a concrete build contribution to its check. |
 
 ## Rules to explain on screen
 
@@ -43,3 +59,11 @@ If the live path is still unavailable at 15:00, use the [fallback demo script](f
 | What are your false alarms and sample size? | Give the Q3 RED false alarms and sample size from the results. A teammate who did not write the rules blind-labels whether buyers report a shortfall. The report shows Q1 and Q2 RED counts alongside their blind labels. [Evaluation results](../eval/results.md) |
 | Did you tune 85% after seeing the results? | The rule was specified before evaluation. Show the pre-run freeze of thresholds, prompts and baseline cut-offs. [Evaluation protocol](../eval/protocol.md) |
 | Show one Codex transcript. | Open the selected transcript and matching log entry. Point to the contribution, the team decision and the verification. |
+
+[price]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/50570965257.json
+[kb]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/kb/kb.json
+[buyer]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/47255645924.json
+[comparison]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/16397222698.json
+[screenshot]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/16397222698/images/review-40946425908-02.jpg
+[grey]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/data/listings/28894372103.json
+[sample]: https://github.com/Boomudm/Sea-X-OpenAI/blob/477068568fe48c525524231e11894a17f8fb12ae/tests/fixtures/u4/README.md
