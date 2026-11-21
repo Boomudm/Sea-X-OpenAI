@@ -28,12 +28,13 @@ from .models import (
     ReviewDraftBatch,
 )
 from .paths import listing_filename, within_directory, write_json
+from .profiles import CategoryProfile
 from .prompts import (
     CLAIMS_DEVELOPER,
-    CONFIDENCE_DEVELOPER,
     IMAGES_DEVELOPER,
     REVIEWS_DEVELOPER,
     REVIEWS_PROMPT_VERSION,
+    confidence_developer,
 )
 from .validation import (
     image_reading_to_finding,
@@ -193,12 +194,13 @@ def assess_confidence(
     evidence: Mapping[str, Any] | list[Any],
     *,
     client: StructuredReader | None = None,
+    profile: CategoryProfile | None = None,
 ) -> ConfidenceAssessment:
     reader = client or OpenAIReaderClient()
     payload = {"flag": dict(flag), "evidence": evidence, "round": 1, "tools": []}
     batch = reader.generate(
         ChallengeBatch,
-        developer=CONFIDENCE_DEVELOPER,
+        developer=confidence_developer(profile),
         user_text=json.dumps(payload, ensure_ascii=False),
     )
     return ConfidenceAssessment(

@@ -22,7 +22,17 @@ from .models import (
     ReviewDraft,
     Unit,
 )
+from .profiles import load_profile
 from .reviews import conflicting_review_measurements, measured_bytes, review_number_units
+
+_STORAGE_PROFILE = load_profile()
+_PROMISE_FACTORS = {
+    unit: conversion.promise_factor
+    for unit, conversion in _STORAGE_PROFILE.units.items()
+    if conversion.promise_factor is not None
+}
+_PROMISE_BYTES_PER_GB = _PROMISE_FACTORS["GB"]
+_MINIMUM_RATIO = float(_STORAGE_PROFILE.tolerance)
 
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
 _NUMBER_RE = re.compile(r"(?<![\d.])([0-9]+(?:[,.][0-9]+)?)(?![\d.])")
@@ -53,7 +63,8 @@ def capacity_values_gb(value: str) -> list[float]:
     result: list[float] = []
     for quantity, unit in _CAPACITY_RE.findall(normalized):
         number = _parse_number(quantity)
-        result.append(number * 1000 if unit.upper() == "TB" else number)
+        factor = _PROMISE_FACTORS[unit.upper()]
+        result.append(number * float(factor / _PROMISE_BYTES_PER_GB))
     return result
 
 
@@ -90,14 +101,8 @@ def quantity_bytes(quantity: float | None, unit: Unit) -> int | None:
         return None
     if not math.isfinite(quantity) or quantity < 0:
         raise InvalidReaderOutput("quantity must be a finite non-negative number")
-    multipliers = {
-        "MB": 1_000_000,
-        "GB": 2**30,
-        "TB": 2**40,
-        "GiB": 2**30,
-        "TiB": 2**40,
-    }
-    return round(quantity * multipliers[unit])
+    factor = max(_STORAGE_PROFILE.units[unit].measurement_factors)
+    return round(quantity * float(factor))
 
 
 def normalize_claims(listing: Listing, drafts: ClaimDraftBatch) -> list[ClaimOption]:
@@ -168,14 +173,14 @@ def normalize_review_draft(
     quantity = draft.quantity
     unit: Unit = draft.unit
     role = draft.role
-    measurable = role in {"delivered capacity", "fails after", "test result"}
+    measurable = role.replace(" ", "_") in _STORAGE_PROFILE.measured_roles
     promise_gb = option.promise_gb
     if promise_gb is None:
         values = capacity_values_gb(option.variation_label) or capacity_values_gb(
             option.capacity_text
         )
         promise_gb = values[0] if len(set(values)) == 1 else None
-    promised_bytes = Decimal(str(promise_gb)) * 10**9 if promise_gb else None
+    promised_bytes = Decimal(str(promise_gb)) * _PROMISE_BYTES_PER_GB if promise_gb else None
     excluded = False
     if quantity is not None:
         unit = _quoted_review_unit(review, option, draft)
@@ -202,14 +207,14 @@ def normalize_review_draft(
 
     parsed_bytes = quantity_bytes(quantity, unit)
     ratio = (
-        parsed_bytes / (promise_gb * 1_000_000_000)
+        parsed_bytes / (promise_gb * float(_PROMISE_BYTES_PER_GB))
         if parsed_bytes is not None and promise_gb
         else None
     )
     if excluded:
         complaint = "none"
     elif measurable and ratio is not None:
-        complaint = "capacity_short" if ratio < 0.85 else "none"
+        complaint = "capacity_short" if ratio < _MINIMUM_RATIO else "none"
     elif measurable or draft.complaint == "capacity_no_number":
         complaint = "capacity_no_number"
     elif draft.complaint == "capacity_short":
@@ -266,7 +271,7 @@ def normalize_image_draft(
         values = capacity_values_gb(expected_option.variation_label)
         promise_gb = values[0] if len(set(values)) == 1 else None
     ratio = (
-        parsed_bytes / (promise_gb * 1_000_000_000)
+        parsed_bytes / (promise_gb * float(_PROMISE_BYTES_PER_GB))
         if parsed_bytes is not None and promise_gb
         else None
     )
@@ -291,7 +296,7 @@ def image_reading_to_finding(reading: ImageReading) -> Finding | None:
     measurable = reading.image_type == "completed H2testw/F3"
     complaint = (
         "capacity_short"
-        if measurable and reading.ratio is not None and reading.ratio < 0.85
+        if measurable and reading.ratio is not None and reading.ratio < _MINIMUM_RATIO
         else "none"
     )
     return Finding(

@@ -23,7 +23,7 @@
     "promise", "free_space", "speed", "other"
   ],
   "measured_roles": ["delivered_capacity", "fails_after", "test_result"],
-  "normal_display_text": "64 GB nominal: about 57–59 as displayed by the operating system.",
+  "normal_display_text": "A 64 GB drive typically shows about 57–59 GB in the operating system.",
   "mismatch_types": ["capacity_short", "capacity_no_number", "wrong_item", "other", "none"],
   "prompt_traps": [
     "GB vs GiB",
