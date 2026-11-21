@@ -1,0 +1,7 @@
+# The reviewer app writes decisions, so it only listens on this machine by default.
+# To demo on another device on purpose, run with: --server.address 0.0.0.0
+[server]
+address = "127.0.0.1"
+
+[browser]
+gatherUsageStats = false

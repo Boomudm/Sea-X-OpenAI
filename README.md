@@ -66,6 +66,8 @@ Each option's list contains `points` (−10, −5, 5, or 10), `reason`, and
 uv run streamlit run src/trongpok/reviewer_app.py
 ```
 
+The app listens on 127.0.0.1 only (`.streamlit/config.toml`), because it saves reviewer decisions.
+
 Open a row to see the deciding reason, other signals, evidence and confidence
 adjustments for that option. Accept or dismiss with a reviewer note. Decisions
 are saved to `out/decisions.sqlite3` and appear again after restarting the app.
