@@ -27,6 +27,7 @@ from .models import (
     ReviewDraft,
     ReviewDraftBatch,
 )
+from .paths import listing_filename, within_directory, write_json
 from .prompts import (
     CLAIMS_DEVELOPER,
     CONFIDENCE_DEVELOPER,
@@ -212,49 +213,79 @@ def process_listing_file(
     client: StructuredReader | None = None,
     cache: ReviewCache | None = None,
     reread_image_refs: Sequence[str] = (),
+    preserve_evidence: bool = False,
 ) -> tuple[Path, Path]:
     path = Path(listing_path)
     listing = _listing(json.loads(path.read_text(encoding="utf-8")))
+    filename = listing_filename(listing.listing_id)
+    root = Path(output_root).resolve()
+    claims_path = within_directory("claims", root) / filename
+    findings_path = within_directory("findings", root) / filename
     reader = client or OpenAIReaderClient(project_root=Path.cwd())
     claims = extract_claims(listing, client=reader)
     text_findings = read_reviews(listing, client=reader, cache=cache)
-    image_readings = read_images(
-        listing, client=reader, reread_image_refs=reread_image_refs
-    )
-    image_findings = [
-        finding
-        for reading in image_readings
-        if (finding := image_reading_to_finding(reading)) is not None
-    ]
-
-    merged_findings = {finding.review_id: finding for finding in text_findings}
-    for image_finding in image_findings:
-        current = merged_findings.get(image_finding.review_id)
-        merged_findings[image_finding.review_id] = (
-            image_finding
-            if current is None
-            else merge_text_and_image_finding(current, image_finding)
+    if preserve_evidence:
+        findings = [
+            *text_findings,
+            *_read_image_evidence(listing, reader, reread_image_refs),
+        ]
+    else:
+        image_readings = read_images(
+            listing, client=reader, reread_image_refs=reread_image_refs
         )
+        merged_findings = {finding.review_id: finding for finding in text_findings}
+        for reading in image_readings:
+            image_finding = image_reading_to_finding(reading)
+            if image_finding is None:
+                continue
+            current = merged_findings.get(image_finding.review_id)
+            merged_findings[image_finding.review_id] = (
+                image_finding
+                if current is None
+                else merge_text_and_image_finding(current, image_finding)
+            )
+        findings = list(merged_findings.values())
 
-    root = Path(output_root)
-    claims_path = root / "claims" / f"{listing.listing_id}.json"
-    findings_path = root / "findings" / f"{listing.listing_id}.json"
     claims_path.parent.mkdir(parents=True, exist_ok=True)
     findings_path.parent.mkdir(parents=True, exist_ok=True)
-    claims_path.write_text(
-        json.dumps(claims.model_dump(mode="json"), ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    findings_path.write_text(
-        json.dumps(
-            [item.model_dump(mode="json") for item in merged_findings.values()],
-            ensure_ascii=False,
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    write_json(claims_path, claims.model_dump(mode="json"))
+    write_json(findings_path, [item.model_dump(mode="json") for item in findings])
     return claims_path, findings_path
+
+
+def _read_image_evidence(listing, reader, reread_image_refs):
+    """Preserve independent reads and abstain when a completed test is ambiguous."""
+    inputs = _image_inputs(listing)
+    requested = set(reread_image_refs)
+    if requested - {ref for ref, _, _ in inputs}:
+        raise ReaderInputError("reread requested for an image outside the listing")
+
+    for ref, review_id, option in inputs:
+        first = _read_one_image(reader, ref, review_id, option, reread=False)
+        candidate = image_reading_to_finding(first)
+        if ref not in requested and (
+            candidate is None or candidate.complaint != "capacity_short"
+        ):
+            if candidate is not None:
+                yield candidate
+            continue
+
+        second = _read_one_image(reader, ref, review_id, option, reread=True)
+        confirmation = image_reading_to_finding(second)
+        if (
+            candidate is not None and confirmation is not None
+            and first.read_status == second.read_status == "ok"
+            and first.image_type == second.image_type == "completed H2testw/F3"
+            and first.role == second.role == "test result"
+            and first.bytes is not None and first.bytes == second.bytes
+        ):
+            yield candidate
+            yield confirmation
+        elif candidate is not None and candidate.complaint == "capacity_short":
+            yield candidate.model_copy(update={
+                "complaint": "capacity_no_number", "quantity": None, "unit": "none",
+                "bytes": None, "ratio": None, "read_status": "cannot_read",
+            })
 
 
 def _read_one_image(

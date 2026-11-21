@@ -21,6 +21,7 @@ from .models import (
     ReviewDraft,
     Unit,
 )
+from .reviews import conflicting_review_measurements, measured_bytes, review_number_units
 
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
 _NUMBER_RE = re.compile(r"(?<![\d.])([0-9]+(?:[,.][0-9]+)?)(?![\d.])")
@@ -141,6 +142,19 @@ def normalize_claims(listing: Listing, drafts: ClaimDraftBatch) -> list[ClaimOpt
     return normalized
 
 
+def _quoted_review_unit(review: Review, option: Option, draft: ReviewDraft) -> Unit:
+    written_units = review_number_units(draft.quote, draft.quantity)
+    if not written_units:
+        raise InvalidReaderOutput(
+            f"quantity for review {review.review_id} is absent from its quote"
+        )
+    if draft.unit.casefold() in written_units:
+        return draft.unit
+    if "" in written_units:
+        return option_capacity_unit(option)
+    raise InvalidReaderOutput(f"unit for review {review.review_id} does not match its quote")
+
+
 def normalize_review_draft(
     review: Review, option: Option, draft: ReviewDraft
 ) -> Finding:
@@ -150,34 +164,34 @@ def normalize_review_draft(
         raise InvalidReaderOutput(
             f"quote for review {review.review_id} is not exact copied text"
         )
-    if draft.quantity is not None and not any(
-        math.isclose(draft.quantity, number, rel_tol=0, abs_tol=1e-6)
-        for number in numbers_in_text(draft.quote)
-    ):
-        raise InvalidReaderOutput(
-            f"quantity for review {review.review_id} is absent from its quote"
-        )
-
+    quantity = draft.quantity
     unit: Unit = draft.unit
-    if draft.quantity is not None:
-        quoted_units = units_in_text(draft.quote)
-        if len(quoted_units) > 1:
-            raise InvalidReaderOutput(
-                f"review {review.review_id} has conflicting units in its quote"
+    role = draft.role
+    measurable = role in {"delivered capacity", "fails after", "test result"}
+    excluded = False
+    if quantity is not None:
+        unit = _quoted_review_unit(review, option, draft)
+        excluded = measurable and not review_number_units(
+            review.text, quantity, measurements_only=True,
+        )
+        if excluded:
+            quantity = None
+            unit = "none"
+            role = "other"
+        elif measurable and (
+            unit == "none" or conflicting_review_measurements(
+                review.text, measured_bytes(quantity, unit, option.capacity_text),
+                option.capacity_text or option.variation_label,
             )
-        if quoted_units:
-            quoted_unit = next(iter(quoted_units))
-            if unit != quoted_unit:
-                raise InvalidReaderOutput(
-                    f"unit for review {review.review_id} does not match its quote"
-                )
-        else:
-            unit = option_capacity_unit(option)
-        if unit == "none":
+        ):
+            quantity = None
+            unit = "none"
+        elif unit == "none":
             raise InvalidReaderOutput(
                 f"bare quantity for review {review.review_id} has no option unit"
             )
-    parsed_bytes = quantity_bytes(draft.quantity, unit)
+
+    parsed_bytes = quantity_bytes(quantity, unit)
     promise_gb = option.promise_gb
     if promise_gb is None:
         values = capacity_values_gb(option.variation_label) or capacity_values_gb(
@@ -189,15 +203,14 @@ def normalize_review_draft(
         if parsed_bytes is not None and promise_gb
         else None
     )
-    measurable = draft.role in {"delivered capacity", "fails after", "test result"}
-    if measurable and ratio is not None:
+    if excluded:
+        complaint = "none"
+    elif measurable and ratio is not None:
         complaint = "capacity_short" if ratio < 0.85 else "none"
+    elif measurable or draft.complaint == "capacity_no_number":
+        complaint = "capacity_no_number"
     elif draft.complaint == "capacity_short":
         raise InvalidReaderOutput("capacity_short requires a usable measured number")
-    elif draft.complaint == "capacity_no_number" or (
-        measurable and draft.quantity is None
-    ):
-        complaint = "capacity_no_number"
     else:
         complaint = draft.complaint
 
@@ -205,9 +218,9 @@ def normalize_review_draft(
         review_id=review.review_id,
         option_id=option.option_id,
         complaint=complaint,
-        quantity=draft.quantity,
+        quantity=quantity,
         unit=unit,
-        role=draft.role,
+        role=role,
         bytes=parsed_bytes,
         ratio=ratio,
         quote=draft.quote,

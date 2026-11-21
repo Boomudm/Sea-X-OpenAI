@@ -1,0 +1,109 @@
+[
+  {
+    "listing_id": "fixture-listing",
+    "option_id": "fixture-64",
+    "colour": "RED",
+    "deciding": "Q3",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: decided",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Buyers measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "fixture-review-1",
+        "buyer_masked": "buyer-1***",
+        "date": "2026-11-20",
+        "quote": "Only 29 GB on mine",
+        "quantity": 29.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 31138512896.0,
+        "ratio": 0.486539264,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "fixture-review-2",
+        "buyer_masked": "buyer-2***",
+        "date": "2026-11-20",
+        "quote": "I received only 30.5 GB",
+        "quantity": 30.5,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 32749125632.0,
+        "ratio": 0.511705088,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "fixture-review-3",
+        "buyer_masked": "buyer-3***",
+        "date": "2026-11-20",
+        "quote": "My drive holds just 29 GB",
+        "quantity": 29.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 31138512896.0,
+        "ratio": 0.486539264,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review",
+        "review_id": "fixture-review-4",
+        "buyer_masked": "buyer-4***",
+        "date": "2026-11-20",
+        "quote": "Only 30.5 GB received",
+        "quantity": 30.5,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 32749125632.0,
+        "ratio": 0.511705088,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 4,
+        "checked_text_reviews": 4
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 75,
+      "base": 75,
+      "adjustments": [
+        {
+          "points": 15,
+          "reason": "2 or more separate buyers"
+        },
+        {
+          "points": 10,
+          "reason": "Deciding buyer evidence quotes a clear number"
+        },
+        {
+          "points": 10,
+          "reason": "Deciding reviews match the option exactly"
+        },
+        {
+          "points": -10,
+          "reason": "Market range is thin or the KB row is missing"
+        }
+      ],
+      "missing_evidence": [
+        "Find an approved reference for this brand, product line and type"
+      ],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]
