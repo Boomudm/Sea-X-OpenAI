@@ -308,7 +308,7 @@ def build_option_flag(
     claims_by_option = {claim["option_id"]: claim for claim in claims}
     return _build_flag(
         listing, option, claims_by_option.get(option["option_id"], {}),
-        reference_source_for(profile.category, kb_rows), findings, as_of, (), profile, checks_complete,
+        reference_source_for(profile.category, kb_rows), tuple(findings), as_of, (), profile, checks_complete,
     )
 
 
