@@ -4,6 +4,7 @@ from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from zoneinfo import ZoneInfo
 
+from .profiles import CategoryProfile, load_profile
 from .reviews import measured_bytes as measured_bytes
 from .reviews import review_evidence
 
@@ -119,19 +120,22 @@ def _challenge_sources(evidence):
 
 
 def _confidence(deciding_evidence, all_evidence, market, thin, kb, uncertain, as_of, challenges, missing,
-                extra_sources=frozenset()):
+                extra_sources=frozenset(), *, profile: CategoryProfile):
     reviews = [item for item in deciding_evidence if item["source"] == "review"]
+    storage = profile.category == "storage"
+    measurement_key = "bytes" if storage else "ratio"
+    test_reason = "Completed write-and-verify result" if storage else "Completed measurement result"
     factors = (
         (len({item["buyer_masked"] for item in reviews if item["buyer_masked"]}) >= 2,
          15, "2 or more separate buyers"),
-        (any(item.get("bytes") is not None for item in reviews),
+        (any(item.get(measurement_key) is not None for item in reviews),
          10, "Deciding buyer evidence quotes a clear number"),
         (bool(reviews), 10, "Deciding reviews match the option exactly"),
         (market and market["date"][:10] == as_of and len({
             source["url"] for source in market["sources"] if source["date"][:10] == as_of
         }) >= 3, 10, "Market range and at least 3 offers captured today"),
-        (any(item.get("role") == "test_result" and item.get("bytes") is not None
-             for item in reviews), 10, "Completed write-and-verify result"),
+        (any(item.get("role") == "test_result" and item.get(measurement_key) is not None
+             for item in reviews), 10, test_reason),
         (uncertain, -10, "An option match is uncertain"),
         (any(item.get("image_type") == "os_properties" for item in reviews)
          and all(not item.get("image_ref") or item.get("image_type") == "os_properties"
@@ -158,7 +162,7 @@ def _confidence(deciding_evidence, all_evidence, market, thin, kb, uncertain, as
             or not -20 <= change + points <= 20
             # Code already reads every GB/TB number both ways (§4.4), so the AI
             # cannot lower confidence on GB vs GiB grounds.
-            or (kind == "gb_vs_gib" and points < 0)
+            or (storage and kind == "gb_vs_gib" and points < 0)
             # Sale or promotion pricing only bears on a flag decided by price.
             or (kind == "flash_sale" and not price_decided)
         ):
@@ -189,11 +193,21 @@ def _checked_review_ids(listing, option, findings):
     }
 
 
-def _build_flag(listing, option, claim, rows, findings, as_of, challenges):
-    promise = _number(claim.get("promise_gb", option["promise_gb"]))
-    unclear = claim.get("capacity_unclear", False) or promise is None or promise <= 0
-    has_claim_identity = any(claim.get(field) for field in ("brand", "product_line", "type"))
-    kb = _find_kb(claim, rows) if has_claim_identity else _captured_kb(listing, rows)
+def _build_flag(listing, option, claim, rows, findings, as_of, challenges, profile):
+    storage = profile.category == "storage"
+    promise_key = "promise_gb" if storage else "promise_value"
+    text_key = "capacity_text" if storage else "measurement_text"
+    unclear_key = "capacity_unclear" if storage else "measurement_unclear"
+    promise = _number(claim.get(promise_key, option.get(promise_key)))
+    unclear = claim.get(unclear_key, False) or promise is None or promise <= 0
+    if not storage:
+        unclear = unclear or option.get(unclear_key, False)
+    kb = None
+    if storage:
+        has_claim_identity = any(claim.get(field) for field in ("brand", "product_line", "type"))
+        kb = _find_kb(claim, rows) if has_claim_identity else _captured_kb(listing, rows)
+    attribute = profile.attribute
+    tolerance = format((profile.tolerance * 100).normalize(), "f")
     reasons = {}
     evidence = {}
     missing = []
@@ -205,10 +219,10 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges):
         evidence.setdefault(question, []).extend(items)
 
     if unclear:
-        add("Q4", "Capacity is unclear", [{
-            "source": "option", "capacity_text": option["capacity_text"],
+        add("Q4", f"{attribute.capitalize()} is unclear", [{
+            "source": "option", text_key: option.get(text_key, option["variation_label"]),
         }])
-        missing.append("Confirm the capacity advertised for this option")
+        missing.append(f"Confirm the {attribute} advertised for this option")
         promise = None
     if kb is None:
         missing.append("Find an approved reference for this brand, product line and type")
@@ -234,16 +248,21 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges):
             missing.append("Check the manufacturer's dated capacity list for this line")
 
     shortfalls, unverified, matched_count, checked_count, uncertain = review_evidence(
-        listing, option, promise, findings,
+        listing, option, promise, findings, profile=profile,
     )
     if len(shortfalls) >= 2:
-        add("Q3", "Buyers measured below 85% of the advertised capacity", shortfalls)
+        add("Q3", f"Buyers measured below {tolerance}% of the advertised {attribute}", shortfalls)
     elif shortfalls:
-        add("Q4", "One buyer measured below 85% of the advertised capacity", shortfalls)
+        add("Q4", f"One buyer measured below {tolerance}% of the advertised {attribute}", shortfalls)
         missing.append("Look for an independent measured report for this variation")
-    if unverified:
-        add("Q4", "Capacity complaint needs a usable measurement", unverified)
-        missing.append("Verify the reported capacity against the original review or completed test")
+    unmeasured = [item for item in unverified if not item.get("mismatch_type")]
+    if unmeasured:
+        add("Q4", f"{attribute.capitalize()} complaint needs a usable measurement", unmeasured)
+        missing.append(f"Verify the reported {attribute} against the original review or completed test")
+    categorical = [item for item in unverified if item.get("mismatch_type")]
+    if categorical:
+        add("Q4", "Reported mismatch needs a manual check", categorical)
+        missing.append("Verify the reported mismatch against the original review and advertised option")
 
     deciding = next((question for question in ("Q3", "Q2", "Q1", "Q4") if question in reasons), None)
     count_evidence = {
@@ -294,6 +313,7 @@ def _build_flag(listing, option, claim, rows, findings, as_of, challenges):
         "confidence": _confidence(
             evidence[deciding], all_evidence, market, thin, kb, uncertain, as_of, challenges, missing,
             _checked_review_ids(listing, option, findings) if deciding == "Q5" else frozenset(),
+            profile=profile,
         ),
         "reviewer_decision": None,
     }
@@ -305,8 +325,12 @@ def queue_key(flag):
             flag["listing_id"], flag["option_id"])
 
 
-def build_flags(listing, kb_rows=(), findings=(), claims=(), *, as_of=None, challenges=None):
-    """Evaluate every option, including options with no reader output."""
+def build_flags(
+    listing, kb_rows=(), findings=(), claims=(), *, as_of=None, challenges=None,
+    profile: CategoryProfile | None = None,
+):
+    """Evaluate every option using the active profile, defaulting to storage."""
+    profile = profile or load_profile()
     as_of = str(as_of or datetime.now(ZoneInfo("Asia/Bangkok")).date())[:10]
     claims_by_option = {claim["option_id"]: claim for claim in claims}
     challenges_by_option = challenges or {}
@@ -315,7 +339,7 @@ def build_flags(listing, kb_rows=(), findings=(), claims=(), *, as_of=None, chal
     return sorted((
         _build_flag(
             listing, option, claims_by_option.get(option["option_id"], {}), kb_rows,
-            findings, as_of, challenges_by_option.get(option["option_id"], ()),
+            findings, as_of, challenges_by_option.get(option["option_id"], ()), profile,
         )
         for option in listing["options"]
     ), key=queue_key)

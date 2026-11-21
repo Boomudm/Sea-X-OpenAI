@@ -1,33 +1,15 @@
-"""Match captured reviews to options and verify their capacity evidence."""
+"""Match captured reviews to options and verify their measurement evidence."""
 
 import re
 from collections import Counter, defaultdict
 from collections.abc import Iterable
 from decimal import Decimal, InvalidOperation
+from functools import cache
+
+from .profiles import CategoryProfile, UnitConversion, load_profile
 
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
-_UNIT_BYTES = {
-    "mb": 10**6,
-    "gb": 2**30,
-    "tb": 2**40,
-    "gib": 2**30,
-    "tib": 2**40,
-}
 _QUANTITY = r"(?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)(?:\.[0-9]+)?"
-_REVIEW_NUMBER = re.compile(
-    rf"(?<![\d.\-−])({_QUANTITY})(?![0-9]|\.[0-9])"
-    r"(?:\s*(GiB|TiB|MB|GB|TB|กิกะไบต์|เทราไบต์|เมกะไบต์|จีบี|ทีบี|เอ็มบี)(?![a-z]))?",
-    re.IGNORECASE,
-)
-_OPTION_UNIT = re.compile(rf"{_QUANTITY}\s*(GiB|TiB|MB|GB|TB)(?![a-z])", re.IGNORECASE)
-_THAI_UNITS = {
-    "กิกะไบต์": "gb",
-    "จีบี": "gb",
-    "เทราไบต์": "tb",
-    "ทีบี": "tb",
-    "เมกะไบต์": "mb",
-    "เอ็มบี": "mb",
-}
 _OTHER_CAPACITY_BEFORE = re.compile(
     r"(?:\b(?:ordered|bought|promised|advertised|listed|rated|free space|os reports|"
     r"properties shows)\b|สั่ง(?:ซื้อ)?|โฆษณา|ระบุ|พื้นที่ว่าง)"
@@ -55,7 +37,6 @@ _THAI_TEST_BEFORE = re.compile(
 _ITEM_COUNT_AFTER = re.compile(r"^\s*(?:drives?|pieces?)\b", re.IGNORECASE)
 _RERUN_AFTER = re.compile(r"^\s*(?:on|in) (?:a |the )?(?:second run|rerun|retest)\b", re.IGNORECASE)
 _ALTERNATIVE = re.compile(r"\s*(?:or|versus|vs\.?|หรือ(?:ว่า)?)\s*", re.IGNORECASE)
-_MEASURED_ROLES = {"delivered_capacity", "fails_after", "test_result"}
 _COMPLETED_IMAGE_TYPES = {
     "completed_h2testw",
     "completed_f3",
@@ -81,30 +62,72 @@ def _decimal(value: object) -> Decimal | None:
         return None
 
 
-def _unit_key(unit: object) -> str:
+@cache
+def _storage_profile() -> CategoryProfile:
+    return load_profile()
+
+
+@cache
+def _number_pattern(units: tuple[str, ...], *, optional: bool) -> re.Pattern[str]:
+    alternatives = "|".join(re.escape(unit) for unit in sorted(units, key=len, reverse=True))
+    suffix = rf"\s*({alternatives})(?![a-z])"
+    if optional:
+        return re.compile(
+            rf"(?<![\d.\-−])({_QUANTITY})(?![0-9]|\.[0-9])(?:{suffix})?", re.IGNORECASE,
+        )
+    return re.compile(rf"{_QUANTITY}{suffix}", re.IGNORECASE)
+
+
+def _review_pattern(profile: CategoryProfile) -> re.Pattern[str]:
+    units = tuple(
+        token for name, definition in profile.units.items() for token in (name, *definition.aliases)
+    )
+    return _number_pattern(units, optional=True)
+
+
+def _unit_key(unit: object, profile: CategoryProfile) -> str:
     key = str(unit or "").strip().casefold()
-    return _THAI_UNITS.get(key, key)
+    for name, definition in profile.units.items():
+        if key == name.casefold() or any(key == alias.casefold() for alias in definition.aliases):
+            return name.casefold()
+    return key
 
 
-def _capacity_unit(unit: object, capacity_text: str) -> str:
-    key = _unit_key(unit)
+def _unit_definition(key: str, profile: CategoryProfile) -> UnitConversion | None:
+    return next(
+        (definition for name, definition in profile.units.items() if name.casefold() == key),
+        None,
+    )
+
+
+def _measurement_unit(unit: object, measurement_text: str, profile: CategoryProfile) -> str:
+    key = _unit_key(unit, profile)
     if key not in {"", "none"}:
         return key
-    matches = {name.casefold() for name in _OPTION_UNIT.findall(capacity_text.translate(_THAI_DIGITS))}
+
+    option_pattern = _number_pattern(tuple(profile.units), optional=False)
+    matches = {name.casefold() for name in option_pattern.findall(measurement_text.translate(_THAI_DIGITS))}
     return matches.pop() if len(matches) == 1 else ""
 
 
-def measured_bytes(quantity: object, unit: object, capacity_text: str) -> Decimal | None:
-    """Convert a captured measurement with the conservative GB/TB interpretation."""
+def _measured_value(
+    quantity: object, unit: object, measurement_text: str, profile: CategoryProfile,
+) -> Decimal | None:
     number = _decimal(quantity)
-    scale = _UNIT_BYTES.get(_capacity_unit(unit, capacity_text))
-    if number is None or scale is None:
+    definition = _unit_definition(_measurement_unit(unit, measurement_text, profile), profile)
+    if number is None or definition is None:
         return None
-    return number * scale
+    return number * max(definition.measurement_factors)
+
+
+def measured_bytes(quantity: object, unit: object, capacity_text: str) -> Decimal | None:
+    """Convert a captured storage measurement using the storage profile."""
+    return _measured_value(quantity, unit, capacity_text, _storage_profile())
 
 
 def _non_measurement(
-    mention: re.Match[str], previous_end: int, promised_bytes: Decimal | None,
+    mention: re.Match[str], previous_end: int, promised: Decimal | None,
+    profile: CategoryProfile,
 ) -> bool:
     number, unit = mention.groups()
     before = mention.string[previous_end:mention.start()]
@@ -116,9 +139,12 @@ def _non_measurement(
     if _OTHER_CAPACITY_BEFORE.search(before):
         return True
 
+    if profile.category != "storage":
+        return False
+
     # A displayed or advertised capacity may be contrasted with what the drive actually holds.
     actual = _THAI_ACTUAL_AFTER.match(after)
-    actual_number = _REVIEW_NUMBER.match(after, actual.end()) if actual else None
+    actual_number = _review_pattern(profile).match(after, actual.end()) if actual else None
     if not actual_number or not actual_number.group(2):
         return False
     # The preceding test name may itself contain a digit (H2testw or F3).
@@ -126,58 +152,63 @@ def _non_measurement(
         return False
     if _THAI_DISPLAY_BEFORE.search(before):
         return True
-    if not promised_bytes or not _THAI_CAPACITY_LABEL_BEFORE.search(before):
+    if not promised or not _THAI_CAPACITY_LABEL_BEFORE.search(before):
         return False
-    scale = {"gb": 10**9, "tb": 10**12}.get(_unit_key(unit))
+    definition = _unit_definition(_unit_key(unit, profile), profile)
+    scale = definition.promise_factor if definition is not None else None
     quantity = _decimal(number)
-    return scale is not None and quantity is not None and quantity * scale == promised_bytes
+    return scale is not None and quantity is not None and quantity * scale == promised
 
 
 def review_number_units(
     text: str, quantity: object, *, measurements_only: bool = False,
-    promised_bytes: Decimal | None = None,
+    promised_bytes: Decimal | None = None, profile: CategoryProfile | None = None,
 ) -> set[str]:
     """Return the selected number's units, with an empty unit for a bare number."""
     selected = _decimal(quantity)
     if selected is None:
         return set()
+    profile = profile or _storage_profile()
     normalized = text.translate(_THAI_DIGITS)
     previous_end = 0
     units = set()
-    for mention in _REVIEW_NUMBER.finditer(normalized):
+    for mention in _review_pattern(profile).finditer(normalized):
         number, unit = mention.groups()
         if _decimal(number) == selected and (
-            not measurements_only or not _non_measurement(mention, previous_end, promised_bytes)
+            not measurements_only or not _non_measurement(mention, previous_end, promised_bytes, profile)
         ):
-            units.add(_unit_key(unit))
+            units.add(_unit_key(unit, profile))
         previous_end = mention.end()
     return units
 
 
 def conflicting_review_measurements(
     text: str, selected: Decimal | None, capacity_text: str,
-    *, promised_bytes: Decimal | None = None,
+    *, promised_bytes: Decimal | None = None, profile: CategoryProfile | None = None,
 ) -> bool:
     """Check the whole review for competing capacity readings missing from a short quote."""
+    profile = profile or _storage_profile()
     normalized = text.translate(_THAI_DIGITS)
-    mentions = list(_REVIEW_NUMBER.finditer(normalized))
+    mentions = list(_review_pattern(profile).finditer(normalized))
     measurements = {selected} if selected is not None else set()
     previous_end = 0
     for index, mention in enumerate(mentions):
-        non_measurement = _non_measurement(mention, previous_end, promised_bytes)
+        non_measurement = _non_measurement(mention, previous_end, promised_bytes, profile)
         before = normalized[previous_end:mention.start()]
         previous_end = mention.end()
         if non_measurement:
             continue
         quantity, unit = mention.groups()
         if unit is None:
+            if profile.category != "storage":
+                continue
             after = normalized[previous_end:]
             unit = _alternative_unit(mentions, index, before, after)
             if unit is None and not (
                 _MEASUREMENT_BEFORE.search(before) or _RERUN_AFTER.match(after)
             ):
                 continue
-        number = measured_bytes(quantity, unit, capacity_text)
+        number = _measured_value(quantity, unit, capacity_text, profile)
         if number is not None:
             measurements.add(number)
         if len(measurements) > 1:
@@ -195,11 +226,17 @@ def _alternative_unit(mentions, index: int, before: str, after: str) -> str | No
     return None
 
 
-def _quote_supports_number(quote: str, finding: dict, capacity_text: str) -> bool:
-    unit = _capacity_unit(finding.get("unit"), capacity_text)
+def _quote_supports_number(
+    quote: str, finding: dict, measurement_text: str, profile: CategoryProfile,
+) -> bool:
+    unit = _measurement_unit(finding.get("unit"), measurement_text, profile)
+    written_units = review_number_units(quote, finding.get("quantity"), profile=profile)
+    # Legacy storage captures allow bare quantities. Other profiles require a
+    # written unit so an unsupported unit cannot be read as the advertised one.
     return any(
-        _capacity_unit(written_unit, capacity_text) == unit
-        for written_unit in review_number_units(quote, finding.get("quantity"))
+        (written_unit or profile.category == "storage")
+        and _measurement_unit(written_unit, measurement_text, profile) == unit
+        for written_unit in written_units
     )
 
 
@@ -217,7 +254,8 @@ def _role(finding: dict) -> str:
 
 
 def _finding_evidence(
-    finding: dict, review: dict, capacity_text: str, promised_bytes: Decimal | None
+    finding: dict, review: dict, measurement_text: str, promised: Decimal | None,
+    profile: CategoryProfile,
 ) -> tuple[dict, Decimal | None, bool, bool] | None:
     """Verify the finding and identify unresolvable text contradictions."""
     image_ref = finding.get("image_ref")
@@ -229,35 +267,47 @@ def _finding_evidence(
         return None
 
     role = _role(finding)
+    storage = profile.category == "storage"
     complaint_kind = finding.get("complaint")
-    complaint = complaint_kind == "capacity_no_number" or (
-        complaint_kind == "capacity_short" and role not in {"free_space", "promise", "speed"}
+    reported = complaint_kind in profile.mismatch_types
+    categorical_mismatch = (
+        not storage and reported and complaint_kind not in {
+            "capacity_short", "capacity_no_number", "none", "other",
+        }
     )
-    quantity = _decimal(finding.get("quantity"))
+    complaint = categorical_mismatch or (
+        reported and (
+            complaint_kind == "capacity_no_number" or (
+                complaint_kind == "capacity_short" and role not in {"free_space", "promise", "speed"}
+            )
+        )
+    )
+    quantity = None if categorical_mismatch else _decimal(finding.get("quantity"))
     image_type = _label(finding.get("image_type"))
     number = None
-    if finding.get("read_status", "ok") == "ok" and role in _MEASURED_ROLES:
+    measurable = role in profile.measured_roles and not categorical_mismatch
+    if finding.get("read_status", "ok") == "ok" and measurable:
         if image_ref:
-            supported = role == "test_result" and image_type in _COMPLETED_IMAGE_TYPES
+            supported = storage and role == "test_result" and image_type in _COMPLETED_IMAGE_TYPES
         else:
-            supported = _quote_supports_number(quote, finding, capacity_text)
+            supported = _quote_supports_number(quote, finding, measurement_text, profile)
         if supported:
-            number = measured_bytes(quantity, finding.get("unit"), capacity_text)
+            number = _measured_value(quantity, finding.get("unit"), measurement_text, profile)
             complaint = complaint or (
                 number is not None
-                and promised_bytes is not None
-                and number < promised_bytes * Decimal("0.85")
+                and promised is not None
+                and number < promised * profile.tolerance
             )
 
-    measured_text = not image_ref and role in _MEASURED_ROLES
+    measured_text = not image_ref and measurable
     excluded = measured_text and quantity is not None and not review_number_units(
-        review["text"], quantity, measurements_only=True, promised_bytes=promised_bytes,
+        review["text"], quantity, measurements_only=True, promised_bytes=promised, profile=profile,
     )
     if excluded:
         number = quantity = None
         complaint = False
     ambiguous = measured_text and conflicting_review_measurements(
-        review["text"], number, capacity_text, promised_bytes=promised_bytes,
+        review["text"], number, measurement_text, promised_bytes=promised, profile=profile,
     )
     if ambiguous:
         number = quantity = None
@@ -272,22 +322,25 @@ def _finding_evidence(
         "quantity": float(quantity) if quantity is not None else None,
         "unit": "none" if ambiguous or excluded else finding.get("unit"),
         "role": role,
-        "bytes": float(number) if number is not None else None,
-        "ratio": float(number / promised_bytes) if number is not None and promised_bytes else None,
+        "bytes": float(number) if number is not None and storage else None,
+        "ratio": float(number / promised) if number is not None and promised else None,
         "image_ref": image_ref,
         "image_type": finding.get("image_type"),
     }
+    if categorical_mismatch:
+        evidence["mismatch_type"] = complaint_kind
     return evidence, number, complaint, ambiguous
 
 
 def _review_signal(
-    review: dict, findings: Iterable[dict], capacity_text: str, promised_bytes: Decimal | None
+    review: dict, findings: Iterable[dict], measurement_text: str, promised: Decimal | None,
+    profile: CategoryProfile,
 ) -> tuple[dict | None, bool]:
     measurements = []
     complaints = []
     images = defaultdict(list)
     for finding in findings:
-        result = _finding_evidence(finding, review, capacity_text, promised_bytes)
+        result = _finding_evidence(finding, review, measurement_text, promised, profile)
         if result is None:
             continue
         evidence, number, complaint, ambiguous = result
@@ -310,19 +363,19 @@ def _review_signal(
     if not measurements:
         return (complaints[0], False) if complaints else (None, False)
     number, evidence = measurements[0]
-    if len({value for value, _ in measurements}) > 1 or not promised_bytes:
+    if len({value for value, _ in measurements}) > 1 or not promised:
         return {**evidence, "quantity": None, "unit": "none", "bytes": None, "ratio": None}, False
-    if number < Decimal("0.85") * promised_bytes:
+    if number < profile.tolerance * promised:
         return evidence, bool((review.get("buyer_masked") or "").strip())
-    if any(complaint["bytes"] is None for complaint in complaints):
-        return next(complaint for complaint in complaints if complaint["bytes"] is None), False
-    return None, False
+    return next((complaint for complaint in complaints if complaint["ratio"] is None), None), False
 
 
 def review_evidence(
-    listing: dict, option: dict, promise_gb: object, findings: Iterable[dict]
+    listing: dict, option: dict, promise_gb: object, findings: Iterable[dict],
+    *, profile: CategoryProfile | None = None,
 ) -> tuple[list[dict], list[dict], int, int, bool]:
-    """Return shortfalls, complaints, matched and checked text counts, and ambiguity."""
+    """Return review signals for a promise given in the active profile's promise unit."""
+    profile = profile or _storage_profile()
     variation = option.get("variation_label")
     unique_variation = bool(variation) and sum(
         candidate.get("variation_label") == variation
@@ -356,12 +409,14 @@ def review_evidence(
     )
 
     promise = _decimal(promise_gb)
-    promised_bytes = promise * 10**9 if promise else None
+    promised = promise * profile.units[profile.promise_unit].promise_factor if promise else None
+    text_key = "capacity_text" if profile.category == "storage" else "measurement_text"
+    measurement_text = option.get(text_key) or variation
     measured = []
     unverified = []
     for review_id, review in matched.items():
         evidence, shortfall = _review_signal(
-            review, by_review[review_id], option.get("capacity_text") or variation, promised_bytes
+            review, by_review[review_id], measurement_text, promised, profile,
         )
         if evidence is not None:
             text = review.get("text", "").strip()
