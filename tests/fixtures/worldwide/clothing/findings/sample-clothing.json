@@ -1,0 +1,44 @@
+[
+  {
+    "review_id": "sample-clothing-r01",
+    "option_id": "sample-clothing-option-1",
+    "complaint": "size_mismatch",
+    "quantity": null,
+    "unit": "none",
+    "role": "other",
+    "bytes": null,
+    "ratio": null,
+    "quote": "Ich bestellte M, aber auf dem Etikett des gelieferten Shirts steht XL.",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  },
+  {
+    "review_id": "sample-clothing-r02",
+    "option_id": "sample-clothing-option-1",
+    "complaint": "size_mismatch",
+    "quantity": null,
+    "unit": "none",
+    "role": "other",
+    "bytes": null,
+    "ratio": null,
+    "quote": "Meine Bestellung war Größe M. Das gelieferte Shirt hat ein Etikett mit Größe L.",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  },
+  {
+    "review_id": "sample-clothing-r03",
+    "option_id": "sample-clothing-option-1",
+    "complaint": "none",
+    "quantity": null,
+    "unit": "none",
+    "role": "other",
+    "bytes": null,
+    "ratio": null,
+    "quote": "Das Shirt in M passt mir gut.",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  }
+]

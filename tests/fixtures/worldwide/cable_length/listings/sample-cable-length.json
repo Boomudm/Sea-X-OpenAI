@@ -1,0 +1,43 @@
+{
+  "listing_id": "sample-cable-length",
+  "url": "https://example.invalid/sample-cable-length",
+  "captured_at": "2026-11-21T10:00:00+07:00",
+  "title": "Sample data · 1,000 mm cable",
+  "spec_text": "Advertised connector-to-connector length: 1,000 mm",
+  "description": "Sample data. Synthetic listing and reviews for tests.",
+  "listing_images": [],
+  "options": [
+    {
+      "option_id": "sample-cable-length-option-1",
+      "variation_label": "1,000 mm",
+      "was_thb": null,
+      "now_thb": 13,
+      "measurement_text": "1,000 mm",
+      "promise_value": 1000
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "sample-cable-length-r01",
+      "variation_label": "1,000 mm",
+      "option_id": null,
+      "buyer_masked": "b01***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "両端から両端まで測ったら1,140 ミリメートルありました。",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-cable-length-r02",
+      "variation_label": "1,000 mm",
+      "option_id": null,
+      "buyer_masked": "b02***",
+      "date": "2026-11-20",
+      "stars": 4,
+      "text": "I measured the straight cable from connector to connector at 112 cm.",
+      "tags": [],
+      "images": []
+    }
+  ]
+}

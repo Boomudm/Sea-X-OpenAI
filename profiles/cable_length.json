@@ -1,0 +1,43 @@
+{
+  "category": "cable_length",
+  "version": "1",
+  "attribute": "length",
+  "promise_unit": "mm",
+  "units": {
+    "mm": {
+      "measurement_factors": [1],
+      "promise_factor": 1,
+      "aliases_by_language": {
+        "ja": ["ミリメートル", "ミリ"],
+        "en": ["millimeters", "millimetres"]
+      }
+    },
+    "cm": {
+      "measurement_factors": [10],
+      "promise_factor": 10,
+      "aliases_by_language": {"ja": ["センチメートル", "センチ"], "en": ["centimeters", "centimetres"]}
+    },
+    "m": {
+      "measurement_factors": [1000],
+      "promise_factor": 1000,
+      "aliases_by_language": {"ja": ["メートル"], "en": ["meters", "metres"]}
+    }
+  },
+  "tolerance": "0.95",
+  "maximum_ratio": "1.05",
+  "review_roles": ["delivered_length", "promise", "other"],
+  "measured_roles": ["delivered_length"],
+  "normal_display_text": "This sample uses a straight cable measurement with the same endpoints as the advertised length.",
+  "mismatch_types": ["capacity_short", "capacity_no_number", "wrong_model", "wrong_colour", "missing_parts", "none"],
+  "prompt_traps": [
+    "Use the measured cable length and the same endpoints as the advertised length. Package dimensions and connector widths are unrelated."
+  ],
+  "currency": "JPY",
+  "price_per_unit": "mm",
+  "locale": "ja-JP",
+  "languages": ["ja", "en"],
+  "prompt_traps_by_language": {
+    "ja": ["ケーブルを伸ばした状態の実測値を確認し、表記と同じ測定範囲を使う。"]
+  },
+  "approved_by": "pending human review"
+}

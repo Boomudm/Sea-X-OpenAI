@@ -1,0 +1,35 @@
+{
+  "category": "aa_rechargeable_battery",
+  "version": "1",
+  "attribute": "discharge capacity",
+  "promise_unit": "mAh",
+  "units": {
+    "mAh": {
+      "measurement_factors": [1],
+      "promise_factor": 1,
+      "aliases_by_language": {"en": ["mA·h", "milliamp-hours"], "zh": ["毫安时"]}
+    },
+    "Ah": {
+      "measurement_factors": [1000],
+      "promise_factor": 1000,
+      "aliases_by_language": {"en": ["A·h", "amp-hours"], "zh": ["安时"]}
+    }
+  },
+  "tolerance": "0.95",
+  "review_roles": ["test_result", "promise", "other"],
+  "measured_roles": ["test_result"],
+  "normal_display_text": "This sample specifies 2,000 mAh typical and 1,900 mAh minimum. A comparable full discharge reaching 1,900 mAh meets that minimum.",
+  "mismatch_types": ["capacity_short", "capacity_no_number", "wrong_model", "missing_parts", "not_genuine_claim", "none"],
+  "prompt_traps": [
+    "Use the advertised typical value as the promise only for cell specifications with this profile's approved minimum-to-typical ratio.",
+    "Compare completed discharges at the stated test current and cutoff voltage. Charger input figures, charge percentages, and peak readings do not measure delivered capacity."
+  ],
+  "currency": "USD",
+  "price_per_unit": "mAh",
+  "locale": "en-US",
+  "languages": ["en", "zh"],
+  "prompt_traps_by_language": {
+    "zh": ["区分典型容量和最低容量，并核对完整放电的测试电流和截止电压。"]
+  },
+  "approved_by": "pending human review"
+}
