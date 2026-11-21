@@ -1,46 +1,39 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { X } from 'lucide-react'
-import { explainConfidence, priorities, signals, type ReviewCase, type ReviewFinding, type ReviewSignal } from '../../data/reviewCases'
-import { cn } from '../../lib/utils'
-import type { Decision, DecisionType } from '../../types'
+import { publicText, type EvidenceSource, type PipelineCase, type PipelineEvidence } from '../../data/pipelineCases'
+import { caseVerdict, priorities, type ReviewCase } from '../../data/reviewCases'
+import { keyedItems } from '../../lib/utils'
+import type { DecisionType } from '../../types'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 
 export interface ReviewSubmission {
   outcome: DecisionType
   notes: string
-  flags?: Decision['flagDecisions']
   next: boolean
 }
 
-const evidenceTones = {
-  red: 'border-[#efc9c1] bg-[#fdece8]/[.65]',
-  yellow: 'border-[#eddbae] bg-[#fff3d8]/[.65]',
-  green: 'border-[#c5e2d2] bg-[#e5f5ec]/[.65]',
+const OUTCOMES: DecisionType[] = ['Shortfall confirmed', 'Not confirmed', 'Need more information']
+const CHECKS: Record<string, string> = {
+  Q1: 'Price check', Q2: 'Brand capacity check', Q3: 'Measured buyer shortfalls',
+  Q4: 'Manual checks', Q5: 'Matched reviews', grey: 'Evidence coverage',
+}
+const PATH_STATES: Record<string, string> = {
+  decided: 'Set priority', triggered: 'Also triggered', clear: 'No reason recorded',
 }
 
-export function ReviewCaseModal({ item, focusedSignal, onClose, onSave }: {
+export function ReviewCaseModal({ item, onClose, onSave }: Readonly<{
   item: ReviewCase
-  focusedSignal?: ReviewSignal
   onClose: () => void
   onSave: (submission: ReviewSubmission) => void
-}) {
+}>) {
   const dialog = useRef<HTMLDialogElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
   const submitLock = useRef(false)
   const [notes, setNotes] = useState(item.decision?.notes ?? '')
-  const [flagDecisions, setFlagDecisions] = useState<NonNullable<Decision['flagDecisions']>>(item.decision?.flagDecisions ?? {})
-  const [outcome, setOutcome] = useState<'confirm' | 'request' | ''>(() => {
-    if (item.priority === 'unknown' || item.decision?.type === 'Need more information') return 'request'
-    if (item.decision?.type === 'No violation') return 'confirm'
-    return ''
-  })
+  const [outcome, setOutcome] = useState<DecisionType | ''>(item.decision?.type ?? '')
   const [error, setError] = useState('')
-  const flags = item.findings.filter(({ signal }) => signal !== 'clear')
-  const activeFinding = item.findings.find(({ signal }) => signal === focusedSignal)
-  const orderedFindings = activeFinding
-    ? [activeFinding, ...item.findings.filter((finding) => finding !== activeFinding)]
-    : item.findings
+  const subtitle = [item.sellerName, item.variant].filter(Boolean).join(' · ')
 
   useEffect(() => {
     const node = dialog.current
@@ -50,102 +43,62 @@ export function ReviewCaseModal({ item, focusedSignal, onClose, onSave }: {
     return () => { if (node.open) node.close() }
   }, [])
 
+  function close() {
+    const dirty = notes !== (item.decision?.notes ?? '') || outcome !== (item.decision?.type ?? '')
+    if (!dirty || window.confirm('Discard the unsaved reviewer decision?')) onClose()
+  }
+
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (submitLock.current) return
-    if (!notes.trim()) {
-      setError('Add a reviewer note before saving.')
+    if (!outcome || !notes.trim()) {
+      setError('Choose a decision and add a reviewer note before saving.')
       return
     }
-    if (outcome !== 'request' && flags.some(({ signal }) => !flagDecisions[signal])) {
-      setError('Accept or dismiss each flag, or request more evidence.')
-      return
-    }
-    if (!flags.length && !outcome) {
-      setError('Select a reviewer decision.')
-      return
-    }
-    const result: DecisionType = outcome === 'request' ? 'Need more information'
-      : flags.some(({ signal }) => flagDecisions[signal] === 'accepted') ? 'Violation confirmed'
-      : 'No violation'
     const submitter = (event.nativeEvent as SubmitEvent).submitter
     submitLock.current = true
-    onSave({ outcome: result, notes, flags: flags.length ? flagDecisions : undefined,
-      next: submitter?.getAttribute('value') === 'next' })
+    onSave({ outcome, notes, next: submitter?.getAttribute('value') === 'next' })
   }
 
   return (
     <dialog
       ref={dialog}
       aria-labelledby="case-review-title"
-      onCancel={(event) => { event.preventDefault(); onClose() }}
-      className="review-modal m-auto w-[calc(100%-2rem)] max-w-3xl overflow-hidden rounded-2xl border border-line bg-white text-ink shadow-float"
+      onCancel={(event) => { event.preventDefault(); close() }}
+      className="review-modal fixed inset-0 m-0 h-full !max-h-none w-full max-w-none overflow-hidden border-0 bg-transparent p-0 open:grid open:place-items-center"
     >
-      <form className="review-modal-form flex flex-col" onSubmit={save}>
+      <button type="button" aria-label="Close case from backdrop" tabIndex={-1}
+        className="absolute inset-0 cursor-default bg-transparent"
+        onMouseDown={(event) => event.preventDefault()} onClick={close} />
+      <form className="review-modal-form relative flex w-[calc(100%-2rem)] max-w-3xl flex-col overflow-hidden rounded-2xl border border-line bg-white text-ink shadow-float" onSubmit={save}>
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-line p-4 sm:p-6">
           <div>
-            <p className="text-sm font-semibold tracking-wide text-muted">Case {item.id}</p>
+            <p className="text-sm font-semibold tracking-wide text-muted">Case {item.caseLabel}</p>
             <h2 ref={heading} tabIndex={-1} id="case-review-title" className="heading-5 mt-1 outline-none">{item.title}</h2>
-            <p className="caption-5 mt-1 text-muted">{item.sellerName} · SSD listing</p>
+            {subtitle && <p className="caption-5 mt-1 text-muted">{subtitle}</p>}
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <Badge tone={priorities[item.priority].tone}>{priorities[item.priority].label}</Badge>
-              <strong className="tabular-nums">{item.confidence === null ? 'Confidence unavailable'
-                : `${item.confidence}% ${flags.length > 1 ? 'primary ' : ''}confidence`}</strong>
-              {item.demo && <span className="caption-5 text-muted">Demo evidence</span>}
+              <strong className="tabular-nums">{item.confidence === null ? 'Confidence unavailable' : `${item.confidence}% confidence`}</strong>
+              {item.source === 'sample' && <Badge>Sample data</Badge>}
             </div>
+            <p className="caption-5 mt-2 text-muted">Verdict · {caseVerdict(item.decision)}</p>
           </div>
-          <Button type="button" variant="outline" size="icon" aria-label="Close case" onClick={onClose}><X className="size-5" /></Button>
+          <Button type="button" variant="outline" size="icon" aria-label="Close case" onClick={close}><X className="size-5" /></Button>
         </header>
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6">
-          {orderedFindings.length ? orderedFindings.map((finding, index) => (
-            <FindingPanel key={finding.signal} finding={finding} primary={index === 0}>
-              {finding.signal !== 'clear' && (
-                <fieldset className="mt-4">
-                  <legend className="font-semibold">Reviewer decision for {signals[finding.signal].label.toLowerCase()}</legend>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {(['accepted', 'dismissed'] as const).map((choice) => (
-                      <label key={choice} className="flex cursor-pointer items-center gap-2 rounded-lg border border-line px-3 py-2 has-[:checked]:border-brand/40 has-[:checked]:bg-peach">
-                        <input
-                          className="accent-brand"
-                          type="radio"
-                          name={`flag-${finding.signal}`}
-                          checked={flagDecisions[finding.signal] === choice}
-                          onChange={() => {
-                            setFlagDecisions((previous) => ({ ...previous, [finding.signal]: choice }))
-                            setError('')
-                          }}
-                        />
-                        {choice === 'accepted' ? 'Accept flag' : 'Dismiss flag'}
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-              )}
-            </FindingPanel>
-          )) : <CapturedEvidence item={item} />}
-
-          {item.priority === 'unknown' ? (
-            <p className="rounded-lg border border-line bg-canvas p-3 text-sm">Saving this case records a request for more evidence.</p>
-          ) : flags.length ? (
-            <label className="flex items-center gap-2 text-sm font-medium">
-              <input type="checkbox" className="accent-brand" checked={outcome === 'request'}
-                onChange={(event) => { setOutcome(event.target.checked ? 'request' : ''); setError('') }} />
-              Request more evidence before resolving
-            </label>
-          ) : (
-            <fieldset>
-              <legend className="font-semibold">Reviewer decision</legend>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {(['confirm', 'request'] as const).map((choice) => (
-                  <label key={choice} className="flex cursor-pointer items-center gap-2 rounded-lg border border-line px-3 py-2 has-[:checked]:border-brand/40 has-[:checked]:bg-peach">
-                    <input type="radio" name="case-outcome" className="accent-brand" checked={outcome === choice}
-                      onChange={() => { setOutcome(choice); setError('') }} />
-                    {choice === 'confirm' ? 'Confirm review' : 'Request evidence'}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          )}
+          {item.pipeline ? <PipelineDetails item={item} report={item.pipeline} /> : <CaptureDetails item={item} />}
+          <fieldset>
+            <legend className="font-semibold">Reviewer decision</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {OUTCOMES.map((choice) => (
+                <label key={choice} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-line px-3 py-2 has-[:checked]:border-brand/40 has-[:checked]:bg-peach">
+                  <input type="radio" name="case-outcome" className="accent-brand" checked={outcome === choice}
+                    onChange={() => { setOutcome(choice); setError('') }} />
+                  {choice}
+                </label>
+              ))}
+            </div>
+          </fieldset>
           <label className="block font-semibold">
             Reviewer note
             <textarea
@@ -165,76 +118,156 @@ export function ReviewCaseModal({ item, focusedSignal, onClose, onSave }: {
   )
 }
 
-function FindingPanel({ finding, primary, children }: { finding: ReviewFinding; primary: boolean; children?: React.ReactNode }) {
-  const signal = signals[finding.signal]
-  const earlyCapacity = finding.signal === 'capacity' && finding.priority === 'yellow'
-  const lowPrice = finding.signal === 'price' && finding.priority === 'yellow'
-  const rule = earlyCapacity || lowPrice ? 'Q4' : signal.rule
-  const evidence = earlyCapacity
-    ? ['The listing identifies the advertised capacity.', 'One buyer test is available for this variant.']
-    : signal.evidence
-
+function PipelineDetails({ item, report }: Readonly<{ item: ReviewCase; report: PipelineCase }>) {
+  const [primary, ...other] = report.reasons
+  const hasMarketRange = report.evidence.some((entry) => entry.source === 'market_range')
   return (
-    <section className="rounded-xl border border-line p-4">
-      <div className={cn('rounded-lg border p-3', evidenceTones[finding.priority])}>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-lg font-semibold">{earlyCapacity ? 'Reported capacity shortfall' : signal.label}</h3>
-          <div className="flex items-center gap-2">
-            <Badge tone={priorities[finding.priority].tone}>{priorities[finding.priority].label}</Badge>
-            <span className="text-sm font-semibold tabular-nums">{finding.confidence}%</span>
-          </div>
-        </div>
-        <p className="body-3 mt-2">{earlyCapacity ? 'One buyer reported a smaller usable capacity. A second test is needed.' : signal.summary}</p>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted">
-          {evidence.map((entry) => <li key={entry}>{entry}</li>)}
-        </ul>
-      </div>
-      <details open={primary} className="mt-3 rounded-lg bg-canvas p-3">
-        <summary className="focus-ring cursor-pointer rounded font-semibold">Why {finding.confidence}% confidence?</summary>
-        <p className="caption-5 mt-2 text-muted">Evidence factors for {rule} · Demo scoring</p>
-        <dl className="mt-3 grid gap-2 min-[480px]:grid-cols-2">
-          {explainConfidence(finding).map(({ label, max, points, reason }) => (
-            <div key={label} className="rounded-md border border-line bg-white p-3">
-              <dt className="flex justify-between gap-2 text-sm font-semibold">{label}<span className="shrink-0 tabular-nums">{points} / {max}</span></dt>
-              <dd className="caption-5 mt-1 text-muted">{reason}</dd>
-            </div>
-          ))}
-        </dl>
-        <p className="caption-5 mt-3 text-muted"><strong>What would help:</strong> {signal.next}</p>
+    <>
+      <section className="space-y-3 rounded-lg border border-line bg-canvas p-4" aria-label="Pipeline evidence">
+        <h3 className="text-lg font-semibold">{primary ? publicText(primary) : 'Review evidence'}</h3>
+        {other.length > 0 && <ul className="list-disc space-y-1 pl-5 text-sm">
+          {other.map((reason) => <li key={reason}>{publicText(reason)}</li>)}
+        </ul>}
+        <CaptureDetails item={item} showPrices={!hasMarketRange} />
+        {report.evidence.map((entry) => <EvidenceEntry key={JSON.stringify(entry)} entry={entry} />)}
+      </section>
+      <details open className="rounded-lg border border-line bg-white p-4">
+        <summary className="focus-ring cursor-pointer rounded font-semibold">Why {report.confidence}% confidence?</summary>
+        <p className="mt-2 text-sm text-muted">The rules start at 50 points. These adjustments were recorded for this option.</p>
+        {report.adjustments.length > 0 && <ul className="mt-2 space-y-2 text-sm">
+          {keyedItems(report.adjustments).map(({ item: { points, reason }, key }) =>
+            <li key={key}><strong className="tabular-nums">{points > 0 ? '+' : ''}{points}</strong> · {publicText(reason)}</li>)}
+        </ul>}
+        <p className="mt-2 text-sm text-muted">Base after standard checks · {report.base}%</p>
+        {report.missing_evidence.length > 0 && <>
+          <h3 className="mt-3 font-semibold">Evidence still needed</h3>
+          <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">
+            {keyedItems(report.missing_evidence).map(({ item: missing, key }) => <li key={key}>{publicText(missing)}</li>)}
+          </ul>
+        </>}
       </details>
-      {children}
-    </section>
+      {report.path.length > 0 && <details className="rounded-lg border border-line bg-white p-4">
+        <summary className="focus-ring cursor-pointer rounded font-semibold">Decision path</summary>
+        <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm">
+          {report.path.map((entry) => {
+            const [check, state] = entry.split(': ')
+            return <li key={entry}>{CHECKS[check] && PATH_STATES[state]
+              ? `${CHECKS[check]} · ${PATH_STATES[state]}`
+              : publicText(entry)}</li>
+          })}
+        </ol>
+      </details>}
+    </>
   )
 }
 
-function CapturedEvidence({ item }: { item: ReviewCase }) {
-  const capture = item.capture
-  const sourceLinks = [
-    { label: 'Open listing', url: safeHttpUrl(capture?.listingUrl) },
-    { label: 'Open official reference', url: safeHttpUrl(capture?.referenceUrl) },
-  ].filter(({ url }) => url)
+const thb = new Intl.NumberFormat('en', { style: 'currency', currency: 'THB', maximumFractionDigits: 2, minimumFractionDigits: 0 })
+const percent = new Intl.NumberFormat('en', { style: 'percent', maximumFractionDigits: 1 })
+
+function Money({ label, amount }: Readonly<{ label: string; amount?: number | null }>) {
+  return typeof amount === 'number' && Number.isFinite(amount)
+    ? <p>{label} <strong className="tabular-nums">{thb.format(amount)}</strong></p> : null
+}
+
+type EvidenceProps = Readonly<{ entry: PipelineEvidence }>
+
+function EvidenceEntry({ entry }: EvidenceProps) {
+  switch (entry.source) {
+    case 'review':
+      return <BuyerReviewEvidence entry={entry} />
+    case 'market_range':
+      return <MarketRangeEvidence entry={entry} />
+    case 'brand_page':
+    case 'mall_capacities':
+      return <CapacityEvidence entry={entry} />
+    case 'review_count':
+      if (typeof entry.matched_text_reviews !== 'number' || typeof entry.checked_text_reviews !== 'number') return null
+      return <p className="text-sm text-muted">{entry.checked_text_reviews} of {entry.matched_text_reviews} matched text reviews checked</p>
+    case 'option':
+      return entry.capacity_text
+        ? <p className="text-sm">Captured capacity · {publicText(entry.capacity_text)}</p> : null
+    default:
+      return null
+  }
+}
+
+function BuyerReviewEvidence({ entry }: EvidenceProps) {
+  const buyer = typeof entry.buyer_masked === 'string' && /[*…•]/.test(entry.buyer_masked)
+    ? publicText(entry.buyer_masked) : 'Buyer'
+  const quantity = typeof entry.quantity === 'number' && entry.unit && entry.unit !== 'none'
+    ? `${entry.quantity} ${publicText(entry.unit)}` : undefined
+  const ratio = typeof entry.ratio === 'number' && Number.isFinite(entry.ratio)
+    ? percent.format(entry.ratio) + ' of advertised capacity' : undefined
+  return <blockquote className="rounded-r-lg border-l-2 border-line bg-white px-3 py-2 text-sm">
+    {entry.quote && <p className="whitespace-pre-wrap">{publicText(entry.quote)}</p>}
+    <footer className="mt-1 text-muted">{[buyer, entry.date, quantity, ratio].filter(Boolean).join(' · ')}</footer>
+  </blockquote>
+}
+
+function MarketRangeEvidence({ entry }: EvidenceProps) {
   return (
-    <section className="rounded-lg border border-line bg-canvas p-4">
-      <h3 className="text-lg font-semibold">Confidence unavailable</h3>
-      <p className="body-3 mt-2 text-muted">Confirm the exact SSD variant and add a matching reference or buyer test to assess this case.</p>
-      {sourceLinks.length > 0 && <div className="mt-3 flex flex-wrap gap-3">{sourceLinks.map(({ label, url }) => (
-        <a key={label} className="focus-ring rounded font-semibold text-[#a82d18] hover:underline" href={url} target="_blank" rel="noreferrer">{label}</a>
-      ))}</div>}
-      {capture?.previousPrice !== undefined && <p className="caption-5 mt-2">Entered previous price: {capture.previousPrice.toLocaleString()}</p>}
-      {capture?.currentPrice !== undefined && <p className="caption-5 mt-2">Entered current price: {capture.currentPrice.toLocaleString()}</p>}
-      {capture?.complaint && <p className="body-3 mt-2"><strong>Submitted buyer report:</strong> {capture.complaint}</p>}
-      {Boolean(capture?.photoCount) && <p className="caption-5 mt-2 text-muted">Photo count recorded: {capture?.photoCount}. Image files are unavailable in the demo.</p>}
-    </section>
+    <div className="space-y-2 rounded-lg bg-white p-3 text-sm">
+      <h4 className="font-semibold">Market comparison</h4>
+      <div className="flex flex-wrap gap-x-5 gap-y-1">
+        <Money label="Was" amount={entry.was_thb} /><Money label="Now" amount={entry.now_thb} />
+        {typeof entry.low_thb === 'number' && typeof entry.high_thb === 'number' &&
+          <p>Range <strong>{thb.format(entry.low_thb)}–{thb.format(entry.high_thb)}</strong></p>}
+      </div>
+      {entry.date && <p className="text-muted">Captured {entry.date}</p>}
+      {keyedItems(entry.sources ?? []).map(({ item: offer, key }) => <SourceOffer key={key} offer={offer} />)}
+    </div>
   )
 }
 
-function safeHttpUrl(value?: string) {
-  if (!value) return undefined
+function CapacityEvidence({ entry }: EvidenceProps) {
+  return (
+    <div className="space-y-2 rounded-lg bg-white p-3 text-sm">
+      <h4 className="font-semibold">{entry.source === 'brand_page' ? 'Brand capacity list' : 'Official Mall capacity list'}</h4>
+      {entry.capacities_gb && entry.capacities_gb.length > 0 && <p>{entry.capacities_gb.map((capacity) => `${capacity} GB`).join(', ')}</p>}
+      {typeof entry.promise_gb === 'number' && <p>Advertised option · {entry.promise_gb} GB</p>}
+      {entry.date && <p className="text-muted">Captured {entry.date}</p>}
+      <SourceLink label="Brand reference" value={entry.url} />
+      {keyedItems(entry.sources ?? []).map(({ item: offer, key }) => <SourceOffer key={key} offer={offer} />)}
+    </div>
+  )
+}
+
+function SourceOffer({ offer }: Readonly<{ offer: EvidenceSource }>) {
+  return <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+    <SourceLink label="Official offer" value={offer.url} />
+    <Money label="Now" amount={offer.now_thb} />
+    {offer.date && <span className="text-muted">{offer.date}</span>}
+  </div>
+}
+
+function CaptureDetails({ item, showPrices = true }: Readonly<{ item: ReviewCase; showPrices?: boolean }>) {
+  const capture = item.capture
+  if (!capture) return null
+  return (
+    <div className="space-y-2 text-sm">
+      {!item.pipeline && <p>Collect evidence for this listing before assigning a review priority.</p>}
+      <div className="flex flex-wrap gap-x-4 gap-y-1">
+        <SourceLink label="Listing source" value={capture.listingUrl} />
+        <SourceLink label="Official reference" value={capture.referenceUrl} />
+      </div>
+      {showPrices && <div className="flex flex-wrap gap-x-4 gap-y-1">
+        <Money label="Was" amount={capture.previousPrice} /><Money label="Now" amount={capture.currentPrice} />
+      </div>}
+      {capture.complaint && <p><strong>Submitted buyer report:</strong> {publicText(capture.complaint)}</p>}
+      {typeof capture.photoCount === 'number' && <p className="text-muted">Photos recorded · {capture.photoCount}</p>}
+    </div>
+  )
+}
+
+function SourceLink({ label, value }: Readonly<{ label: string; value?: string }>) {
+  if (!value) return null
   try {
     const url = new URL(value)
-    if ((url.protocol === 'http:' || url.protocol === 'https:') && !url.username && !url.password) return url.href
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return null
+    if (url.hostname.endsWith('.invalid')) return <span className="text-muted">{label} · {url.hostname}{url.pathname}</span>
+    return <a className="focus-ring rounded font-semibold text-[#a82d18] hover:underline" href={url.href}
+      target="_blank" rel="noreferrer">{label}</a>
   } catch {
-    return undefined
+    return null
   }
-  return undefined
 }

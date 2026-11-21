@@ -76,11 +76,12 @@ def evaluation_inputs(tmp_path):
     return project
 
 
-def run_evaluation(directory, *, output="score.md"):
+def run_evaluation(directory, *, output="score.md", reviewer_decisions=None):
+    optional_args = ["--reviewer-decisions", reviewer_decisions] if reviewer_decisions else []
     return subprocess.run(
         [sys.executable, "-m", "trongpok.evaluation", "--labels", "labels.json",
          "--chatgpt", "chatgpt.json", "--listings-dir", "listings", "--flags-dir", "flags",
-         "--findings-dir", "findings", "--output", output],
+         "--findings-dir", "findings", "--output", output, *optional_args],
         cwd=directory, capture_output=True, text=True, check=False,
     )
 
@@ -107,6 +108,62 @@ def test_evaluation_scores_buyer_checks_and_baselines(evaluation_inputs):
     assert "| 1–2-star share (≥20%) | 5 | 1 | 2 | 0 | 2 |" in report
     assert "| Shopee complaint tag | 5 | 1 | 2 | 0 | 2 |" in report
     assert "| ChatGPT | 5 | 2 | 1 | 1 | 1 |" in report
+
+
+def test_evaluation_compares_web_decisions_without_changing_baselines(evaluation_inputs):
+    decisions = [
+        (64, "mismatch", "accepted"),
+        (128, "unsure", "needs_more_information"),
+        (256, "no_mismatch", "dismissed"),
+        (512, "mismatch", "accepted"),
+        (2048, "no_mismatch", "dismissed"),
+    ]
+    write_json(evaluation_inputs / "reviewer-decisions.json", [
+        {
+            "listing_id": "fixture-hero-64gb",
+            "option_id": f"fixture-option-{capacity}",
+            "verdict": verdict,
+            "reviewer_decision": {
+                "decision": decision,
+                "reason": "A private review note",
+                "at": "2026-11-21T12:00:00Z",
+            },
+        }
+        for capacity, verdict, decision in decisions
+    ])
+    assert run_evaluation(evaluation_inputs, output="baseline.md").returncode == 0
+
+    result = run_evaluation(evaluation_inputs, reviewer_decisions="reviewer-decisions.json")
+    assert result.returncode == 0, result.stderr
+    report = (evaluation_inputs / "score.md").read_text(encoding="utf-8")
+    baseline = (evaluation_inputs / "baseline.md").read_text(encoding="utf-8")
+
+    assert report.startswith(baseline)
+    assert "| Shortfall confirmed | 1 | 1 |" in report
+    assert "| Not confirmed | 0 | 1 |" in report
+    assert "| Need more information | 1 | 0 |" in report
+    assert "| No decision exported | 1 | 0 |" in report
+    assert "Decisions outside the blind sample: 1." in report
+    assert "A private review note" not in report
+
+
+def test_evaluation_rejects_duplicate_web_decisions(evaluation_inputs):
+    decision = {
+        "listing_id": "fixture-hero-64gb",
+        "option_id": "fixture-option-64",
+        "verdict": "mismatch",
+        "reviewer_decision": {
+            "decision": "accepted",
+            "reason": "Reviewer note",
+            "at": "2026-11-21T12:00:00Z",
+        },
+    }
+    write_json(evaluation_inputs / "reviewer-decisions.json", [decision, decision])
+
+    result = run_evaluation(evaluation_inputs, reviewer_decisions="reviewer-decisions.json")
+    assert result.returncode == 1
+    assert "Duplicate option in reviewer decisions" in result.stderr
+    assert not (evaluation_inputs / "score.md").exists()
 
 
 @pytest.mark.parametrize("empty", [False, True], ids=["unknown-option", "empty-labels"])

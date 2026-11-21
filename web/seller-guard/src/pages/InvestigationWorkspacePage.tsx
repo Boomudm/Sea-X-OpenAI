@@ -51,7 +51,7 @@ export function InvestigationWorkspacePage() {
 
   const resolvedFlags = Object.keys(flags).length
   const acceptedFlags = Object.values(flags).filter((value) => value === 'accepted').length
-  const decisionType: DecisionType = resolvedFlags < flagDefinitions.length ? 'Need more information' : acceptedFlags > 0 ? 'Violation confirmed' : 'No violation'
+  const decisionType: DecisionType = resolvedFlags < flagDefinitions.length ? 'Need more information' : acceptedFlags > 0 ? 'Shortfall confirmed' : 'Not confirmed'
 
   const prepareDecision = () => {
     if (resolvedFlags < flagDefinitions.length) {

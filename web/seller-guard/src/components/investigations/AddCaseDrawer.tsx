@@ -59,15 +59,15 @@ export function AddCaseDrawer({ open, onClose }: AddCaseDrawerProps) {
     })
     toast(`Listing sources saved for ${seller.name}.`)
     onClose()
-    const params = new URLSearchParams({ priority: 'unknown', case: seller.listings[0].id })
+    const params = new URLSearchParams({ source: 'captured', priority: 'unknown', case: seller.listings[0].id })
     navigate('/review?' + params)
   }
 
   return (
-    <Drawer open={open} onClose={onClose} title="Add listing sources" description="Save SSD listings and reference links for evidence collection. You can enter prices and a buyer report for the first listing.">
+    <Drawer open={open} onClose={onClose} title="Add listing sources" description="Save USB flash drive listings and reference links for evidence collection. You can enter prices and a buyer report for the first listing.">
       <form onSubmit={submit} className="space-y-6" noValidate>
         <Field label="Seller or shop name" required error={errors.sellerName}>
-          <input className="form-control w-full" value={sellerName} onChange={(event) => setSellerName(event.target.value)} placeholder="Example: MajuGadget Store" />
+          <input className="form-control w-full" value={sellerName} onChange={(event) => setSellerName(event.target.value)} placeholder="Enter the shop name" />
         </Field>
         <Field label="Seller listing links" required helper={`${listingUrls.length} of 10 links captured`} error={errors.listingLinks} icon={<Link2 className="size-4" />}>
           <textarea className="form-control min-h-32 w-full resize-y py-3" value={listingLinks} onChange={(event) => setListingLinks(event.target.value)} placeholder="Paste one URL per line" />
@@ -76,10 +76,10 @@ export function AddCaseDrawer({ open, onClose }: AddCaseDrawerProps) {
           <textarea className="form-control min-h-24 w-full resize-y py-3" value={referenceLinks} onChange={(event) => setReferenceLinks(event.target.value)} placeholder="Paste the official product reference" />
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Previous price" helper="Price before promotion" error={errors.previousPrice}>
+          <Field label="Previous price (฿)" helper="Price before promotion" error={errors.previousPrice}>
             <input className="form-control w-full" type="number" min="0" step="0.01" value={previousPrice} onChange={(event) => setPreviousPrice(event.target.value)} placeholder="129.90" />
           </Field>
-          <Field label="Current price" helper="Displayed price now" error={errors.currentPrice}>
+          <Field label="Current price (฿)" helper="Displayed price now" error={errors.currentPrice}>
             <input className="form-control w-full" type="number" min="0" step="0.01" value={currentPrice} onChange={(event) => setCurrentPrice(event.target.value)} placeholder="69.90" />
           </Field>
         </div>

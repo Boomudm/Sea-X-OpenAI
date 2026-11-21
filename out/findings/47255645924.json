@@ -1,0 +1,16 @@
+[
+  {
+    "review_id": "47255645924-r01",
+    "option_id": "128gb",
+    "complaint": "capacity_short",
+    "quantity": 6.0,
+    "unit": "GB",
+    "role": "delivered capacity",
+    "bytes": 6442450944,
+    "ratio": 0.050331648,
+    "quote": "ที่เก็บได้6gเองครับ",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  }
+]

@@ -1,0 +1,64 @@
+[
+  {
+    "listing_id": "47255645924",
+    "option_id": "128gb",
+    "colour": "YELLOW",
+    "deciding": "Q4",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "One buyer measured below 85% of the advertised capacity"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "47255645924-r01",
+        "buyer_masked": "w*****0",
+        "date": "2026-05-26T23:06:00+07:00",
+        "quote": "ที่เก็บได้6gเองครับ",
+        "quantity": 6.0,
+        "unit": "GB",
+        "role": "delivered_capacity",
+        "bytes": 6442450944.0,
+        "ratio": 0.050331648,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 60,
+      "base": 60,
+      "adjustments": [
+        {
+          "points": 10,
+          "reason": "Deciding buyer evidence quotes a clear number"
+        },
+        {
+          "points": 10,
+          "reason": "Deciding reviews match the option exactly"
+        },
+        {
+          "points": -10,
+          "reason": "Market range is thin or the KB row is missing"
+        }
+      ],
+      "missing_evidence": [
+        "Find an approved reference for this brand, product line and type",
+        "Look for an independent measured report for this variation"
+      ],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]

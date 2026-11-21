@@ -1,0 +1,67 @@
+[
+  {
+    "listing_id": "50570965257",
+    "option_id": "512GB",
+    "colour": "RED",
+    "deciding": "Q1",
+    "path": [
+      "Q1: decided",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Price is far below the market range"
+    ],
+    "evidence": [
+      {
+        "source": "market_range",
+        "was_thb": 3948,
+        "now_thb": 1389,
+        "low_thb": 3350.0,
+        "high_thb": 5145.0,
+        "date": "2026-11-21",
+        "sources": [
+          {
+            "url": "https://shopee.co.th/SANDISK--512GB-Flash-Drive-ULTRA-FLAIR-%28SDCZ73%29-USB-3.0-Black---A0138899-i.62824618.17492249773",
+            "date": "2026-11-21",
+            "capacity_gb": 512,
+            "now_thb": 3350
+          },
+          {
+            "url": "https://shopee.co.th/SanDisk-Ultra-Flair-USB-3.0-512GB-Speed-150MB-(SDCZ73_512G_G46)-i.60775884.3247850251",
+            "date": "2026-11-21",
+            "capacity_gb": 512,
+            "now_thb": 4450
+          },
+          {
+            "url": "https://shopee.co.th/product/60775884/19074122751",
+            "date": "2026-11-21",
+            "capacity_gb": 512,
+            "now_thb": 5145
+          }
+        ]
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 60,
+      "base": 60,
+      "adjustments": [
+        {
+          "points": 10,
+          "reason": "Market range and at least 3 offers captured today"
+        }
+      ],
+      "missing_evidence": [],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]

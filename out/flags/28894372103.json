@@ -1,0 +1,101 @@
+[
+  {
+    "listing_id": "28894372103",
+    "option_id": "1tb",
+    "colour": "YELLOW",
+    "deciding": "Q4",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: decided",
+      "Q5: clear"
+    ],
+    "reasons": [
+      "Capacity complaint needs a usable measurement"
+    ],
+    "evidence": [
+      {
+        "source": "review",
+        "review_id": "28894372103-r01",
+        "buyer_masked": "w*****n",
+        "date": "2026-09-21T09:09:00+07:00",
+        "quote": "ความจำในข้อมูล มีไม่ถึง",
+        "quantity": null,
+        "unit": "none",
+        "role": "other",
+        "bytes": null,
+        "ratio": null,
+        "image_ref": null,
+        "image_type": null
+      },
+      {
+        "source": "review_count",
+        "matched_text_reviews": 1,
+        "checked_text_reviews": 1
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 50,
+      "base": 50,
+      "adjustments": [
+        {
+          "points": 10,
+          "reason": "Deciding reviews match the option exactly"
+        },
+        {
+          "points": -10,
+          "reason": "Market range is thin or the KB row is missing"
+        }
+      ],
+      "missing_evidence": [
+        "Find an approved reference for this brand, product line and type",
+        "Verify the reported capacity against the original review or completed test"
+      ],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  },
+  {
+    "listing_id": "28894372103",
+    "option_id": "2tb",
+    "colour": "GREY",
+    "deciding": "grey",
+    "path": [
+      "Q1: clear",
+      "Q2: clear",
+      "Q3: clear",
+      "Q4: clear",
+      "Q5: clear",
+      "grey: decided"
+    ],
+    "reasons": [
+      "Not enough matched text reviews"
+    ],
+    "evidence": [
+      {
+        "source": "review_count",
+        "matched_text_reviews": 0,
+        "checked_text_reviews": 0
+      }
+    ],
+    "verdict": "unsure",
+    "confidence": {
+      "score": 40,
+      "base": 40,
+      "adjustments": [
+        {
+          "points": -10,
+          "reason": "Market range is thin or the KB row is missing"
+        }
+      ],
+      "missing_evidence": [
+        "Find an approved reference for this brand, product line and type",
+        "Collect 10 more matched text reviews"
+      ],
+      "rounds": 0
+    },
+    "reviewer_decision": null
+  }
+]

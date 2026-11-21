@@ -1,0 +1,16 @@
+[
+  {
+    "review_id": "40946425908",
+    "option_id": "SDCZ73_064G_G46",
+    "complaint": "none",
+    "quantity": 57.0,
+    "unit": "GB",
+    "role": "delivered capacity",
+    "bytes": 61203283968,
+    "ratio": 0.956301312,
+    "quote": "ความจุจริงอยู่ประมาณ 57GB",
+    "image_ref": null,
+    "image_type": null,
+    "read_status": "ok"
+  }
+]
