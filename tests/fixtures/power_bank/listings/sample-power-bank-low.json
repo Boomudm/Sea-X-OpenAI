@@ -1,0 +1,43 @@
+{
+  "listing_id": "sample-power-bank-low",
+  "url": "https://example.invalid/sample-power-bank-low",
+  "captured_at": "2026-11-21T10:00:00+07:00",
+  "title": "Sample data · 20,000 mAh power bank",
+  "spec_text": "Advertised internal capacity: 20,000 mAh",
+  "description": "Sample data. Synthetic listing and buyer reviews for tests.",
+  "listing_images": [],
+  "options": [
+    {
+      "option_id": "sample-20000",
+      "variation_label": "20,000 mAh",
+      "measurement_text": "20,000 mAh",
+      "promise_value": 20000,
+      "was_thb": null,
+      "now_thb": 499
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "sample-power-bank-low-r01",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-01***",
+      "date": "2026-11-20",
+      "stars": 2,
+      "text": "My USB tester recorded 4,000 mAh at the output port after a full discharge.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-power-bank-low-r02",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-02***",
+      "date": "2026-11-20",
+      "stars": 2,
+      "text": "After a full discharge, my USB tester measured 5 Ah from the output port.",
+      "tags": [],
+      "images": []
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "category": "power_bank",
+  "attribute": "capacity",
+  "promise_unit": "mAh",
+  "units": {
+    "mAh": {
+      "measurement_factors": [1],
+      "promise_factor": 1,
+      "aliases": ["mA·h", "มิลลิแอมป์ชั่วโมง"]
+    },
+    "Ah": {
+      "measurement_factors": [1000],
+      "promise_factor": 1000
+    }
+  },
+  "tolerance": 0.60,
+  "review_roles": ["test_result", "promise", "speed", "other"],
+  "measured_roles": ["test_result"],
+  "normal_display_text": "A completed USB-tester discharge around 60–70% of the advertised mAh can be normal at the output port.",
+  "mismatch_types": ["capacity_short", "capacity_no_number", "wrong_item", "other", "none"],
+  "prompt_traps": [
+    "Only a completed USB-tester discharge at the power bank's output port measures delivered capacity.",
+    "A copied label or nominal internal-cell capacity is an advertised value.",
+    "Phone charge percentage, the number of charges and charging speed are not capacity measurements.",
+    "Comparing Wh with mAh requires a known voltage basis. Treat Wh as an unresolved unit for this profile."
+  ],
+  "approved_by": "pending human review"
+}

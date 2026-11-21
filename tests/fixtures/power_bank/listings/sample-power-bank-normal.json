@@ -1,0 +1,131 @@
+{
+  "listing_id": "sample-power-bank-normal",
+  "url": "https://example.invalid/sample-power-bank-normal",
+  "captured_at": "2026-11-21T10:00:00+07:00",
+  "title": "Sample data · 20,000 mAh power bank",
+  "spec_text": "Advertised internal capacity: 20,000 mAh",
+  "description": "Sample data. Synthetic listing and buyer reviews for tests.",
+  "listing_images": [],
+  "options": [
+    {
+      "option_id": "sample-20000",
+      "variation_label": "20,000 mAh",
+      "measurement_text": "20,000 mAh",
+      "promise_value": 20000,
+      "was_thb": null,
+      "now_thb": 499
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "sample-power-bank-normal-r01",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-01***",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "A full discharge through my USB tester measured 13,000 mAh at the output port.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-power-bank-normal-r02",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-02***",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "It charges my phone while I travel.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-power-bank-normal-r03",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-03***",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "The indicator is easy to see.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-power-bank-normal-r04",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-04***",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "I keep it in my commuter bag.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-power-bank-normal-r05",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-05***",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "The ports hold my cable securely.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-power-bank-normal-r06",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-06***",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "It works with my usual cable.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-power-bank-normal-r07",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-07***",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "I used it during a long train ride.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-power-bank-normal-r08",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-08***",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "I like the size for day trips.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-power-bank-normal-r09",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-09***",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "The included cable works well.",
+      "tags": [],
+      "images": []
+    },
+    {
+      "review_id": "sample-power-bank-normal-r10",
+      "variation_label": "20,000 mAh",
+      "option_id": null,
+      "buyer_masked": "buyer-10***",
+      "date": "2026-11-20",
+      "stars": 5,
+      "text": "The switch is easy to press.",
+      "tags": [],
+      "images": []
+    }
+  ]
+}
