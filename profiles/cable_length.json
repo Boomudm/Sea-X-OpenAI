@@ -39,5 +39,12 @@
   "prompt_traps_by_language": {
     "ja": ["ケーブルを伸ばした状態の実測値を確認し、表記と同じ測定範囲を使う。"]
   },
+  "measurement_exclusions": {
+    "en": [
+      "package was", "package measured", "package width", "width of the package", "package dimensions",
+      "packaging dimensions", "box dimensions", "parcel dimensions", "connector width"
+    ],
+    "ja": ["梱包サイズ", "梱包の幅", "コネクタの幅"]
+  },
   "approved_by": "pending human review"
 }

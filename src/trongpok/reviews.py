@@ -20,13 +20,22 @@ _CONTEXT_BREAK = re.compile(
     re.IGNORECASE,
 )
 _SENTENCE_END = ".!?。！？"
-_STATEMENT_BREAK = re.compile(r"(?<![0-9])\.|\.(?![0-9])|[!?。！？\n]+")
+_STATEMENT_BREAK = r"(?<![0-9])\.|\.(?![0-9])|[!?。！？\n]+"
+_CONCESSIVE_BREAK = r",\s*(?=(?:although|though|even though|obwohl)\b)"
+_SENTENCES = re.compile(_STATEMENT_BREAK)
+_CATEGORICAL_CLAUSES = re.compile(rf"{_STATEMENT_BREAK}|{_CONCESSIVE_BREAK}", re.IGNORECASE)
+_CONCESSIVE = re.compile(_CONCESSIVE_BREAK, re.IGNORECASE)
 _GROUP_SPACE = " \u00a0\u202f"
 _REMOVE_GROUP_SPACES = str.maketrans("", "", _GROUP_SPACE)
 _SPACED_DIGITS_BEFORE = re.compile(r"[0-9][ \u00a0\u202f]+$")
-_RANGE_DASH = r"[-‐‑‒–—−]"
-_RANGE_AFTER = re.compile(rf"\s*{_RANGE_DASH}\s*[0-9]")
-_RANGE_BEFORE = re.compile(rf"[0-9](?:\s*[^0-9\s,.;!?-]+)?\s*{_RANGE_DASH}\s*$")
+_RANGE_JOINER = r"(?:[-‐‑‒–—−]|\bto\b)"
+_RANGE_AFTER = re.compile(rf"\s*{_RANGE_JOINER}\s*[0-9]", re.IGNORECASE)
+_RANGE_BEFORE = re.compile(rf"[0-9](?:\s*[^0-9\s,.;!?-]+)?\s*{_RANGE_JOINER}\s*$", re.IGNORECASE)
+_BETWEEN_BEFORE = re.compile(
+    r"\bbetween\s+[0-9][0-9,. \u00a0\u202f]*(?:\s*[a-z]+)?\s+and\s*$", re.IGNORECASE,
+)
+_BETWEEN_START = re.compile(r"\bbetween\s+$", re.IGNORECASE)
+_AND_NUMBER = re.compile(r"\s+and\s+[0-9]", re.IGNORECASE)
 _COMPLETION_DENIAL_BEFORE = re.compile(
     r"\b(?:no|without|never|not|didn't|didn’t|doesn't|hasn't)\b[\w \t’']{0,35}$"
     r"|(?:未|没有|并未)[^\s。！？]{0,8}$",
@@ -34,12 +43,15 @@ _COMPLETION_DENIAL_BEFORE = re.compile(
 )
 _COMPLETION_DENIAL_AFTER = re.compile(
     r"^\s*(?:(?:was|were|did|had|has)\s+(?:not|never)\b"
-    r"|(?:wasn|weren|didn|hasn)['’]t\b|not\s+(?:completed|performed)|未|没有)",
+    r"|(?:wasn|weren|didn|hasn)['’]t\b|not\s+(?:completed|performed)|未|没有"
+    r"|(?:should|would|could|might|may)\b|(?:is|was)\s+(?:expected|estimated|projected)\b)",
     re.IGNORECASE,
 )
 _MODEL_INSTRUCTION = re.compile(
     r"\b(?:ignore|disregard|override|forget)\b[^\n.!?]{0,45}\b(?:instructions?|rules?|prompts?|system)\b"
     r"|\b(?:system|developer|assistant|model)\s+(?:task|message|instructions?|prompt)\b"
+    r"|\b(?:system|developer|assistant)\s*[:,]\s*(?:please\s+)?"
+    r"(?:set|mark|report|classify|label|output|return)\b"
     r"|\b(?:tag|classify|label|mark)\s+(?:this|the|my)\s+review\s+(?:as|with)\b"
     r"|^\s*(?:please\s+)?(?:return|output|emit|respond with|reply with|report|tag|classify)\s+"
     r"(?:[0-9]|the\b|a\b|as\b|measured\b|delivered\b)",
@@ -97,6 +109,10 @@ _COMPONENT = (
 _MISSING_COMPONENT = re.compile(
     rf"\b(?:no|without|missing)\s+(?:the |a |an )?{_COMPONENT}\b"
     rf"|\b{_COMPONENT}\s+(?:(?:was|were|is|are)\s+)?(?:missing|not included)\b",
+    re.IGNORECASE,
+)
+_OFFER_ONLY = re.compile(
+    r"\b(?:listing|photo|description|advertis\w*|pictured|promis\w*|order\w*|bought|selected)\b",
     re.IGNORECASE,
 )
 _DEFAULT_MISMATCH_CUES = {
@@ -215,9 +231,10 @@ def _review_pattern(profile: CategoryProfile, *, strict: bool = False) -> re.Pat
     )
 
 
-def _statement_spans(text: str) -> Iterable[tuple[int, int]]:
+def _statement_spans(text: str, *, split_concessions: bool = False) -> Iterable[tuple[int, int]]:
     start = 0
-    for ending in _STATEMENT_BREAK.finditer(text):
+    boundaries = _CATEGORICAL_CLAUSES if split_concessions else _SENTENCES
+    for ending in boundaries.finditer(text):
         yield start, ending.end()
         start = ending.end()
     if start < len(text):
@@ -235,9 +252,11 @@ def _source_mentions(
         for mention in pattern.finditer(text, start, end):
             if strict or profile.category != "storage":
                 before = text[max(0, mention.start() - 64):mention.start()]
-                if _SPACED_DIGITS_BEFORE.search(before) or _RANGE_BEFORE.search(before):
-                    continue
-                if _RANGE_AFTER.match(text, mention.end()):
+                if (
+                    _SPACED_DIGITS_BEFORE.search(before) or _RANGE_BEFORE.search(before)
+                    or _BETWEEN_BEFORE.search(before) or _RANGE_AFTER.match(text, mention.end())
+                    or (_BETWEEN_START.search(before) and _AND_NUMBER.match(text, mention.end()))
+                ):
                     continue
             yield mention
 
@@ -249,6 +268,21 @@ def _quote_spans(text: str, quote: str) -> Iterable[tuple[int, int]]:
     while start >= 0:
         yield start, start + len(quote)
         start = text.find(quote, start + 1)
+
+
+def plain_quote_supported(text: str, quote: str) -> bool:
+    """Verify a verbatim quote outside a model-directed source sentence."""
+    directed_spans = (
+        (start, end) for start, end in _statement_spans(text)
+        if _MODEL_INSTRUCTION.search(text[start:end])
+    )
+    directed = next(directed_spans, None)
+    for start, end in _quote_spans(text, quote):
+        while directed is not None and directed[1] <= start:
+            directed = next(directed_spans, None)
+        if directed is None or end <= directed[0]:
+            return True
+    return False
 
 
 def advertised_amounts(text: str, profile: CategoryProfile) -> set[Decimal]:
@@ -329,6 +363,8 @@ def _contrasting_values(quote: str, tokens: re.Pattern[str]) -> bool:
 
 
 def _categorical_assertion(quote: str, mismatch_type: str, profile: CategoryProfile | None) -> bool:
+    if mismatch_type == "missing_parts" and _OFFER_ONLY.search(quote) and not _DELIVERED.search(quote):
+        return False
     candidate = quote.casefold()
     configured = profile.mismatch_cues.get(mismatch_type, {}) if profile is not None else {}
     cues = (*_DEFAULT_MISMATCH_CUES.get(mismatch_type, ()), *(
@@ -344,7 +380,7 @@ def _categorical_assertion(quote: str, mismatch_type: str, profile: CategoryProf
 
 def _supporting_statement_block(quote: str, mismatch_type: str, profile: CategoryProfile | None) -> bool:
     supported: list[str] = []
-    for start, end in _statement_spans(quote):
+    for start, end in _statement_spans(quote, split_concessions=True):
         statement = quote[start:end]
         if (
             statement.rstrip().endswith(("?", "？")) or _NEGATED_MISMATCH.search(statement)
@@ -374,7 +410,10 @@ def categorical_quote_supported(
             continue
         if after.startswith(("?", "？")):
             continue
-        if not after or after[0] in _SENTENCE_END + "\n" or quote.rstrip()[-1] in _SENTENCE_END:
+        if (
+            not after or after[0] in _SENTENCE_END + "\n" or quote.rstrip()[-1] in _SENTENCE_END
+            or _CONCESSIVE.match(("," if quote.rstrip().endswith(",") else "") + after)
+        ):
             return True
     return False
 
@@ -492,7 +531,7 @@ def _non_measurement(
 
     # A displayed or advertised capacity may be contrasted with what the drive actually holds.
     actual = _THAI_ACTUAL_AFTER.match(after)
-    actual_number = _review_pattern(profile).match(after, actual.end()) if actual else None
+    actual_number = _review_pattern(profile, strict=True).match(after, actual.end()) if actual else None
     if not actual_number or not actual_number.group(2):
         return False
     # The preceding test name may itself contain a digit (H2testw or F3).
@@ -520,7 +559,9 @@ def review_number_units(
     normalized = text.translate(_THAI_DIGITS)
     previous_end = 0
     units = set()
-    for mention in _source_mentions(normalized, profile, for_measurement=measurements_only):
+    for mention in _source_mentions(
+        normalized, profile, strict=measurements_only, for_measurement=measurements_only,
+    ):
         number, unit = mention.groups()
         if _decimal(number, profile=profile) == selected and (
             not measurements_only or not _non_measurement(mention, previous_end, promised_bytes, profile)
@@ -537,7 +578,7 @@ def conflicting_review_measurements(
     """Check the whole review for competing capacity readings missing from a short quote."""
     profile = profile or _storage_profile()
     normalized = text.translate(_THAI_DIGITS)
-    mentions = list(_source_mentions(normalized, profile, for_measurement=True))
+    mentions = list(_source_mentions(normalized, profile, strict=True, for_measurement=True))
     measurements = {selected} if selected is not None else set()
     previous_end = 0
     for index, mention in enumerate(mentions):
@@ -635,7 +676,7 @@ def _finding_evidence(
         review_text = review.get("text", "")
         supported_quote = (
             categorical_quote_supported(review_text, quote, mismatch_type=mismatch_type, profile=profile)
-            if mismatch_type else bool(quote.strip()) and quote in review_text
+            if mismatch_type else plain_quote_supported(review_text, quote)
         )
         if not supported_quote:
             return None
@@ -831,8 +872,10 @@ def _checked_text_review(
         quote = finding.get("quote") or ""
         return (
             finding.get("read_status") == "ok"
-            and (quote or finding.get("complaint") == "none")
-            and quote in text
+            and (
+                plain_quote_supported(text, quote)
+                if quote else finding.get("complaint") == "none"
+            )
         )
 
     def valid_observation(finding: dict) -> bool:
