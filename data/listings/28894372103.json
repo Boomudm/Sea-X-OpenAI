@@ -1,0 +1,42 @@
+{
+  "listing_id": "28894372103",
+  "url": "https://shopee.co.th/product/1654994482/28894372103",
+  "title": "u Disk 2TB/1TB แฟลชไดรฟ์ ความเร็วสูง Memory Stick แฟลชไดรฟ์โลหะ คุณภาพสูง flashdrive PC/Android",
+  "spec_text": "Storage Capacity: 2TB\nWarranty Type: Supplier Warranty",
+  "description": "1tb = ประมาณ 900GB ~ 950GB = ประมาณ 900GB ~ 950GB\n1. อินเทอร์เฟซสำหรับอินเทอร์เฟซ: Type-C และ USB3.0\n4. ความจุ: 1tb/2tb",
+  "options": [
+    {
+      "option_id": "1tb",
+      "variation_label": "1TB",
+      "capacity_text": "1TB",
+      "promise_gb": 1000,
+      "was_thb": 599,
+      "now_thb": 365
+    },
+    {
+      "option_id": "2tb",
+      "variation_label": "2TB",
+      "capacity_text": "2TB",
+      "promise_gb": 2000,
+      "was_thb": 789,
+      "now_thb": 411
+    }
+  ],
+  "reviews": [
+    {
+      "review_id": "28894372103-r01",
+      "variation_label": "1TB",
+      "option_id": null,
+      "buyer_masked": "w*****n",
+      "date": "2026-09-21T09:09:00+07:00",
+      "stars": 5,
+      "text": "สินค้าไม่ตรงปก ความจำในข้อมูล มีไม่ถึง ใส่ข้อมูลไป แป้บเดียวหายหมด่",
+      "tags": [],
+      "images": []
+    }
+  ],
+  "captured_at": "2026-11-21T12:22:40+07:00",
+  "listing_images": [
+    "data/listings/28894372103/images/listing-01.webp"
+  ]
+}
