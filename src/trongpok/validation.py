@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 import re
 from collections.abc import Iterable, Mapping
+from decimal import Decimal
 from typing import Any
 
 from .errors import InvalidReaderOutput
@@ -168,11 +169,18 @@ def normalize_review_draft(
     unit: Unit = draft.unit
     role = draft.role
     measurable = role in {"delivered capacity", "fails after", "test result"}
+    promise_gb = option.promise_gb
+    if promise_gb is None:
+        values = capacity_values_gb(option.variation_label) or capacity_values_gb(
+            option.capacity_text
+        )
+        promise_gb = values[0] if len(set(values)) == 1 else None
+    promised_bytes = Decimal(str(promise_gb)) * 10**9 if promise_gb else None
     excluded = False
     if quantity is not None:
         unit = _quoted_review_unit(review, option, draft)
         excluded = measurable and not review_number_units(
-            review.text, quantity, measurements_only=True,
+            review.text, quantity, measurements_only=True, promised_bytes=promised_bytes,
         )
         if excluded:
             quantity = None
@@ -182,6 +190,7 @@ def normalize_review_draft(
             unit == "none" or conflicting_review_measurements(
                 review.text, measured_bytes(quantity, unit, option.capacity_text),
                 option.capacity_text or option.variation_label,
+                promised_bytes=promised_bytes,
             )
         ):
             quantity = None
@@ -192,12 +201,6 @@ def normalize_review_draft(
             )
 
     parsed_bytes = quantity_bytes(quantity, unit)
-    promise_gb = option.promise_gb
-    if promise_gb is None:
-        values = capacity_values_gb(option.variation_label) or capacity_values_gb(
-            option.capacity_text
-        )
-        promise_gb = values[0] if len(set(values)) == 1 else None
     ratio = (
         parsed_bytes / (promise_gb * 1_000_000_000)
         if parsed_bytes is not None and promise_gb
