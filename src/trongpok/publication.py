@@ -5,7 +5,7 @@ import re
 
 _RESTRICTED_WORD = re.compile(r"\b(?:fake|fraud)\w*", re.IGNORECASE)
 _MASKED_BUYER = re.compile(r"[\w]?\*{2,}[\w]?|buyer-[0-9a-f]{12}\*{3}")
-_DISPLAY_TEXT = {"quote", "reason", "reasons", "missing_evidence"}
+_DISPLAY_TEXT = {"capacity_text", "measurement_text", "quote", "reason", "reasons", "missing_evidence"}
 
 
 def public_text(text: str) -> str:
