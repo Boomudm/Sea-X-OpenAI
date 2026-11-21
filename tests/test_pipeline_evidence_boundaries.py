@@ -211,6 +211,30 @@ def test_package_dimensions_do_not_conflict_with_a_cable_measurement(tmp_path):
         "I received my kit with no bracket missing.",
     ),
     (
+        "My kit came without a charger, exactly as expected.",
+        "There was no charging cable in my box, as expected.",
+    ),
+    (
+        "I got the box without a charging cable, which is how this version comes.",
+        "I received the kit with no charger, as expected.",
+    ),
+    (
+        "I opened the package and no charger is needed for this battery-powered version.",
+        "I opened the kit, no charging cable required because it runs on batteries.",
+    ),
+    (
+        "I received the kit, no charger is included by design.",
+        "I opened my box and it is meant to come without a charger.",
+    ),
+    (
+        "ได้รับข้อความว่าไม่มีสายชาร์จแถมในชุด",
+        "ได้รับอีเมลว่าไม่มีหัวชาร์จสำหรับรุ่นนี้",
+    ),
+    (
+        "I opened the package and none of the charging cables were missing.",
+        "I opened the box and found a label printed with the words no charging cable.",
+    ),
+    (
         "I received my kit. The listing says the charger is not included.",
         "The charger is sold separately. My order arrived quickly.",
     ),
@@ -228,6 +252,10 @@ def test_offer_only_exclusions_do_not_trigger_missing_parts_red(tmp_path, quotes
     ("ได้รับของแล้วแต่ไม่มี charger ในกล่อง", "I opened my kit and found no สายชาร์จ in my box."),
     ("My order arrived without a charger.", "I opened my order and the cable was missing."),
     ("I opened my kit and found no charger.", "I opened my parcel, the charging cable was missing."),
+    (
+        "The advertised charger was missing from my box.",
+        "The charging cable shown in the listing was missing from my parcel.",
+    ),
     ("I received the kit but the charger was missing.", "There was no charging cable in my box."),
 ])
 def test_two_buyers_reporting_missing_parts_in_received_packages_trigger_q3b(tmp_path, quotes):
@@ -259,6 +287,21 @@ def test_unrelated_between_phrases_do_not_hide_conflicting_cable_measurements(tm
         for text, amount, quote in (
             ("Warranty is between 1 and 2 years. I measured 70 cm and 100 cm.", 70, "70 cm"),
             ("The listing gives between 1 and 2 days. I measured 71 cm and 101 cm.", 71, "71 cm"),
+        )
+    }
+
+    flag = evaluate(tmp_path, "cable_length", "1 m", 1000, observations)
+
+    assert flag["colour"] != "RED"
+
+
+
+def test_mixed_unit_ranges_cannot_supply_a_shortfall_endpoint(tmp_path):
+    observations = {
+        text: ("delivered_length", "capacity_short", amount, "cm", quote)
+        for text, amount, quote in (
+            ("I measured somewhere between 27 inches and 71 cm.", 71, "71 cm"),
+            ("The cable measured between 1 yard and 73 cm.", 73, "73 cm"),
         )
     }
 

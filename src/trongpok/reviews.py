@@ -111,20 +111,27 @@ _MISSING_COMPONENT = re.compile(
     rf"|\b{_COMPONENT}\s+(?:(?:was|were|is|are)\s+)?(?:missing|not included)\b",
     re.IGNORECASE,
 )
+_PARTS_QUALIFIER = (
+    r"(?:as (?:expected|stated|advertised|listed|specified|described)"
+    r"|which is how (?:this|the) (?:version|kit|model|set) (?:comes|ships))"
+)
 _OFFER_ONLY = re.compile(
     r"\b(?:listing|photo|description|advertis\w*|pictured|promis\w*|order(?:ed|ing)|bought|selected"
     r"|wanted|picked|chose|requested|sold separately|optional extra"
-    r"|as (?:expected|stated|advertised|listed|specified|described)"
-    r"|which is how (?:this|the) (?:version|kit|model|set) (?:comes|ships))\b"
+    rf"|{_PARTS_QUALIFIER}|by design|(?:meant|designed) to come without)\b"
     r"|\b(?:seller|support|label|sticker|manual|message|email|notification|box|package)"
     r"\s+(?:(?:that|which)\s+)?"
-    r"(?:said|says|saying|reads?|states?|stated|told|confirms?|confirmed|confirming)\b"
+    r"(?:said|says|saying|reads?|states?|stated|told|confirms?|confirmed|confirming|printed)\b"
     r"|หน้าร้าน|หน้าสินค้า|รูปสินค้า|รายละเอียดสินค้า|โฆษณา|ระบุ|ขายแยก|ซื้อแยก|ไม่รวม|ไม่มีในชุด"
     r"|ตามที่(?:แจ้ง|ตกลง)ไว้|ตามสเป[กค]|ตรงตามที่สั่ง|(?:ฉลาก|สติ[ก๊]เกอร์|ทางร้าน|ผู้ขาย)(?:เขียน|ระบุ|แจ้ง|บอก)"
     r"|(?:สั่ง(?:ซื้อ)?|ซื้อ|เลือก)(?:แบบ|รุ่น|ชุด|ตัว)",
     re.IGNORECASE,
 )
-_PARTS_CLAUSE = re.compile(r"(\b(?:and|but|although|while|whereas|however)\b|แต่|[,;])", re.IGNORECASE)
+_PARTS_CLAUSE = re.compile(
+    rf"(\b(?:and|but|although|while|whereas|however)\b|แต่"
+    rf"|[,;](?!\s*(?:exactly\s+)?{_PARTS_QUALIFIER}\b))",
+    re.IGNORECASE,
+)
 _PARTS_RECEIPT = re.compile(
     r"\b(?:receiv\w*|got|open(?:ed|ing)?|unbox(?:ed|ing)?|(?:arrived|came) with(?:out)?"
     r"|(?:in|from) (?:(?:my|the|our) )?(?:box|package|parcel)|im (?:paket|karton))\b"
@@ -134,11 +141,19 @@ _PARTS_RECEIPT = re.compile(
 )
 _NON_PHYSICAL_RECEIPT = re.compile(
     r"\b(?:receiv\w*|got|opened)\s+(?:(?:an?|the|my)\s+)?"
-    r"(?:message|email|text|notification|reply|confirmation|photo|link)\b",
+    r"(?:message|email|text|notification|reply|confirmation|photo|link)\b"
+    r"|ได้รับ(?:ข้อความ|อีเมล|แจ้งเตือน|รูปภาพ|ลิงก์)",
     re.IGNORECASE,
 )
 _NO_MISSING_PART = re.compile(
-    rf"\bno\s+(?:{_COMPONENT}|{_THAI_COMPONENT})\s+(?:(?:was|were|is|are)\s+)?missing\b",
+    rf"\b(?:no\s+|none of (?:the |my |our )?)(?:{_COMPONENT}|{_THAI_COMPONENT})"
+    r"\s+(?:(?:was|were|is|are)\s+)?(?:missing|required|needed)\b",
+    re.IGNORECASE,
+)
+_PART_DESCRIPTION = re.compile(
+    rf"\b(?:advertised|listed|pictured|promised)\s+(?={_COMPONENT}\b)"
+    r"|\b(?:shown|pictured|advertised|listed) (?:in|on) the (?:listing|photo|description)"
+    r"(?=\s+(?:was|were) missing\b)",
     re.IGNORECASE,
 )
 _THAI_MISSING_COMPONENT = re.compile(
@@ -278,7 +293,14 @@ def _between_endpoint(before: str, profile: CategoryProfile) -> bool:
         return False
     first = before[:joiner.start()]
     markers = list(_BETWEEN_NUMBER.finditer(first))
-    return bool(markers and _review_pattern(profile, strict=True).fullmatch(first[markers[-1].end():].strip()))
+    if not markers:
+        return False
+    amount = first[markers[-1].end():].strip()
+    endpoint = _review_pattern(profile, strict=True).match(amount)
+    if not endpoint:
+        return False
+    trailing_unit = amount[endpoint.end():].strip()
+    return not trailing_unit or (not endpoint.group(2) and trailing_unit.isalpha())
 
 def _source_mentions(
     text: str, profile: CategoryProfile, *, strict: bool = False, for_measurement: bool = False,
@@ -406,13 +428,14 @@ def _received_part_missing(quote: str, cues: tuple[str, ...]) -> bool:
         clauses = _PARTS_CLAUSE.split(quote[start:end])
         previous_receipt = False
         for connector, clause in zip(("", *clauses[1::2]), clauses[::2], strict=True):
-            if _OFFER_ONLY.search(clause) or _NON_PHYSICAL_RECEIPT.search(clause):
+            contents = _PART_DESCRIPTION.sub("", clause)
+            if _OFFER_ONLY.search(contents) or _NON_PHYSICAL_RECEIPT.search(clause):
                 previous_receipt = False
                 continue
             receipt = bool(_PARTS_RECEIPT.search(clause))
             linked_receipt = connector.casefold() in {"and", "but", "แต่", ","} and previous_receipt
             if (receipt or linked_receipt) and not _NO_MISSING_PART.search(clause) and (
-                _MISSING_COMPONENT.search(clause)
+                _MISSING_COMPONENT.search(contents)
                 or _THAI_MISSING_COMPONENT.search(clause)
                 or any(cue in clause.casefold() for cue in cues)
             ):
