@@ -20,10 +20,29 @@ _CONTEXT_BREAK = re.compile(
     re.IGNORECASE,
 )
 _SENTENCE_END = ".!?。！？"
+_STATEMENT_BREAK = re.compile(r"(?<![0-9])\.|\.(?![0-9])|[!?。！？\n]+")
+_GROUP_SPACE = " \u00a0\u202f"
+_REMOVE_GROUP_SPACES = str.maketrans("", "", _GROUP_SPACE)
+_SPACED_DIGITS_BEFORE = re.compile(r"[0-9][ \u00a0\u202f]+$")
+_RANGE_DASH = r"[-‐‑‒–—−]"
+_RANGE_AFTER = re.compile(rf"\s*{_RANGE_DASH}\s*[0-9]")
+_RANGE_BEFORE = re.compile(rf"[0-9](?:\s*[^0-9\s,.;!?-]+)?\s*{_RANGE_DASH}\s*$")
+_COMPLETION_DENIAL_BEFORE = re.compile(
+    r"\b(?:no|without|never|not|didn't|didn’t|doesn't|hasn't)\b[\w \t’']{0,35}$"
+    r"|(?:未|没有|并未)[^\s。！？]{0,8}$",
+    re.IGNORECASE,
+)
+_COMPLETION_DENIAL_AFTER = re.compile(
+    r"^\s*(?:(?:was|were|did|had|has)\s+(?:not|never)\b"
+    r"|(?:wasn|weren|didn|hasn)['’]t\b|not\s+(?:completed|performed)|未|没有)",
+    re.IGNORECASE,
+)
 _MODEL_INSTRUCTION = re.compile(
     r"\b(?:ignore|disregard|override|forget)\b[^\n.!?]{0,45}\b(?:instructions?|rules?|prompts?|system)\b"
     r"|\b(?:system|developer|assistant|model)\s+(?:task|message|instructions?|prompt)\b"
-    r"|\b(?:tag|classify|label|mark)\s+(?:this|the|my)\s+review\s+(?:as|with)\b",
+    r"|\b(?:tag|classify|label|mark)\s+(?:this|the|my)\s+review\s+(?:as|with)\b"
+    r"|^\s*(?:please\s+)?(?:return|output|emit|respond with|reply with|report|tag|classify)\s+"
+    r"(?:[0-9]|the\b|a\b|as\b|measured\b|delivered\b)",
     re.IGNORECASE,
 )
 _MISMATCH_WORD = r"(?:wrong|incorrect|mismatch|missing|falsch\w*|fehl\w*)"
@@ -42,8 +61,8 @@ _AFFIRMED_MATCH = re.compile(
     re.IGNORECASE,
 )
 _HYPOTHETICAL_MISMATCH = re.compile(
-    r"\b(?:if|unless|was worried|worried that|afraid that|assumed that|reviews said"
-    r"|reviews say|other buyers say)\b",
+    r"\b(?:if|unless|falls|wenn|sofern|was worried|worried that|afraid that|assumed that"
+    r"|reviews said|reviews say|other buyers say)\b",
     re.IGNORECASE,
 )
 _ORDERED = re.compile(
@@ -51,12 +70,14 @@ _ORDERED = re.compile(
     re.IGNORECASE,
 )
 _DELIVERED = re.compile(
-    r"\b(?:receiv\w*|arriv\w*|sent|contain\w*|deliver\w*|geliefert\w*|erhalten|bekommen|enthielt)\b",
+    r"\b(?:receiv\w*|got|arriv\w*|sent|contain\w*|deliver\w*|geliefert\w*|erhalten|bekommen|enthielt)\b",
     re.IGNORECASE,
 )
 _CONTRAST_TOKENS = {
     "size_mismatch": re.compile(
-        r"\b(?:XXXS|XXS|XS|S|M|L|XL|XXL|XXXL|small|medium|large|[2-6][0-9])\b", re.IGNORECASE,
+        r"\b(?:extra[- ](?:extra[- ])?(?:small|large)|XXXS|XXS|XS|S|M|L|XL|XXL|XXXL"
+        r"|small|medium|large|[2-6][0-9])\b",
+        re.IGNORECASE,
     ),
     "wrong_colour": re.compile(
         r"\b(?:black|blue|brown|grey|gray|green|orange|pink|purple|red|white|yellow"
@@ -65,16 +86,23 @@ _CONTRAST_TOKENS = {
     ),
     "wrong_model": re.compile(r"\b(?:Mini|Max|Pro|Plus|Ultra|[A-Z]{2,}-?[0-9]+[A-Z0-9]*)\b"),
 }
+_CONTRAST_NORMALIZATION = {
+    "gray": "grey", "grau": "grey", "small": "s", "medium": "m", "large": "l",
+    "extra small": "xs", "extra extra small": "xxs", "extra large": "xl", "extra extra large": "xxl",
+}
+_COMPONENT = (
+    r"(?:brackets?|screws?|manuals?|cables?|chargers?|adapters?|parts?|pieces?|components?"
+    r"|accessor(?:y|ies)|mounts?|batter(?:y|ies)|covers?|clips?)"
+)
 _MISSING_COMPONENT = re.compile(
-    r"\b(?:no|without|missing)\s+(?:the |a |an )?"
-    r"(?:bracket|screw|manual|cable|charger|adapter|part|piece|component|accessory|accessories)\w*\b",
+    rf"\b(?:no|without|missing)\s+(?:the |a |an )?{_COMPONENT}\b"
+    rf"|\b{_COMPONENT}\s+(?:(?:was|were|is|are)\s+)?(?:missing|not included)\b",
     re.IGNORECASE,
 )
 _DEFAULT_MISMATCH_CUES = {
     "size_mismatch": ("wrong size", "different size", "smaller than advertised", "larger than advertised"),
     "wrong_model": ("wrong model", "different model", "wrong version", "different version"),
     "wrong_colour": ("wrong colour", "different colour", "wrong color", "different color"),
-    "missing_parts": ("parts missing", "part is missing", "was missing", "were missing", "not included"),
     "not_genuine_claim": ("not genuine", "not authentic", "not issued by", "not their product"),
     "wrong_item": ("wrong item", "different item", "not the item i ordered", "wrong product"),
 }
@@ -125,12 +153,13 @@ def _separators(profile: CategoryProfile | None) -> tuple[str, str]:
 
 
 @cache
-def _quantity_pattern(decimal_separator: str, group_separator: str) -> str:
-    if (decimal_separator, group_separator) == (".", ","):
+def _quantity_pattern(decimal_separator: str, group_separator: str, *, space_groups: bool = False) -> str:
+    if not space_groups and (decimal_separator, group_separator) == (".", ","):
         return _QUANTITY
     decimal = re.escape(decimal_separator)
     group = re.escape(group_separator)
-    return rf"(?:[0-9]{{1,3}}(?:{group}[0-9]{{3}})+|[0-9]+)(?:{decimal}[0-9]+)?"
+    by_space = rf"|[0-9]{{1,3}}(?:[{_GROUP_SPACE}][0-9]{{3}})+" if space_groups else ""
+    return rf"(?:[0-9]{{1,3}}(?:{group}[0-9]{{3}})+{by_space}|[0-9]+)(?:{decimal}[0-9]+)?"
 
 
 def _decimal(value: object, *, profile: CategoryProfile | None = None) -> Decimal | None:
@@ -141,8 +170,9 @@ def _decimal(value: object, *, profile: CategoryProfile | None = None) -> Decima
         if isinstance(value, str):
             raw = value.strip().translate(_THAI_DIGITS)
             decimal, group = _separators(profile)
-            if re.fullmatch(_quantity_pattern(decimal, group), raw):
-                return Decimal(raw.replace(group, "").replace(decimal, "."))
+            if re.fullmatch(_quantity_pattern(decimal, group, space_groups=True), raw):
+                ungrouped = raw.translate(_REMOVE_GROUP_SPACES)
+                return Decimal(ungrouped.replace(group, "").replace(decimal, "."))
         return None
     except InvalidOperation:
         return None
@@ -159,8 +189,9 @@ def _number_pattern(
 ) -> re.Pattern[str]:
     alternatives = "|".join(re.escape(unit) for unit in sorted(units, key=len, reverse=True))
     unit_end = r"(?![a-z])" if legacy else r"(?![a-z0-9_²³])"
-    suffix = rf"\s*({alternatives}){unit_end}"
-    quantity = _quantity_pattern(*separators)
+    whitespace = r"\s*" if legacy else rf"[{_GROUP_SPACE}\t]*"
+    suffix = rf"{whitespace}({alternatives}){unit_end}"
+    quantity = _quantity_pattern(*separators, space_groups=not legacy)
     if legacy:
         if optional:
             return re.compile(
@@ -184,6 +215,33 @@ def _review_pattern(profile: CategoryProfile, *, strict: bool = False) -> re.Pat
     )
 
 
+def _statement_spans(text: str) -> Iterable[tuple[int, int]]:
+    start = 0
+    for ending in _STATEMENT_BREAK.finditer(text):
+        yield start, ending.end()
+        start = ending.end()
+    if start < len(text):
+        yield start, len(text)
+
+
+def _source_mentions(
+    text: str, profile: CategoryProfile, *, strict: bool = False, for_measurement: bool = False,
+) -> Iterable[re.Match[str]]:
+    pattern = _review_pattern(profile, strict=strict)
+    ranges = _statement_spans(text) if for_measurement else ((0, len(text)),)
+    for start, end in ranges:
+        if for_measurement and _MODEL_INSTRUCTION.search(text[start:end]):
+            continue
+        for mention in pattern.finditer(text, start, end):
+            if strict or profile.category != "storage":
+                before = text[max(0, mention.start() - 64):mention.start()]
+                if _SPACED_DIGITS_BEFORE.search(before) or _RANGE_BEFORE.search(before):
+                    continue
+                if _RANGE_AFTER.match(text, mention.end()):
+                    continue
+            yield mention
+
+
 def _quote_spans(text: str, quote: str) -> Iterable[tuple[int, int]]:
     if not quote.strip():
         return
@@ -201,7 +259,7 @@ def advertised_amounts(text: str, profile: CategoryProfile) -> set[Decimal]:
     assert promise_factor is not None
     amounts = set()
     normalized = text.translate(_THAI_DIGITS)
-    for mention in _review_pattern(profile, strict=True).finditer(normalized):
+    for mention in _source_mentions(normalized, profile, strict=True):
         quantity, unit = mention.groups()
         if unit is None or _OTHER_CAPACITY_AFTER.match(normalized[mention.end():]):
             continue
@@ -223,7 +281,8 @@ def quoted_number_units(
     units = set()
     next_span = iter(spans)
     span = next(next_span)
-    for mention in _review_pattern(profile, strict=True).finditer(text.translate(_THAI_DIGITS)):
+    normalized = text.translate(_THAI_DIGITS)
+    for mention in _source_mentions(normalized, profile, strict=True, for_measurement=for_measurement):
         while span[1] < mention.end():
             span = next(next_span, None)
             if span is None:
@@ -260,7 +319,13 @@ def _contrasting_values(quote: str, tokens: re.Pattern[str]) -> bool:
         actual = tokens.findall(quote[delivery.end():order.start()])
         if not actual:
             actual = tokens.findall(quote[:delivery.start()])[-1:]
-    return bool(expected and actual and expected[0].casefold() != actual[0].casefold())
+    if not expected or not actual:
+        return False
+    expected_value = expected[0].casefold().replace("-", " ")
+    actual_value = actual[0].casefold().replace("-", " ")
+    return _CONTRAST_NORMALIZATION.get(expected_value, expected_value) != _CONTRAST_NORMALIZATION.get(
+        actual_value, actual_value,
+    )
 
 
 def _categorical_assertion(quote: str, mismatch_type: str, profile: CategoryProfile | None) -> bool:
@@ -277,6 +342,22 @@ def _categorical_assertion(quote: str, mismatch_type: str, profile: CategoryProf
     return tokens is not None and _contrasting_values(quote, tokens)
 
 
+def _supporting_statement_block(quote: str, mismatch_type: str, profile: CategoryProfile | None) -> bool:
+    supported: list[str] = []
+    for start, end in _statement_spans(quote):
+        statement = quote[start:end]
+        if (
+            statement.rstrip().endswith(("?", "？")) or _NEGATED_MISMATCH.search(statement)
+            or _AFFIRMED_MATCH.search(statement) or _HYPOTHETICAL_MISMATCH.search(statement)
+        ):
+            if supported and _categorical_assertion(" ".join(supported), mismatch_type, profile):
+                return True
+            supported.clear()
+        else:
+            supported.append(statement)
+    return bool(supported and _categorical_assertion(" ".join(supported), mismatch_type, profile))
+
+
 def categorical_quote_supported(
     text: str, quote: str, *, mismatch_type: str, profile: CategoryProfile | None = None,
 ) -> bool:
@@ -284,11 +365,7 @@ def categorical_quote_supported(
     folded = text.casefold()
     if _MODEL_INSTRUCTION.search(text) or ("_" in mismatch_type and mismatch_type.casefold() in folded):
         return False
-    if (
-        quote.rstrip().endswith(("?", "？")) or _NEGATED_MISMATCH.search(quote)
-        or _AFFIRMED_MATCH.search(quote) or _HYPOTHETICAL_MISMATCH.search(quote)
-        or not _categorical_assertion(quote, mismatch_type, profile)
-    ):
+    if not _supporting_statement_block(quote, mismatch_type, profile):
         return False
     for start, end in _quote_spans(text, quote):
         before = text[:start].rstrip(" \t\r")
@@ -362,17 +439,26 @@ def _measurement_context_supported(mention: re.Match[str], profile: CategoryProf
     following = _CONTEXT_BREAK.split(window_after, maxsplit=1)[0].casefold()
     pattern = _review_pattern(profile, strict=True)
 
-    def nearby(cues: Translations, before: str, after: str) -> bool:
+    def nearby(cues: Translations, before: str, after: str, *, affirmative: bool = False) -> bool:
         for phrases in cues.values():
             for phrase in phrases:
                 marker = phrase.casefold()
-                _, delimiter, tail = before.rpartition(marker)
-                if delimiter and not any(unit for _, unit in pattern.findall(tail)):
+                prefix, delimiter, tail = before.rpartition(marker)
+                if (
+                    delimiter and not any(unit for _, unit in pattern.findall(tail))
+                    and (not affirmative or not denied(prefix, tail))
+                ):
                     return True
-                head, delimiter, _ = after.partition(marker)
-                if delimiter and not any(unit for _, unit in pattern.findall(head)):
+                head, delimiter, suffix = after.partition(marker)
+                if (
+                    delimiter and not any(unit for _, unit in pattern.findall(head))
+                    and (not affirmative or not denied(head, suffix))
+                ):
                     return True
         return False
+
+    def denied(before: str, after: str) -> bool:
+        return bool(_COMPLETION_DENIAL_BEFORE.search(before) or _COMPLETION_DENIAL_AFTER.match(after))
 
     if nearby(profile.measurement_exclusions, preceding, following):
         return False
@@ -382,7 +468,7 @@ def _measurement_context_supported(mention: re.Match[str], profile: CategoryProf
     # conjunctions and sentence boundaries keep separate tests apart.
     earlier = _CONTEXT_BREAK.split(window_before.rstrip(" ,，"))[-1].casefold()
     later = _CONTEXT_BREAK.split(window_after.lstrip(" ,，"), maxsplit=1)[0].casefold()
-    return nearby(profile.completed_measurement_cues, earlier, later)
+    return nearby(profile.completed_measurement_cues, earlier, later, affirmative=True)
 
 
 def _non_measurement(
@@ -434,7 +520,7 @@ def review_number_units(
     normalized = text.translate(_THAI_DIGITS)
     previous_end = 0
     units = set()
-    for mention in _review_pattern(profile).finditer(normalized):
+    for mention in _source_mentions(normalized, profile, for_measurement=measurements_only):
         number, unit = mention.groups()
         if _decimal(number, profile=profile) == selected and (
             not measurements_only or not _non_measurement(mention, previous_end, promised_bytes, profile)
@@ -451,7 +537,7 @@ def conflicting_review_measurements(
     """Check the whole review for competing capacity readings missing from a short quote."""
     profile = profile or _storage_profile()
     normalized = text.translate(_THAI_DIGITS)
-    mentions = list(_review_pattern(profile).finditer(normalized))
+    mentions = list(_source_mentions(normalized, profile, for_measurement=True))
     measurements = {selected} if selected is not None else set()
     previous_end = 0
     for index, mention in enumerate(mentions):
@@ -492,10 +578,7 @@ def _quote_supports_number(
     text: str, quote: str, finding: dict, measurement_text: str, profile: CategoryProfile,
 ) -> bool:
     unit = _measurement_unit(finding.get("unit"), measurement_text, profile)
-    if profile.category == "storage":
-        written_units = review_number_units(quote, finding.get("quantity"), profile=profile)
-    else:
-        written_units = quoted_number_units(text, quote, finding.get("quantity"), profile=profile)
+    written_units = quoted_number_units(text, quote, finding.get("quantity"), profile=profile)
     # Legacy storage captures allow bare quantities. Other profiles require a
     # written unit so an unsupported unit cannot be read as the advertised one.
     return any(
